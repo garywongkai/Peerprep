@@ -41,6 +41,9 @@ import {
   registerWithEmailAndPassword,
 } from "../firebaseConfig";
 import "./Signup.css";
+import Landing from "./Landing";
+import { ThemeProvider } from "react-bootstrap";
+import Header from "../components/Header";
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,6 +57,8 @@ function Signup() {
     if (loading) return;
   }, [user, loading]);
   return (
+    <ThemeProvider>
+    <Header />
     <div className="register">
       <div className="register__container">
         <input
@@ -91,6 +96,7 @@ function Signup() {
         </div>
       </div>
     </div>
+    </ThemeProvider>
   );
 }
 export default Signup;

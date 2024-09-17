@@ -3,10 +3,12 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import {
 	getAuth,
+	onAuthStateChanged,
 	signInWithEmailAndPassword,
 	createUserWithEmailAndPassword,
 	sendPasswordResetEmail,
 	signOut,
+	updateProfile,
 } from "firebase/auth";
 import {
 	getFirestore,
@@ -51,6 +53,19 @@ const logInWithEmailAndPassword = async (email, password) => {
 		alert(err.message);
 	}
 };
+// onAuthStateChanged(auth, (user) => {
+//   if (user) {
+//     // 👇 your application specific code is below
+//     addDoc(collection(database, 'users', user.id), {
+//       name: user.displayName,
+//     });
+
+//   } else {
+//     // User is signed out
+//     // ...
+//   }
+// })
+
 const registerWithEmailAndPassword = async (name, email, password) => {
 	try {
 		const res = await createUserWithEmailAndPassword(auth, email, password);
@@ -65,6 +80,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
 		console.error(err);
 		alert(err.message);
 	}
+	alert("User created successfully");
 };
 const sendPasswordReset = async (email) => {
 	try {
@@ -86,4 +102,5 @@ export {
 	sendPasswordReset,
 	logout,
 };
+
 export default app;
