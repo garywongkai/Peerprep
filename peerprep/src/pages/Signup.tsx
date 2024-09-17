@@ -1,129 +1,96 @@
-import * as React from 'react';
-import Link from '@mui/material/Link';
-import firebase from "firebase/compat/app";
-import "firebase/compat/auth";
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { Form } from 'react-bootstrap';
-import Header from '../components/Header';
+// import * as React from 'react';
+// import Header from '../components/Header';
+// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+// import {
+//   AppBar,
+//   Toolbar,
+//   Typography,
+//   Button,
+//   Container,
+//   Box,
+//   Grid,
+//   Card,
+//   CardContent,
+//   CardMedia,
+//   CardActions,
+//   CssBaseline,
+//   ThemeProvider,
+//   createTheme,
+//   Switch,
+//   Dialog,
+// } from '@mui/material';
+// import app from '../firebaseConfig';
+
+// const email = document.getElementById('signup-email') as HTMLInputElement;
+// const password = document.getElementById('signup-password') as HTMLInputElement;
+// const theme = createTheme({
+//   palette: {
+//     primary: {
+//       main: '#04060a', // Customize your primary color
+//     },
+//     secondary: {
+//       main: '#8992a1', // Customize your secondary color
+//     },
+//   },
+// });
+import React, { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { Link } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Container,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActions,
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-  Switch,
-  Dialog,
-} from '@mui/material';
-var email, password;
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAEe9vRfbX5As71Q-K3rO3en5wQ8iYti1M",
-  authDomain: "peerprep-5a1fa.firebaseapp.com",
-  databaseURL: "https://peerprep-5a1fa-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "peerprep-5a1fa",
-  storageBucket: "peerprep-5a1fa.appspot.com",
-  messagingSenderId: "327190433280",
-  appId: "1:327190433280:web:1b126ea64b85e732e612e5",
-  measurementId: "G-4S67BK0WNH"
-};
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#04060a', // Customize your primary color
-    },
-    secondary: {
-      main: '#8992a1', // Customize your secondary color
-    },
-  },
-});
-
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth();
-
-  const signupbtn = document.getElementById('signup');
-
+  auth,
+  registerWithEmailAndPassword,
+} from "../firebaseConfig";
+import "./Signup.css";
 function Signup() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [user, loading, error] = useAuthState(auth);;
+  const register = () => {
+    if (!name) alert("Please enter name");
+    registerWithEmailAndPassword(name, email, password);
+  };
+  useEffect(() => {
+    if (loading) return;
+  }, [user, loading]);
   return (
-    <React.Fragment>
-      <ThemeProvider theme={theme}>
-      <Header/>
-      <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                }}
-                >
-                    <input id = "signup-email" type="text" placeholder="Email" />
-                    <input id = "signup-password"  type="password" placeholder="Password" />
-                    <button id='signup' type="submit">Sign up</button>
-
-                </Box>
-            </Grid>
-            </Grid>
-        </ThemeProvider>
-    </React.Fragment>
+    <div className="register">
+      <div className="register__container">
+        <input
+          type="text"
+          className="register__textBox"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Full Name"
+        />
+        <input
+          type="text"
+          className="register__textBox"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="E-mail Address"
+        />
+        <input
+          type="password"
+          className="register__textBox"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+        />
+        <button className="register__btn" onClick={register}>
+          Register
+        </button>
+        <button
+          className="register__btn register__google"
+          onClick={() => alert("Google Sign-in coming soon")}
+        >
+          Register with Google
+        </button>
+        <div>
+          Already have an account? <Link to="/">Login</Link> now.
+        </div>
+      </div>
+    </div>
   );
 }
-
-signupbtn?.addEventListener('click', () => {
-    const email = document.getElementById('signup-email') as HTMLInputElement;
-    const password = document.getElementById('signup-password') as HTMLInputElement;
-
-      var isVerified = true;
-  
-      if(email.value == "") {
-        isVerified = false;
-        window.alert("Email cannot be empty.");
-      }
-
-      if(password.value == "") {
-        isVerified = false;
-        window.alert("Password cannot be empty.");
-      }
-
-      // check firebase data if email already exists
-      // checkuserEmail(auth, email.value).then((result) => {
-      //   if(result) {
-      //     isVerified = false;
-      //     window.alert("Email already exists.");
-      //   }
-      // });
-      
-      if(isVerified) {
-        createUserWithEmailAndPassword(auth, email.value, password.value)
-          .then((userCredential) => {
-          // Signed in 
-          const user = userCredential.user;
-          // ...
-          console.log("Success! Account created.");
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // ..
-          window.alert("Error occurred. Try again.");
-        });
-      }
-});
-
 export default Signup;

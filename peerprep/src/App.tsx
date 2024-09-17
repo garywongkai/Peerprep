@@ -1,6 +1,4 @@
 // App.tsx
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import React from 'react';
 import {
   Link as RouterLink,
@@ -27,10 +25,6 @@ import {
   createTheme,
   Switch,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material/styles';
-import Stack from '@mui/material/Stack';
-import Header from './components/Header';
 import Landing from './pages/Landing';
 import Signup from './pages/Signup';
 import Signin from './pages/Signin';
