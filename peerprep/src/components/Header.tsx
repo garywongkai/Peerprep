@@ -27,6 +27,7 @@ import {
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
+import { theme } from '../firebaseConfig';
 
 const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>(
     (props, ref) => <RouterLink ref={ref} to="/" {...props} role={undefined} />,
@@ -44,6 +45,7 @@ const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>(
 
 const Header: React.FC = () => {
     return (
+      <ThemeProvider theme={theme}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -61,6 +63,7 @@ const Header: React.FC = () => {
           
         </Toolbar>
       </AppBar>
+      </ThemeProvider>
     );
   };
 export default Header;

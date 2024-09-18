@@ -3,12 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import {
 	getAuth,
-	onAuthStateChanged,
 	signInWithEmailAndPassword,
 	createUserWithEmailAndPassword,
 	sendPasswordResetEmail,
 	signOut,
 	updateProfile,
+	GoogleAuthProvider,
+	signInWithPopup,
 } from "firebase/auth";
 import {
 	getFirestore,
@@ -18,6 +19,7 @@ import {
 	where,
 	addDoc,
 } from "firebase/firestore";
+import { createTheme } from "@mui/material/styles";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -39,7 +41,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// const googleProvider = new GoogleAuthProvider();
+const googleProvider = new GoogleAuthProvider();
 // const db = firebase.firestore();
 // const storage = firebase.storage();
 // const functions = firebase.functions();
@@ -53,18 +55,26 @@ const logInWithEmailAndPassword = async (email, password) => {
 		alert(err.message);
 	}
 };
-// onAuthStateChanged(auth, (user) => {
-//   if (user) {
-//     // 👇 your application specific code is below
-//     addDoc(collection(database, 'users', user.id), {
-//       name: user.displayName,
-//     });
 
-//   } else {
-//     // User is signed out
-//     // ...
-//   }
-// })
+const signInWithGoogle = async () => {
+	try {
+		const res = await signInWithPopup(auth, googleProvider);
+		const user = res.user;
+		const q = query(collection(db, "users"), where("uid", "==", user.uid));
+		const docs = await getDocs(q);
+		if (docs.docs.length === 0) {
+			await addDoc(collection(db, "users"), {
+				uid: user.uid,
+				name: user.displayName,
+				authProvider: "google",
+				email: user.email,
+			});
+		}
+	} catch (err) {
+		console.error(err);
+		alert(err.message);
+	}
+};
 
 const registerWithEmailAndPassword = async (name, email, password) => {
 	try {
@@ -80,7 +90,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
 		console.error(err);
 		alert(err.message);
 	}
-	alert("User created successfully");
+	//alert("User created successfully");
 };
 const sendPasswordReset = async (email) => {
 	try {
@@ -94,6 +104,18 @@ const sendPasswordReset = async (email) => {
 const logout = () => {
 	signOut(auth);
 };
+
+const theme = createTheme({
+	palette: {
+		primary: {
+			main: "#04060a", // Customize your primary color
+		},
+		secondary: {
+			main: "#8992a1", // Customize your secondary color
+		},
+	},
+});
+
 export {
 	auth,
 	db,
@@ -101,6 +123,8 @@ export {
 	registerWithEmailAndPassword,
 	sendPasswordReset,
 	logout,
+	signInWithGoogle,
+	theme,
 };
 
 export default app;

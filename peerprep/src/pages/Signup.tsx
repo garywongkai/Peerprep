@@ -1,47 +1,13 @@
-// import * as React from 'react';
-// import Header from '../components/Header';
-// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-// import {
-//   AppBar,
-//   Toolbar,
-//   Typography,
-//   Button,
-//   Container,
-//   Box,
-//   Grid,
-//   Card,
-//   CardContent,
-//   CardMedia,
-//   CardActions,
-//   CssBaseline,
-//   ThemeProvider,
-//   createTheme,
-//   Switch,
-//   Dialog,
-// } from '@mui/material';
-// import app from '../firebaseConfig';
-
-// const email = document.getElementById('signup-email') as HTMLInputElement;
-// const password = document.getElementById('signup-password') as HTMLInputElement;
-// const theme = createTheme({
-//   palette: {
-//     primary: {
-//       main: '#04060a', // Customize your primary color
-//     },
-//     secondary: {
-//       main: '#8992a1', // Customize your secondary color
-//     },
-//   },
-// });
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
 import {
   auth,
   registerWithEmailAndPassword,
+  signInWithGoogle,
+  theme,
 } from "../firebaseConfig";
 import "./Signup.css";
-import Landing from "./Landing";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
 function Signup() {
@@ -57,7 +23,7 @@ function Signup() {
     if (loading) return;
   }, [user, loading]);
   return (
-    <ThemeProvider>
+    <ThemeProvider theme={theme}>
     <Header />
     <div className="register">
       <div className="register__container">
@@ -87,12 +53,12 @@ function Signup() {
         </button>
         <button
           className="register__btn register__google"
-          onClick={() => alert("Google Sign-in coming soon")}
+          onClick={signInWithGoogle}
         >
           Register with Google
         </button>
         <div>
-          Already have an account? <Link to="/">Login</Link> now.
+          Already have an account? <Link to="/signin">Login</Link> now.
         </div>
       </div>
     </div>

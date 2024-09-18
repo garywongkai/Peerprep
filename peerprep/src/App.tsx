@@ -1,47 +1,16 @@
 // App.tsx
 import React from 'react';
 import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps,
-  MemoryRouter,
-  Link, Routes, Route,
+  Routes, Route,
   BrowserRouter as Router,
 } from 'react-router-dom';
-import {StaticRouter} from 'react-router-dom/server';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Container,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActions,
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-  Switch,
-} from '@mui/material';
 import Landing from './pages/Landing';
 import Signup from './pages/Signup';
 import Signin from './pages/Signin';
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#04060a', // Customize your primary color
-    },
-    secondary: {
-      main: '#8992a1', // Customize your secondary color
-    },
-  },
-});
-
+import Dashboard from './pages/Dashboard';
+import Forgot from './pages/Forgot';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
 
 const App: React.FC = () => {
   return (<Router>
@@ -52,10 +21,10 @@ const App: React.FC = () => {
             path="/signin"
             element={<Signin />}
         />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/reset" element={<Forgot />} />
     </Routes>
 </Router>)
 };
-
-  
 
 export default App;
