@@ -3,6 +3,7 @@ steps:
     dir: "peerprep"
     args: ["install"]
   - name: "gcr.io/cloud-builders/npm"
+    dir: "peerprep"
     args: ["run", "create-env"]
     env:
       - "REACT_APP_FIREBASE_API_KEY=${_REACT_APP_FIREBASE_API_KEY}"
@@ -16,6 +17,7 @@ steps:
       - "COMMIT_SHA=${COMMIT_SHA}"
   # build the container image using the docker builder
   - name: "gcr.io/cloud-builders/docker"
+    dir: "peerprep"
     args:
       [
         "build",
@@ -28,6 +30,7 @@ steps:
 
   # push the container image to Container Registry (GCR)
   - name: "gcr.io/cloud-builders/docker"
+    dir: "peerprep"
     args:
       ["push", "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"]
 
