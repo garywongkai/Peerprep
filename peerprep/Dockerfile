@@ -17,7 +17,7 @@ RUN npm install
 COPY . .
 
 # Build the React app
-RUN yarn build
+RUN npm build
 
 # Serve the build
 CMD ["npx", "serve", "-s", "build"]
