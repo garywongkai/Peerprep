@@ -5,13 +5,13 @@ FROM node:18.15.0-alpine
 WORKDIR /peerprep
 
 # Copy package.json and yarn.lock to the container
-COPY package.json yarn.lock ./
+COPY package.json ./
 
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
 # Install dependencies
-RUN yarn install
+RUN npm install
 
 # Copy the app's source code to the container
 COPY . .
