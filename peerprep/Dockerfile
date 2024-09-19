@@ -8,7 +8,7 @@ WORKDIR /peerprep
 COPY package.json ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+# RUN yarn install --frozen-lockfile
 
 # Install dependencies
 RUN npm install
