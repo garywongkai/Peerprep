@@ -10,6 +10,8 @@ import {
 import "./Signup.css";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
+const navigate = useNavigate();
+
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +28,6 @@ function Signup() {
     
     if (loading) return;
     if (user) {
-      const navigate = useNavigate();
       navigate("/dashboard");
     }
   }, [user, loading]);

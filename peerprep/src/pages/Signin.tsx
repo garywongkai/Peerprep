@@ -5,6 +5,7 @@ import { auth, signInWithGoogle, logInWithEmailAndPassword, theme } from '../fir
 import "./Signin.css";
 import Header from '../components/Header';
 import { ThemeProvider } from 'react-bootstrap';
+const navigate = useNavigate();
 
 function Signin() {
   const [email, setEmail] = React.useState("");
@@ -22,7 +23,6 @@ function Signin() {
       return;
     }
     if (user) {
-      const navigate = useNavigate();
       navigate("/dashboard");
     } 
   }, [user, loading]);
