@@ -37,7 +37,8 @@
     "start": "react-scripts start",
     "build": "CI=false && react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "create-env": "printenv > .env"
   },
   "eslintConfig": {
     "extends": [
@@ -50,9 +51,7 @@
       ">0.2%",
       "not dead",
       "not op_mini all"
-    ],"scripts": {
-    "create-env": "printenv > .env"
-  },
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
