@@ -1,5 +1,5 @@
 steps:
-  - name: node:10.15.1
+  - name: "gcr.io/cloud-builders/npm"
     entrypoint: npm
     args: ["run", "create-env"]
     env:
