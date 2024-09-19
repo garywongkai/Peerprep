@@ -1,7 +1,6 @@
 steps:
   - name: "gcr.io/cloud-builders/npm"
-    entrypoint: npm
-    args: ["build", "create-env"]
+    args: ["run", "create-env"]
     env:
       - "REACT_APP_FIREBASE_API_KEY=${_REACT_APP_FIREBASE_API_KEY}"
       - "REACT_APP_FIREBASE_AUTH_DOMAIN=${_REACT_APP_FIREBASE_AUTH_DOMAIN}"
