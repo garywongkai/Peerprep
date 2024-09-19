@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  peerprep:
+    build: ./peerprep
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./peerprep:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+  service:
+    build: ./service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+networks:
+  peerprep-network:

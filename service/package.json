@@ -1,18 +1,14 @@
 {
   "name": "service",
   "version": "1.0.0",
+  "description": "When you're ready, start your application by running: `docker compose up --build`.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "\t"
-  },
   "author": "Wong Kai Li",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "body-parser": "^1.20.3",
     "express": "^4.21.0",
