@@ -20,7 +20,7 @@ mongoose
 		process.exit();
 	});
 app.get("/", (req, res) => {
-	res.json({ message: "Hello Crud Node Express" });
+	res.json({ message: "Peerprep Question Pool API" });
 });
 app.listen(5000, () => {
 	console.log("Server is listening on port 5000");

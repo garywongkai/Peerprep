@@ -10,7 +10,6 @@ function Signin() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [user, loading, error] = useAuthState(auth);
-  const navigate = useNavigate();
   const signin = () => {
     if (!password || !email) alert("Please fill in all the fields");
     else {
@@ -22,7 +21,10 @@ function Signin() {
       // maybe trigger a loading screen
       return;
     }
-    if (user) navigate("/dashboard");
+    if (user) {
+      const navigate = useNavigate();
+      navigate("/dashboard");
+    } 
   }, [user, loading]);
   return (
     <ThemeProvider theme={theme}>

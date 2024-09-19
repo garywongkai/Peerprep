@@ -14,7 +14,6 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const navigate = useNavigate();
   const [user, loading, error] = useAuthState(auth);;
   const register = () => {
     if (!name || !password || !email) alert("Please fill in all the fields");
@@ -24,8 +23,12 @@ function Signup() {
   };
 
   useEffect(() => {
+    
     if (loading) return;
-    if (user) navigate("/dashboard");
+    if (user) {
+      const navigate = useNavigate();
+      navigate("/dashboard");
+    }
   }, [user, loading]);
   return (
     <ThemeProvider theme={theme}>
