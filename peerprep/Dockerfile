@@ -16,7 +16,6 @@ FROM node:${NODE_VERSION}-alpine as base
 WORKDIR /app
 
 COPY package*.json ./
-COPY .env ./
 RUN npm install
 COPY . .
 EXPOSE 3000
