@@ -25,6 +25,7 @@ const Signin: React.FC = () => {
     if (user) {
       navigate("/dashboard");
     } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
   return (
     <ThemeProvider theme={theme}>
