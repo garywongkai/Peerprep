@@ -1,11 +1,11 @@
 # Use Node.js as the base image
-FROM node:18.15.0-alpine
+FROM node:20-alpine
 
 # Set the working directory in the container
 WORKDIR /peerprep
 
 # Copy package.json and yarn.lock to the container
-COPY package.json ./
+COPY package*.json ./
 
 # Install dependencies
 # RUN yarn install --frozen-lockfile
@@ -17,7 +17,8 @@ RUN npm install
 COPY . .
 
 # Build the React app
-RUN npm build
+
+EXPOSE 3000
 
 # Serve the build
-CMD ["npx", "serve", "-s", "build"]
+CMD ["npm", "start"]

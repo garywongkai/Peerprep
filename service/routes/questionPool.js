@@ -1,5 +1,5 @@
 const express = require("express");
-const QuestionController = require("../controllers/Question");
+const QuestionController = require("../../peerprep/src/controllers/Question");
 const router = express.Router();
 router.get("/", QuestionController.findAll);
 router.get("/:id", QuestionController.findOne);

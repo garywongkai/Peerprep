@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-, "server.js" ]
+, "server.js", "../service/routes", "../service/routes" ]
 }
