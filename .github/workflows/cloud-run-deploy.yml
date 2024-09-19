@@ -28,6 +28,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
+          cd ./peerprep
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest .
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
 
