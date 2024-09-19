@@ -64,7 +64,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 availableSecrets:
   secretManager:
-    - versionName: projects/peerprep/secrets/firebase/versions/1
+    - versionName: projects/peerprep-5a1fa/secrets/firebase/versions/1
        env:
         - "_REACT_APP_FIREBASE_API_KEY"
         - "_REACT_APP_FIREBASE_AUTH_DOMAIN"
