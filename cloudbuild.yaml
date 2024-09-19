@@ -1,7 +1,7 @@
 steps:
   - name: "gcr.io/cloud-builders/npm"
     entrypoint: npm
-    args: ["run", "create-env"]
+    args: ["build", "create-env"]
     env:
       - "REACT_APP_FIREBASE_API_KEY=${_REACT_APP_FIREBASE_API_KEY}"
       - "REACT_APP_FIREBASE_AUTH_DOMAIN=${_REACT_APP_FIREBASE_AUTH_DOMAIN}"
@@ -11,8 +11,9 @@ steps:
       - "REACT_APP_FIREBASE_MESSAGING_SENDER_ID=${_REACT_APP_FIREBASE_MESSAGING_SENDER_ID}"
       - "REACT_APP_FIREBASE_APP_ID=${_REACT_APP_FIREBASE_APP_ID}"
       - "REACT_APP_FIREBASE_MEASUREMENT_ID=${_REACT_APP_FIREBASE_MEASUREMENT_ID}"
-  - name: "gcr.io/cloud-builders/gcloud"
-    args: ["app", "deploy"]
+  - name: "gcr.io/cloud-builders/docker
+    entrypoint: docker
+    args: ["build", "-t", "gcr.io/peerprep-5a1fa/github.com/garywongkai/peerprep:9703a4e7a8ee8c2116b22844102ea2f09e307bca", "."]
 timeout: "1600s"
 options:
   logging: CLOUD_LOGGING_ONLY
