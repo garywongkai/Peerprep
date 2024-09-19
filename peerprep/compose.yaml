@@ -9,6 +9,8 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
+    name: Authenticate to Google Cloud
+    uses: google-github-actions/auth@v2.1.5
     build:
       context: .
     environment:
@@ -48,4 +50,3 @@ services:
 # secrets:
 #   db-password:
 #     file: db/password.txt
-
