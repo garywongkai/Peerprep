@@ -1,5 +1,7 @@
 steps:
   - name: "gcr.io/cloud-builders/npm"
+    args: ["install"]
+  - name: "gcr.io/cloud-builders/npm"
     args: ["run", "create-env"]
     env:
       - "REACT_APP_FIREBASE_API_KEY=${_REACT_APP_FIREBASE_API_KEY}"
@@ -15,7 +17,7 @@ steps:
       [
         "build",
         "-t",
-        "gcr.io/peerprep-5a1fa/github.com/garywongkai/peerprep:9703a4e7a8ee8c2116b22844102ea2f09e307bca",
+        "gcr.io/${_REACT_APP_FIREBASE_PROJECT_ID}/github.com/garywongkai/peerprep:9703a4e7a8ee8c2116b22844102ea2f09e307bca",
         ".",
       ]
 timeout: "1600s"
