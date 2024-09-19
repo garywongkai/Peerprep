@@ -5,9 +5,9 @@ import { auth, signInWithGoogle, logInWithEmailAndPassword, theme } from '../fir
 import "./Signin.css";
 import Header from '../components/Header';
 import { ThemeProvider } from 'react-bootstrap';
-const navigate = useNavigate();
 
-function Signin() {
+const Signin: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [user, loading, error] = useAuthState(auth);

@@ -10,9 +10,9 @@ import {
 import "./Signup.css";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
-const navigate = useNavigate();
 
-function Signup() {
+const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
