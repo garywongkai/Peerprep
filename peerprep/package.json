@@ -50,7 +50,9 @@
       ">0.2%",
       "not dead",
       "not op_mini all"
-    ],
+    ],"scripts": {
+    "create-env": "printenv > .env"
+  },
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
