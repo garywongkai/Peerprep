@@ -27,7 +27,7 @@ import {
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
-import { theme } from '../firebaseConfig';
+import { theme } from '../firebase';
 
 const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>(
     (props, ref) => <RouterLink ref={ref} to="/" {...props} role={undefined} />,

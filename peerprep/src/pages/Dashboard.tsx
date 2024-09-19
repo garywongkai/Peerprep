@@ -2,25 +2,49 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
-import { auth, db, logout, theme } from "../firebaseConfig";
-import { query, collection, getDocs, where } from "firebase/firestore";
+import { auth, db, logout, theme } from "../firebase";
+import { doc, query, collection, getDocs, where, deleteDoc, getDoc } from "firebase/firestore";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
+import { updateProfile } from "firebase/auth";
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
   const navigate = useNavigate();
   const fetchUserName = async () => {
     try {
-      const q = query(collection(db, "users"), where("uid", "==", user?.uid));
+      const q = query(collection(db, "users"), where("uid", "==", user?.uid), where("email", "==", user?.email));
       const doc = await getDocs(q);
       const data = doc.docs[0].data();
-      setName(data.name);
+      if (user) { 
+        if(user.displayName !== null) {
+          setName(data.name);
+        }
+      }
+      
     } catch (err) {
       console.error(err);
-      alert("An error occured while fetching user data");
+      alert("A page refresh is required");
     }
   };
+  // Current signed-in user to delete
+  const deleteUser = async () => {
+    try {
+      if (user) {
+        // const q = query(collection(db, "users"), where("uid", "==", user?.uid));
+        // const doc = await getDocs(q);
+        // doc.forEach(async (d) => {
+        //   await deleteDoc(d.ref);
+        // });
+        await user.delete();
+      }
+      alert("User deleted successfully");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred. Please try again");
+    }
+  }
   useEffect(() => {
     if (loading) return;
     if (!user) return navigate("/");
@@ -37,6 +61,9 @@ function Dashboard() {
          <button className="dashboard__btn" onClick={logout}>
           Logout
          </button>
+         <button className="dashboard__btn" onClick={deleteUser}>
+          Delete Account
+          </button>
        </div>
      </div>
     </ThemeProvider>

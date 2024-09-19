@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, signInWithGoogle, logInWithEmailAndPassword, theme } from '../firebaseConfig';
+import { auth, signInWithGoogle, logInWithEmailAndPassword, theme } from '../firebase';
 import "./Signin.css";
 import Header from '../components/Header';
 import { ThemeProvider } from 'react-bootstrap';
@@ -11,6 +11,12 @@ function Signin() {
   const [password, setPassword] = React.useState("");
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
+  const signin = () => {
+    if (!password || !email) alert("Please fill in all the fields");
+    else {
+      logInWithEmailAndPassword(email, password);
+    }
+  };
   React.useEffect(() => {
     if (loading) {
       // maybe trigger a loading screen
@@ -39,7 +45,7 @@ function Signin() {
         />
         <button
           className="login__btn"
-          onClick={() => logInWithEmailAndPassword(email, password)}
+          onClick={signin}
         >
           Login
         </button>

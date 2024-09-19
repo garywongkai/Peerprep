@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   auth,
   registerWithEmailAndPassword,
   signInWithGoogle,
   theme,
-} from "../firebaseConfig";
+} from "../firebase";
 import "./Signup.css";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
@@ -14,13 +14,18 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const navigate = useNavigate();
   const [user, loading, error] = useAuthState(auth);;
   const register = () => {
-    if (!name) alert("Please enter name");
-    registerWithEmailAndPassword(name, email, password);
+    if (!name || !password || !email) alert("Please fill in all the fields");
+    else {
+      registerWithEmailAndPassword(name, email, password);
+    }
   };
+
   useEffect(() => {
     if (loading) return;
+    if (user) navigate("/dashboard");
   }, [user, loading]);
   return (
     <ThemeProvider theme={theme}>
