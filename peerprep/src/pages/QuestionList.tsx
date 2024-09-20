@@ -9,7 +9,7 @@ import Header from '../components/Header';
 function QuestionList() {
   const [user, loading, error] = useAuthState(auth);
   const [questions, setQuestions] = useState<any[]>([]);
-  const url = 'http://localhost:5000/question';
+  const url = 'https://service-327190433280.asia-southeast1.run.app/question';
   const navigate = useNavigate();
 
   const fetchQuestions = async () => {
