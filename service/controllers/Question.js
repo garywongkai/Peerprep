@@ -81,7 +81,7 @@ exports.update = async (req, res) => {
 };
 // Delete a user with the specified id in the request
 exports.destroy = async (req, res) => {
-	await UserModel.findByIdAndRemove(req.params.id)
+	await QuestionModel.findByIdAndRemove(req.params.id)
 		.then((data) => {
 			if (!data) {
 				res.status(404).send({
@@ -98,4 +98,13 @@ exports.destroy = async (req, res) => {
 				message: err.message,
 			});
 		});
+};
+
+exports.getQuestionByCategory = async (req, res) => {
+	try {
+		const question = await QuestionModel.find(req.params.category);
+		res.status(200).json(question);
+	} catch (error) {
+		res.status(404).json({ message: error.message });
+	}
 };

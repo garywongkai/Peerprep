@@ -20,11 +20,16 @@ function Dashboard() {
         if(user.displayName !== null) {
           setName(data.name);
         }
+        if(user.displayName === null) {
+          await updateProfile(user, {
+            displayName: data.name
+          });
+          setName(data.name);
       }
-      
+    }
     } catch (err) {
       console.error(err);
-      alert("A page refresh is required");
+      alert("An error occurred. Please try again");
     }
   };
   // Current signed-in user to delete
@@ -46,9 +51,9 @@ function Dashboard() {
     }
   }
   useEffect(() => {
-    if (loading) return;
+    //if (loading) return;
     if (!user) return navigate("/");
-    fetchUserName();
+    if (user) fetchUserName();
   }, [user, loading]);
   return (
     <ThemeProvider theme={theme}>
@@ -58,6 +63,9 @@ function Dashboard() {
         Logged in as
          <div>{name}</div>
          <div>{user?.email}</div>
+         <button className="dashboard__btn" onClick={() => navigate("/question")}>
+          Question List
+          </button>
          <button className="dashboard__btn" onClick={logout}>
           Logout
          </button>

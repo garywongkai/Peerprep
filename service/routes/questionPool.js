@@ -6,4 +6,5 @@ router.get("/:id", QuestionController.findOne);
 router.post("/", QuestionController.create);
 router.patch("/:id", QuestionController.update);
 router.delete("/:id", QuestionController.destroy);
+router.get("/:category", QuestionController.getQuestionByCategory);
 module.exports = router;
