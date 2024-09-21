@@ -18,7 +18,7 @@ function QuestionList() {
     try {
         let url = baseurl;
         if (category || difficulty) {
-          url += `?category=${category}&difficulty=${difficulty}`;
+          url += `/getQuestion?category=${category}&difficulty=${difficulty}`;
         }
         fetch(url, {
             method: 'GET'
@@ -108,6 +108,7 @@ function QuestionList() {
             return (
               <li className="list-group-item" key={index}>
                 <h4>{question.questionTitle}</h4>
+                <h5>{question.difficulty}</h5>
                 <h6>{question.questionDescription}</h6>
                 <p>{question.questionCategory}</p>
               </li>
