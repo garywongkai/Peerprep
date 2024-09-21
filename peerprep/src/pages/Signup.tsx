@@ -10,6 +10,7 @@ import {
 import "../styles/Signup.css";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
+import placeholderImage from '../assets/placeholder.jpg';
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -32,6 +33,46 @@ const Signup: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
   return (
+    // <ThemeProvider theme={theme}>
+    // <Header />
+    // <div className="register">
+    //   <div className="register__container">
+    //     <input
+    //       type="text"
+    //       className="register__textBox"
+    //       value={name}
+    //       onChange={(e) => setName(e.target.value)}
+    //       placeholder="Full Name"
+    //     />
+    //     <input
+    //       type="text"
+    //       className="register__textBox"
+    //       value={email}
+    //       onChange={(e) => setEmail(e.target.value)}
+    //       placeholder="E-mail Address"
+    //     />
+    //     <input
+    //       type="password"
+    //       className="register__textBox"
+    //       value={password}
+    //       onChange={(e) => setPassword(e.target.value)}
+    //       placeholder="Password"
+    //     />
+    //     <button className="register__btn" onClick={register}>
+    //       Register
+    //     </button>
+    //     <button
+    //       className="register__btn register__google"
+    //       onClick={signInWithGoogle}
+    //     >
+    //       Register with Google
+    //     </button>
+    //     <div>
+    //       Already have an account? <Link to="/signin">Login</Link> now.
+    //     </div>
+    //   </div>
+    // </div>
+    // </ThemeProvider>
     <ThemeProvider theme={theme}>
     <Header />
     <div className="register">
@@ -70,8 +111,12 @@ const Signup: React.FC = () => {
           Already have an account? <Link to="/signin">Login</Link> now.
         </div>
       </div>
+      <span className="register__divider"/>
+      <div className="register__image">
+        <img src={placeholderImage} alt="Placeholder" />
+      </div>
     </div>
-    </ThemeProvider>
+  </ThemeProvider>
   );
 }
 export default Signup;

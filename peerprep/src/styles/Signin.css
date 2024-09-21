@@ -4,30 +4,63 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #f0f2f5; /* Light background color */
   }
   .login__container {
     display: flex;
     flex-direction: column;
     text-align: center;
     background-color: #dcdcdc;
-    padding: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px; /* Adjust width as necessary */
   }
+  
   .login__textBox {
+    width: auto; 
     padding: 10px;
-    font-size: 18px;
     margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
   }
+  
   .login__btn {
+    width: 100%;
     padding: 10px;
-    font-size: 18px;
-    margin-bottom: 10px;
-    border: none;
+    background-color: #068091; /* Primary button color */
     color: white;
-    background-color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 10px;
   }
-  .login__google {
-    background-color: #000000;
+  
+  .login__btn.login__google {
+    background-color: #000000; /* Google button color */
   }
-  .login div {
-    margin-top: 7px;
+  
+  .login__btn:hover {
+    opacity: 0.9; /* Slight opacity on hover */
+  }
+
+  .login__image {
+    flex: 1; /* Take remaining space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login__image img {
+    max-width: 100%; /* Responsive image */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .login__divider {
+    display: flex;
+    align-items: center;
+    margin: 10px 10px;
   }
