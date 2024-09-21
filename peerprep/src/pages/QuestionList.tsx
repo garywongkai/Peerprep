@@ -60,10 +60,11 @@ function QuestionList() {
         <h1>Question List</h1>
 
         {/* Dropdown for category */}
-        <FormControl variant="outlined" style={{ margin: '10px' }}>
-          <InputLabel id="category-label">Category</InputLabel>
+        <FormControl className="dropdown" variant="outlined" style={{ margin: '10px' }}>
+          <InputLabel  id="category-label"  variant='filled'>Category</InputLabel>
           <Select
             labelId="category-label"
+            className="dropdown"
             value={category}
             onChange={(e) => setCategory(e.target.value as string)}
             label="Category"
@@ -85,6 +86,7 @@ function QuestionList() {
           <InputLabel id="difficulty-label">Difficulty</InputLabel>
           <Select
             labelId="difficulty-label"
+            className="dropdown"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as string)}
             label="Difficulty"
@@ -96,11 +98,11 @@ function QuestionList() {
           </Select>
         </FormControl>
 
-        <div style={{ margin: '10px' }}>
+        {/* <div style={{ margin: '10px' }}>
           <Button variant="contained" color="primary" onClick={fetchQuestions}>
             Filter Questions
           </Button>
-        </div>
+        </div> */}
 
         {/* List of questions */}
         <ol>

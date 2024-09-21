@@ -37,11 +37,12 @@
   }
   
   .list-group-item {
-    background-color: #f9f9f9;
+    background-color: #ffffff;
     padding: 20px;
     margin-bottom: 10px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 1 1px 3px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
   }
   
   .list-group-item h4 {
@@ -49,9 +50,17 @@
     margin: 0 0 10px 0;
     font-family: 'Roboto', sans-serif;
   }
+
+  .list-group-item h5 {
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+    color: #666;
+    font-family: 'Roboto', sans-serif;
+  }
+  
   
   .list-group-item h6 {
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0 0 10px 0;
     color: #666;
     font-family: 'Roboto', sans-serif;
@@ -59,13 +68,23 @@
   
   /* Category and difficulty text */
   .list-group-item p {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     margin: 5px 0 0;
     color: #444;
   }
   
   /* Hover effect on question list items */
   .list-group-item:hover {
-    background-color: #f1f1f1;
+    background-color: #53c1d4;
     cursor: pointer;
+  }
+
+  .dropdown {
+    min-width: 200px;  /* Set this to a reasonable value based on your design */
+    white-space: nowrap;  /* Prevent text wrapping */
+  }
+  
+  /* Optionally remove the text ellipsis */
+  .dropdown MenuItem {
+    overflow: visible;  /* Ensure text can overflow if necessary */
   }

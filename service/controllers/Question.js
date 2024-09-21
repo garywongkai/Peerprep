@@ -107,7 +107,7 @@ exports.getQuestionByCategory = async (req, res) => {
 		// Build filter object dynamically
 		const filter = {};
 		if (category) {
-			filter.questionCategory = category;
+			filter.questionCategory = { $regex: category, $options: "i" };
 		}
 		if (difficulty) {
 			filter.difficulty = difficulty;
