@@ -11,15 +11,26 @@ function QuestionList() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [category, setCategory] = useState<string>('');
   const [difficulty, setDifficulty] = useState<string>('');
-  const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+  //const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+  const baseurl = 'http://localhost:5000/question';
   const navigate = useNavigate();
 
   const fetchQuestions = async () => {
     try {
-        let url = baseurl;
-        if (category || difficulty) {
-          url += `/getQuestion?category=${category}&difficulty=${difficulty}`;
-        }
+      let url = `${baseurl}/getQuestion`;
+      const params = new URLSearchParams();
+
+      if (category) {
+        params.append('category', category);
+      }
+      if (difficulty) {
+        params.append('difficulty', difficulty);
+      }
+  
+      // Only append query parameters if they exist
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
         fetch(url, {
             method: 'GET'
         }).then(response => response.json()).then((data) => setQuestions(data));
