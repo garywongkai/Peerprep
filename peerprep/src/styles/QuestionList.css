@@ -1,0 +1,71 @@
+/* QuestionList.css */
+
+/* Container styling for the entire question list */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Header styling */
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Styling for the dropdowns and filter button container */
+  .filter-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .filter-container .MuiFormControl-root {
+    margin: 0 10px;
+    min-width: 120px;
+  }
+  
+  .filter-container button {
+    margin-left: 10px;
+  }
+  
+  /* List styling */
+  ol {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .list-group-item {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .list-group-item h4 {
+    font-size: 1.4rem;
+    margin: 0 0 10px 0;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .list-group-item h6 {
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+    color: #666;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Category and difficulty text */
+  .list-group-item p {
+    font-size: 0.9rem;
+    margin: 5px 0 0;
+    color: #444;
+  }
+  
+  /* Hover effect on question list items */
+  .list-group-item:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+  }
