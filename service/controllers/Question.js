@@ -102,7 +102,7 @@ exports.destroy = async (req, res) => {
 
 exports.getQuestionByCategory = async (req, res) => {
 	try {
-		const question = await QuestionModel.find(req.params.category);
+		const question = await QuestionModel.find(req.params.questionCategory);
 		res.status(200).json(question);
 	} catch (error) {
 		res.status(404).json({ message: error.message });
