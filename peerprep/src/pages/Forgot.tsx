@@ -3,7 +3,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { auth, sendPasswordReset, theme } from "../firebase";
-import "./Forgot.css";
+import "../styles/Forgot.css";
 import { ThemeProvider } from "@emotion/react";
 import Header from "../components/Header";
 function Forgot() {

@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css";
+import "../styles/Dashboard.css";
 import { auth, db, logout, theme } from "../firebase";
 import { doc, query, collection, getDocs, where, deleteDoc, getDoc } from "firebase/firestore";
 import { ThemeProvider } from "react-bootstrap";
-import Header from "../components/Header";
 import { updateProfile } from "firebase/auth";
+import UserHeader from "../components/UserHeader";
+import { Box, CircularProgress, Stack } from "@mui/material";
+import { set } from "mongoose";
+import { wait } from "@testing-library/user-event/dist/utils";
 function Dashboard() {
+  const [isLoading, setLoading] = useState(true)
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
   const navigate = useNavigate();
@@ -44,31 +48,36 @@ function Dashboard() {
         await user.delete();
       }
       alert("User deleted successfully");
-      navigate("/");
+      navigate("/signin");
     } catch (err) {
       console.error(err);
       alert("An error occurred. Please try again");
     }
   }
   useEffect(() => {
-    //if (loading) return;
-    if (!user) return navigate("/");
-    if (user) fetchUserName();
+    if (loading) return; // Do nothing while loading
+   
+    if (user) {
+      setTimeout(() => {
+        fetchUserName();
+        setLoading(false);
+    }, 1000);
+    };
+    if (!user) return navigate("/signin");
   }, [user, loading]);
-  return (
+  return ( 
+    isLoading ? <Stack spacing={2} direction="row" alignItems="center">
+    {  
+      <CircularProgress size="3rem" />
+    }
+  </Stack> :
     <ThemeProvider theme={theme}>
-        <Header/>
+        <UserHeader/>
     <div className="dashboard">
        <div className="dashboard__container">
         Logged in as
          <div>{name}</div>
          <div>{user?.email}</div>
-         <button className="dashboard__btn" onClick={() => navigate("/question")}>
-          Question List
-          </button>
-         <button className="dashboard__btn" onClick={logout}>
-          Logout
-         </button>
          <button className="dashboard__btn" onClick={deleteUser}>
           Delete Account
           </button>

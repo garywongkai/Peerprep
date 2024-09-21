@@ -4,8 +4,8 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth, db, theme } from '../firebase';
 import { ThemeProvider } from '@mui/material';
-import Header from '../components/Header';
-
+import UserHeader from '../components/UserHeader';
+import '../styles/QuestionList.css';
 function QuestionList() {
   const [user, loading, error] = useAuthState(auth);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -24,25 +24,26 @@ function QuestionList() {
   };
 
   useEffect(() => {
-    if (!user) return navigate('/');
+    if (!user) return navigate('/signin');
     fetchQuestions();
   }, [user, loading]);
 
   return (
     <ThemeProvider theme={theme}>
-      <Header />
+      <UserHeader/>
       <div>
         <h1>Question List</h1>
-        <ul>
+        <ol>
           {questions.map((question, index) => {
             return (
-                <li key={index}>
-                    <h2>{question.questionDescription}</h2>
+                <li className="list-group-item" key={index}>
+                  <h4>{question.questionTitle}</h4>
+                    <h6>{question.questionDescription}</h6>
                     <p>{question.questionCategory}</p>
                 </li>
             );
           })}
-        </ul>
+        </ol>
       </div>
     </ThemeProvider>
   );

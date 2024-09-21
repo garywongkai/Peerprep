@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signInWithGoogle, logInWithEmailAndPassword, theme } from '../firebase';
-import "./Signin.css";
+import '../styles/Signin.css';
 import Header from '../components/Header';
 import { ThemeProvider } from 'react-bootstrap';
 
@@ -19,7 +19,6 @@ const Signin: React.FC = () => {
   };
   React.useEffect(() => {
     if (loading) {
-      // maybe trigger a loading screen
       return;
     }
     if (user) {

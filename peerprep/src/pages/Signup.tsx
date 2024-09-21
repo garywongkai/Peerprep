@@ -7,7 +7,7 @@ import {
   signInWithGoogle,
   theme,
 } from "../firebase";
-import "./Signup.css";
+import "../styles/Signup.css";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
 

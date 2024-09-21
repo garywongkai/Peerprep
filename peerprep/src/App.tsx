@@ -10,6 +10,7 @@ import Signin from './pages/Signin';
 import Dashboard from './pages/Dashboard';
 import Forgot from './pages/Forgot';
 import QuestionList from './pages/QuestionList';
+import Header from './components/Header';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
