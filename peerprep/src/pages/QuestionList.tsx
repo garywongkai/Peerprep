@@ -11,8 +11,8 @@ function QuestionList() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [category, setCategory] = useState<string>('');
   const [difficulty, setDifficulty] = useState<string>('');
-  //const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
-  const baseurl = 'http://localhost:5000/question';
+  const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+  // const baseurl = 'http://localhost:5000/question';
   const navigate = useNavigate();
 
   const fetchQuestions = async () => {
