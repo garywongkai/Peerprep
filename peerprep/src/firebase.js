@@ -21,6 +21,7 @@ import {
 	setDoc,
 	doc,
 } from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { createTheme } from "@mui/material/styles";
 import { Link, Navigate } from "react-router-dom";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -46,6 +47,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const firestore = getFirestore(app);
+const storage = getStorage();
 // const db = firebase.firestore();
 // const storage = firebase.storage();
 // const functions = firebase.functions();
@@ -121,6 +123,20 @@ const theme = createTheme({
 	},
 });
 
+async function uploadimage(file, currentUser, setLoading) {
+	const fileRef = ref(storage, currentUser.uid + ".png");
+
+	setLoading(true);
+
+	const snapshot = await uploadBytes(fileRef, file);
+	const photoURL = await getDownloadURL(fileRef);
+
+	updateProfile(currentUser, { photoURL });
+
+	setLoading(false);
+	alert("Uploaded file!");
+}
+
 export {
 	auth,
 	db,
@@ -130,6 +146,7 @@ export {
 	logout,
 	signInWithGoogle,
 	theme,
+	uploadimage,
 };
 
 export default app;

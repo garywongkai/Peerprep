@@ -35,7 +35,7 @@ const UserHeader: React.FC = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <a href="/dashboard" style={{ textDecoration: 'none', color: 'white' }}><img src='https://placehold.co/32' alt="website logo" /></a>
+            <a href="/dashboard" style={{ textDecoration: 'none', color: 'white' }}><img src='https://i.ibb.co/DRGcDJG/logo.png' alt="Peerprep" width="42" height="42"/></a>
             
           </Typography>
             <Stack spacing={2} direction="row" justifyContent="left">

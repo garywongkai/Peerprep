@@ -36,24 +36,7 @@ function Dashboard() {
       alert("An error occurred. Please try again");
     }
   };
-  // Current signed-in user to delete
-  const deleteUser = async () => {
-    try {
-      if (user) {
-        // const q = query(collection(db, "users"), where("uid", "==", user?.uid));
-        // const doc = await getDocs(q);
-        // doc.forEach(async (d) => {
-        //   await deleteDoc(d.ref);
-        // });
-        await user.delete();
-      }
-      alert("User deleted successfully");
-      navigate("/signin");
-    } catch (err) {
-      console.error(err);
-      alert("An error occurred. Please try again");
-    }
-  }
+  
   useEffect(() => {
     if (loading) return; // Do nothing while loading
    
@@ -78,9 +61,6 @@ function Dashboard() {
         Logged in as
          <div>{name}</div>
          <div>{user?.email}</div>
-         <button className="dashboard__btn" onClick={deleteUser}>
-          Delete Account
-          </button>
        </div>
      </div>
     </ThemeProvider>

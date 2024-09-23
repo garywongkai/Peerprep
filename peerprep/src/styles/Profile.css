@@ -1,0 +1,80 @@
+.profile {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .profile__container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .profile__avatar {
+    margin-right: 20px;
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .profile__avatar button {
+    padding: 10px;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+  
+  .avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .profile__info input {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .profile__info button {
+    padding: 10px;
+    background-color: #5e6266;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .profile__info button:disabled {
+    background-color: #ccc;
+  }
+
+  .profile__info .delete {
+    background-color: #ff0000;
+  }
+  
+  .profile__info button:hover {
+    background-color: #3a4147;
+  }
+ 
+  .profile__info textarea { display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }

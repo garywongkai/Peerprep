@@ -75,7 +75,7 @@
   
   /* Hover effect on question list items */
   .list-group-item:hover {
-    background-color: #53c1d4;
+    background-color: #dadada;
     cursor: pointer;
   }
 
