@@ -150,6 +150,7 @@ async function uploadimage(file, currentUser, setLoading) {
 export {
 	auth,
 	db,
+	realtime,
 	logInWithEmailAndPassword,
 	registerWithEmailAndPassword,
 	sendPasswordReset,
