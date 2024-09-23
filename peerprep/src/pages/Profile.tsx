@@ -124,6 +124,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
+    if (loading) return; // Do nothing while loading
     if (user) {
         fetchUserName();
         fetchUserProfile();
@@ -131,7 +132,8 @@ const Profile = () => {
     if (user?.photoURL) {
         setPhotoURL(user.photoURL);
       }
-  }, [user]);
+    if (!user) return navigate("/signin");
+  }, [user, loading]);
   return (
     <ThemeProvider theme={theme}>
       <UserHeader />
