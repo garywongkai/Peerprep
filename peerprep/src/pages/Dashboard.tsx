@@ -16,6 +16,7 @@ function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
   const navigate = useNavigate();
+  const [matchedUser, setMatchedUser] = useState<string>("");
   const [openDialog, setOpenDialog] = useState(false);
   const [isMatched, setIsMatched] = useState(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
@@ -42,6 +43,8 @@ function Dashboard() {
   };
 
   interface MatchData {
+    userName1: string;
+    userName2: string;
     userId1: string;
     userId2: string;
     difficulty: string;
@@ -60,7 +63,6 @@ function Dashboard() {
     // Reference for the current user's waiting record
   const waitingUserRef = doc(collection(db, "waiting_users"), user?.uid);
   const dbRef = ref(realtime, 'waiting_users');
-  const snapshot = await get(dbRef);
   // Check for existing matches with the same difficulty
   const q = query(collection(db, "waiting_users"), where("difficulty", "==", difficulty), where("userId", "!=", user?.uid));
   const querySnapshot = await getDocs(q);
@@ -71,6 +73,8 @@ function Dashboard() {
     
     // Create the match record
     const matchData = {
+      userName1: matchedUser.data().userName, // The matched user
+      userName2: name, // The current user
       userId1: matchedUser.id, // The user who was waiting
       userId2: user?.uid, // The current user
       difficulty,
@@ -86,6 +90,7 @@ function Dashboard() {
     await deleteDoc(waitingUserRef);
   } else {  
     await setDoc(waitingUserRef, {
+      userName: name,
       difficulty,
       timestamp: new Date().toISOString(),
       userId: user?.uid,  // Current user will be userId1
@@ -122,30 +127,38 @@ function Dashboard() {
     }
     if (!user) return navigate("/signin");
     
-    const matchQuery = query(
+    const matchQuery1 = query(
       collection(db, "matches"),
-      where("userId1", "==", user.uid),
+      where("userId1", "==", user.uid)
+    );
+    const matchQuery2 = query(
+      collection(db, "matches"),
       where("userId2", "==", user.uid)
     );
-    let unsubscribeWaitingUsers;
-    // const unsubscribe = onSnapshot(matchQuery, (snapshot) => {
-    //   if (!snapshot.empty) {
-    //     const match = snapshot.docs[0].data() as MatchData;
-    //     setIsMatched(true);
-    //     setMatchData(match);
-    //     setOpenDialog(false);
-    //     alert("You've been matched!");
-    //   }
-    // });
-
-    unsubscribeWaitingUsers = onSnapshot(matchQuery, (snapshot) => {
-      snapshot.forEach((doc) => {
-        const matchData = doc.data() as MatchData;
-        setMatchData(matchData);
+    const unsubscribe1 = onSnapshot(matchQuery1, (snapshot) => {
+      if (!snapshot.empty) {
+        // A match has been found
+        const match = snapshot.docs[0].data() as MatchData;
+        (match.userId2 === user.uid) ? setMatchedUser(match.userName1) : setMatchedUser(match.userName2);
+        setIsMatched(true);
+        setMatchData(match);
         setOpenDialog(false);
-        return matchData;
-      });
+        alert("You've been matched!");
+      }
     });
+    const unsubscribe2 = onSnapshot(matchQuery2, (snapshot) => {
+      if (!snapshot.empty) {
+        // A match has been found
+        const match = snapshot.docs[0].data() as MatchData;
+        (match.userId2 === user.uid) ? setMatchedUser(match.userName1) : setMatchedUser(match.userName2);
+        setIsMatched(true);
+        setMatchData(match);
+        setOpenDialog(false);
+        alert("You've been matched!");
+      }
+    });
+
+    // Optionally store the unsubscribe function for future cleanup
   }, [user, loading]);
   
   return ( 
@@ -173,7 +186,7 @@ function Dashboard() {
       ) : (
         <div>
           <h2>Match Found!</h2>
-          <p>Matched with User: {matchData?.userId2}</p>
+          <p>Matched with User: {matchedUser}</p>
           {/* Display coding editor here */}
         </div>
       )}
