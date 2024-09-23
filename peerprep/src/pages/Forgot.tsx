@@ -23,7 +23,10 @@ function Forgot() {
           type="text"
           className="reset__textBox"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            e.preventDefault();
+            setEmail(e.target.value)}
+          }
           placeholder="E-mail Address"
         />
         <button

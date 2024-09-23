@@ -10,6 +10,8 @@ import {
 	updateProfile,
 	GoogleAuthProvider,
 	signInWithPopup,
+	sendEmailVerification,
+	fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import {
 	getFirestore,
@@ -21,6 +23,7 @@ import {
 	setDoc,
 	doc,
 } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { createTheme } from "@mui/material/styles";
 import { Link, Navigate } from "react-router-dom";
@@ -48,6 +51,7 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const firestore = getFirestore(app);
 const storage = getStorage();
+const realtime = getDatabase(app);
 // const db = firebase.firestore();
 // const storage = firebase.storage();
 // const functions = firebase.functions();
@@ -86,11 +90,12 @@ const registerWithEmailAndPassword = async (name, email, password) => {
 	try {
 		const res = await createUserWithEmailAndPassword(auth, email, password);
 		const user = res.user;
-
+		sendEmailVerification(user);
+		alert("Email verification sent!");
 		await setDoc(doc(db, "users", user.uid), {
 			uid: user.uid,
-			name: user.displayName,
-			authProvider: "google",
+			name: name,
+			authProvider: "email",
 			email: user.email,
 		});
 	} catch (err) {
@@ -101,6 +106,11 @@ const registerWithEmailAndPassword = async (name, email, password) => {
 };
 const sendPasswordReset = async (email) => {
 	try {
+		const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+		if (signInMethods.length === 0) {
+			alert("Email address is not registered");
+			return;
+		}
 		await sendPasswordResetEmail(auth, email);
 		alert("Password reset link sent!");
 	} catch (err) {
