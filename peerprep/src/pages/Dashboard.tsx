@@ -28,6 +28,7 @@ function Dashboard() {
   const [isMatched, setIsMatched] = useState(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   let matchedUser:any;
+  let questionName:any;
   const fetchUserName = async () => {
     try {
       const q = query(collection(db, "users"), where("uid", "==", user?.uid), where("email", "==", user?.email));
@@ -63,10 +64,17 @@ function Dashboard() {
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-        fetch(url, {
-            method: 'GET'
-        }).then(response => response.json()).then((data) => setQuestion(data));
-        console.log(question);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      
+        // console.log(data);
+        questionName = data.questionTitle;
+        setQuestion(data.questionId);
     } catch (err) {
       console.error(err);
       alert('An error occurred. Please try again');
@@ -83,6 +91,7 @@ function Dashboard() {
     question: any;
     matchId: string;
     status: string;
+    questionName: string;
   }
 
   const handleSelect = (e: any) => {
@@ -110,6 +119,7 @@ function Dashboard() {
     matchedUser = querySnapshot.docs[0]; // Get the first user found
     const matchRef = doc(collection(db, "matches"));
     const newmatchId = `${matchedUser.id}_${user?.uid}`;
+    await fetchQuestions();
     // Create the match record
     const matchData = {
       userName1: matchedUser.data().userName, // The matched user
@@ -120,6 +130,7 @@ function Dashboard() {
       date: new Date().toISOString(),
       matchId: newmatchId,
       status: "pending",
+      questionName: questionName,
     };
 
     // Store the match in Firestore
@@ -164,8 +175,6 @@ function Dashboard() {
         matchStatus = currentMatchSnapshot.docs[0].data();
       }
       if (matchStatus && matchStatus[`${matchData.userId1}_confirmed`] && matchStatus[`${matchData.userId2}_confirmed`]) {
-        fetchQuestions();
-        console.log(question);
         // Both users confirmed, create the match
         await updateDoc(currentmatch, {
           userId1: matchData.userId1,
@@ -175,6 +184,7 @@ function Dashboard() {
           matchId: matchData.matchId,
           status: "active",
           question: question,
+          questionName: questionName,
         });
         
         // Remove the current user from the waiting_users collection
@@ -239,6 +249,7 @@ function Dashboard() {
                     difficulty: match.difficulty,
                     question: match.question,
                     matchId: match.matchId,
+                    questionName: match.questionName,
                 }
             } 
         });
@@ -273,6 +284,7 @@ function Dashboard() {
                     userId2: match.userId2,
                     difficulty: match.difficulty,
                     question: match.question,
+                    questionName: match.questionName,
                 }
             }
         });
@@ -335,7 +347,7 @@ function Dashboard() {
     <Dialog open={openMatchDialog} onClose={() => handleConfirmMatch(false)}>
       <DialogTitle>Match Found!</DialogTitle>
       <DialogContent>
-        <p>Your question is : {matchData?.question}</p>
+        <p>Your question is : {matchData?.questionName}</p>
         <p>You have been matched for a {matchData?.difficulty} level problem.</p>
         <p>Do you want to proceed with this match?</p>
       </DialogContent>
