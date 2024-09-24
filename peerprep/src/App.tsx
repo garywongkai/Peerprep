@@ -10,8 +10,8 @@ import Signin from './pages/Signin';
 import Dashboard from './pages/Dashboard';
 import Forgot from './pages/Forgot';
 import QuestionList from './pages/QuestionList';
-import Header from './components/Header';
 import Profile from './pages/Profile';
+import Editor from './pages/Editor';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
@@ -28,6 +28,7 @@ const App: React.FC = () => {
         <Route path="/question" element={<QuestionList />} />
         <Route path="/reset" element={<Forgot />} />
         <Route path="/profile" element={<Profile/>} />
+        <Route path="/editor/:matchId" element={<Editor />} />
     </Routes>
 </Router>)
 };

@@ -1,0 +1,17 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Users\garyw\AppData\Roaming\npm\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.8.3
+2 info using node@v20.17.0
+3 silly config load:file:C:\Users\garyw\AppData\Roaming\npm\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\garyw\Documents\GitHub\Peerprep\peerprep\.npmrc
+5 silly config load:file:C:\Users\garyw\.npmrc
+6 silly config load:file:C:\Users\garyw\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm
+8 verbose argv "--cache" "clear"
+9 verbose logfile logs-max:10 dir:C:\Users\garyw\Documents\GitHub\Peerprep\peerprep\clear\_logs\2024-09-24T06_05_07_051Z-
+10 verbose logfile C:\Users\garyw\Documents\GitHub\Peerprep\peerprep\clear\_logs\2024-09-24T06_05_07_051Z-debug-0.log
+11 verbose cwd C:\Users\garyw\Documents\GitHub\Peerprep\peerprep
+12 verbose os Windows_NT 10.0.19045
+13 verbose node v20.17.0
+14 verbose npm  v10.8.3
+15 verbose exit 1
+16 verbose code 1

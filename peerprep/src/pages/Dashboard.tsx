@@ -3,12 +3,17 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import { auth, db, logout, realtime, theme } from "../firebase";
-import { doc, query, collection, getDocs, where, deleteDoc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, query, collection, getDocs, where, deleteDoc, getDoc, setDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { ThemeProvider } from "react-bootstrap";
 import { updateProfile } from "firebase/auth";
 import UserHeader from "../components/UserHeader";
 import { get, ref, remove, set, update } from "firebase/database";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/theme/material.css';
+import { match } from "assert";
+const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
 
 function Dashboard() {
   const [isLoading, setLoading] = useState(true);
@@ -16,10 +21,13 @@ function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
   const navigate = useNavigate();
-  const [matchedUser, setMatchedUser] = useState<string>("");
+  const [question, setQuestion] = useState<string>("");
+  const [matchedUserName, setMatchedUserName] = useState<string>("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [openMatchDialog, setOpenMatchDialog] = useState(false);
   const [isMatched, setIsMatched] = useState(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
+  let matchedUser:any;
   const fetchUserName = async () => {
     try {
       const q = query(collection(db, "users"), where("uid", "==", user?.uid), where("email", "==", user?.email));
@@ -42,6 +50,28 @@ function Dashboard() {
     }
   };
 
+  const fetchQuestions = async () => {
+    try {
+      let url = `${baseurl}/getQuestion`;
+      const params = new URLSearchParams();
+  
+      if (difficulty) {
+        params.append('difficulty', difficulty);
+      }
+  
+      // Only append query parameters if they exist
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+        fetch(url, {
+            method: 'GET'
+        }).then(response => response.json()).then((data) => setQuestion(data.questionId));
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred. Please try again');
+    }
+  };
+
   interface MatchData {
     userName1: string;
     userName2: string;
@@ -49,6 +79,9 @@ function Dashboard() {
     userId2: string;
     difficulty: string;
     date: string;
+    question: string;
+    matchId: string;
+    status: string;
   }
 
   const handleSelect = (e: any) => {
@@ -61,16 +94,21 @@ function Dashboard() {
       return;
     }
     // Reference for the current user's waiting record
-  const waitingUserRef = doc(collection(db, "waiting_users"), user?.uid);
-  const dbRef = ref(realtime, 'waiting_users');
+    const waitingUserRef = doc(collection(db, "waiting_users"), user?.uid);
+    await setDoc(waitingUserRef, {
+      userName: name,
+      difficulty,
+      timestamp: new Date().toISOString(),
+      userId: user?.uid,  // Current user will be userId1
+    });
   // Check for existing matches with the same difficulty
   const q = query(collection(db, "waiting_users"), where("difficulty", "==", difficulty), where("userId", "!=", user?.uid));
   const querySnapshot = await getDocs(q);
   if (!querySnapshot.empty) {
     // If a matching user is found
-    const matchedUser = querySnapshot.docs[0]; // Get the first user found
+    matchedUser = querySnapshot.docs[0]; // Get the first user found
     const matchRef = doc(collection(db, "matches"));
-    
+    const newmatchId = `${matchedUser.id}_${user?.uid}`;
     // Create the match record
     const matchData = {
       userName1: matchedUser.data().userName, // The matched user
@@ -79,22 +117,13 @@ function Dashboard() {
       userId2: user?.uid, // The current user
       difficulty,
       date: new Date().toISOString(),
+      matchId: newmatchId,
+      status: "pending",
     };
 
     // Store the match in Firestore
     await setDoc(matchRef, matchData);
-
-    // Remove the matched user from the waiting_users collection
-    await deleteDoc(doc(collection(db, "waiting_users"), matchedUser.id));
-    // Remove the current user from the waiting_users collection
-    await deleteDoc(waitingUserRef);
   } else {  
-    await setDoc(waitingUserRef, {
-      userName: name,
-      difficulty,
-      timestamp: new Date().toISOString(),
-      userId: user?.uid,  // Current user will be userId1
-    });
     setOpenDialog(true);
   }
 };
@@ -105,9 +134,9 @@ function Dashboard() {
       
       // Remove the current user from the waiting_users node
       await deleteDoc(waitingUserRef);
-      
       // Optionally, you can update the UI or provide feedback to the user
       alert('You have canceled matchmaking.');
+      window.location.reload();
     } catch (err) {
       console.error("Error removing user from queue: ", err);
       alert("Failed to cancel matchmaking. Please try again.");
@@ -117,6 +146,57 @@ function Dashboard() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     handleCancel(); // Cancel matchmaking on dialog close
+  };
+
+  const handleConfirmMatch = async (confirm: boolean) => {
+    if (matchData) {
+    const q = query(collection(db, "matches"), where("matchId", "==", matchData.matchId));
+    const currentmatch = (await getDocs(q)).docs[0].ref;
+    if (confirm) {
+      // Set the user's confirmation status
+      await updateDoc(currentmatch, { [`${user?.uid}_confirmed`]: true });
+      
+      // Check if both users have confirmed
+      const currentMatchSnapshot = await getDocs(q);
+      let matchStatus;
+      if (!currentMatchSnapshot.empty) {
+        matchStatus = currentMatchSnapshot.docs[0].data();
+      }
+      if (matchStatus && matchStatus[`${matchData.userId1}_confirmed`] && matchStatus[`${matchData.userId2}_confirmed`]) {
+        fetchQuestions();
+        // Both users confirmed, create the match
+        await updateDoc(currentmatch, {
+          userId1: matchData.userId1,
+          userId2: matchData.userId2,
+          difficulty: matchData.difficulty,
+          date: new Date().toISOString(),
+          matchId: matchData.matchId,
+          status: "active",
+          question: question,
+        });
+        
+        // Remove the current user from the waiting_users collection
+        
+        // Remove the pending match
+        //await deleteDoc(matchRef);
+        // Proceed to the collaborative editor
+        //navigate(`/editor/${matchData.matchId}`, { state: { matchData: { userId1: matchData.userId1, userId2: matchData.userId2, difficulty }, user } });
+      }
+    } else {
+      // User declined the match, cancel it and return both users to the matching state
+      if (currentmatch) {
+        await updateDoc(currentmatch, {
+          status: "canceled",
+        });
+      }
+      setOpenMatchDialog(false);
+      setIsMatched(false);
+      handleCancel();
+      // Optionally, return the user to matching state here
+    }
+  } else {
+    alert("Match data not found. Please try again.");
+  }
   };
 
   useEffect(() => {
@@ -139,22 +219,72 @@ function Dashboard() {
       if (!snapshot.empty) {
         // A match has been found
         const match = snapshot.docs[0].data() as MatchData;
-        (match.userId2 === user.uid) ? setMatchedUser(match.userName1) : setMatchedUser(match.userName2);
-        setIsMatched(true);
+        (match.userId2 === user.uid) ? setMatchedUserName(match.userName1) : setMatchedUserName(match.userName2);
         setMatchData(match);
         setOpenDialog(false);
-        alert("You've been matched!");
+        setOpenMatchDialog(true);
+        if (match.status === "active") {
+          setIsMatched(true);
+          const waitingUserRef = doc(collection(db, "waiting_users"), user?.uid);
+          deleteDoc(waitingUserRef);
+          navigate(`/editor/${match.matchId}`, { 
+            state: { 
+                matchData: {
+                    userName1: match.userName1,
+                    userName2: match.userName2,
+                    userId1: match.userId1,
+                    userId2: match.userId2,
+                    difficulty: match.difficulty,
+                    question: match.question,
+                },
+                user
+            } 
+        });
+        } else if (match.status === "canceled") {
+          // alert("The match has been canceled. You will return to the matching queue.");
+          // Optionally, return the user to matching state here
+          setOpenMatchDialog(false);
+          setIsMatched(false);
+          setOpenDialog(true);
+          setDoc(snapshot.docs[0].ref, { status: "deleted" });
+        }
       }
     });
     const unsubscribe2 = onSnapshot(matchQuery2, (snapshot) => {
       if (!snapshot.empty) {
         // A match has been found
         const match = snapshot.docs[0].data() as MatchData;
-        (match.userId2 === user.uid) ? setMatchedUser(match.userName1) : setMatchedUser(match.userName2);
-        setIsMatched(true);
-        setMatchData(match);
+        (match.userId2 === user.uid) ? setMatchedUserName(match.userName1) : setMatchedUserName(match.userName2);
         setOpenDialog(false);
-        alert("You've been matched!");
+        setOpenMatchDialog(true);
+        setMatchData(match);
+        if (match.status === "active") {
+          setIsMatched(true);
+          const waitingUserRef = doc(collection(db, "waiting_users"), user?.uid);
+          deleteDoc(waitingUserRef);
+          navigate(`/editor/${match.matchId}`, { 
+            state: { 
+                matchData: {
+                    userName1: match.userName1,
+                    userName2: match.userName2,
+                    userId1: match.userId1,
+                    userId2: match.userId2,
+                    difficulty: match.difficulty,
+                    question: match.question,
+                },
+                user
+            }
+        });
+        }
+        else if (match.status === "canceled") {
+          // alert("The match has been canceled. You will return to the matching queue.");
+          // Optionally, return the user to matching state here
+          
+          setOpenMatchDialog(false);
+          setIsMatched(false);
+          setOpenDialog(true);
+          setDoc(snapshot.docs[0].ref, { status: "deleted" });
+        }
       }
     });
 
@@ -201,6 +331,22 @@ function Dashboard() {
           <Button onClick={handleCloseDialog} color="primary">Cancel</Button>
         </DialogActions>
       </Dialog>
+    <Dialog open={openMatchDialog} onClose={() => handleConfirmMatch(false)}>
+      <DialogTitle>Match Found!</DialogTitle>
+      <DialogContent>
+        <p>Your question is : {matchData?.question}</p>
+        <p>You have been matched for a {matchData?.difficulty} level problem.</p>
+        <p>Do you want to proceed with this match?</p>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => handleConfirmMatch(true)} color="primary">
+          Confirm
+        </Button>
+        <Button onClick={() => handleConfirmMatch(false)} color="secondary">
+          Decline
+        </Button>
+      </DialogActions>
+    </Dialog>
     </ThemeProvider>
   );
 }
