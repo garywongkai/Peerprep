@@ -21,7 +21,7 @@ function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
   const navigate = useNavigate();
-  const [question, setQuestion] = useState();
+  const [question, setQuestion] = useState(null);
   const [matchedUserName, setMatchedUserName] = useState<string>("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openMatchDialog, setOpenMatchDialog] = useState(false);
@@ -65,7 +65,8 @@ function Dashboard() {
       }
         fetch(url, {
             method: 'GET'
-        }).then(response => response.json()).then((data) => setQuestion(data.questionId));
+        }).then(response => response.json()).then((data) => setQuestion(data));
+        console.log(question);
     } catch (err) {
       console.error(err);
       alert('An error occurred. Please try again');
