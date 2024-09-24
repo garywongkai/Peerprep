@@ -2,6 +2,7 @@ const express = require("express");
 const QuestionController = require("../controllers/Question");
 const router = express.Router();
 router.get("/getQuestion", QuestionController.getQuestionByCategory);
+router.get("/getQuestionById", QuestionController.getQuestionById);
 router.get("/", QuestionController.findAll);
 router.get("/:id", QuestionController.findOne);
 router.post("/", QuestionController.create);

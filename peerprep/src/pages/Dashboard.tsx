@@ -236,8 +236,8 @@ function Dashboard() {
                     userId2: match.userId2,
                     difficulty: match.difficulty,
                     question: match.question,
-                },
-                user
+                    matchId: match.matchId,
+                }
             } 
         });
         } else if (match.status === "canceled") {
@@ -271,8 +271,7 @@ function Dashboard() {
                     userId2: match.userId2,
                     difficulty: match.difficulty,
                     question: match.question,
-                },
-                user
+                }
             }
         });
         }
@@ -302,9 +301,9 @@ function Dashboard() {
        </div>
        <select value={difficulty} onChange={handleSelect}>
       <option value="">Select Difficulty</option>
-      <option value="easy">Easy</option>
-      <option value="medium">Medium</option>
-      <option value="hard">Hard</option>
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
     </select>
     <div>
       <button onClick={handleMatch}>Match</button>

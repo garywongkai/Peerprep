@@ -119,3 +119,18 @@ exports.getQuestionByCategory = async (req, res) => {
 		res.status(404).json({ message: error.message });
 	}
 };
+
+exports.getQuestionById = async (req, res) => {
+	try {
+		const { questionId } = req.query;
+		// Build filter object dynamically
+		const filter = {};
+		if (questionId) {
+			filter.questionId = questionId;
+		}
+		const questions = await QuestionModel.find(filter);
+		res.status(200).json(questions);
+	} catch (error) {
+		res.status(404).json({ message: error.message });
+	}
+};
