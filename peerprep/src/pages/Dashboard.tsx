@@ -21,7 +21,7 @@ function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
   const navigate = useNavigate();
-  const [question, setQuestion] = useState<string>("");
+  const [question, setQuestion] = useState();
   const [matchedUserName, setMatchedUserName] = useState<string>("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openMatchDialog, setOpenMatchDialog] = useState(false);
@@ -52,7 +52,7 @@ function Dashboard() {
 
   const fetchQuestions = async () => {
     try {
-      let url = `${baseurl}/getQuestion`;
+      let url = `${baseurl}/randomQuestion`;
       const params = new URLSearchParams();
   
       if (difficulty) {
@@ -79,7 +79,7 @@ function Dashboard() {
     userId2: string;
     difficulty: string;
     date: string;
-    question: string;
+    question: any;
     matchId: string;
     status: string;
   }
@@ -164,6 +164,7 @@ function Dashboard() {
       }
       if (matchStatus && matchStatus[`${matchData.userId1}_confirmed`] && matchStatus[`${matchData.userId2}_confirmed`]) {
         fetchQuestions();
+        console.log(question);
         // Both users confirmed, create the match
         await updateDoc(currentmatch, {
           userId1: matchData.userId1,
@@ -176,7 +177,7 @@ function Dashboard() {
         });
         
         // Remove the current user from the waiting_users collection
-        
+
         // Remove the pending match
         //await deleteDoc(matchRef);
         // Proceed to the collaborative editor

@@ -22,9 +22,21 @@ interface MatchData {
     question: any;
     matchId: string;
 }
-const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
-const fetchQuestions = async (questionId: string) => {
-    let questionData;
+
+const Editor = () => {
+    const [user, loading, error] = useAuthState(auth);
+    const location = useLocation();
+    const { matchData } = location.state || {};
+    const { matchId } = useParams();
+    const navigate = useNavigate();
+    const [code, setCode] = useState('// Start coding here...');
+    const [hasSubmitted, setHasSubmitted] = useState(false);
+    const [bothSubmitted, setBothSubmitted] = useState(false);
+    const [questionData, setQuestionData] = useState<any>({});
+    const codeRef = doc(db, 'sessions', matchId!);
+    const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+const fetchQuestions = async () => {
+    const questionId = matchData.question
     try {
       let url = `${baseurl}/getQuestionById`;
       const params = new URLSearchParams();
@@ -39,26 +51,13 @@ const fetchQuestions = async (questionId: string) => {
       }
         fetch(url, {
             method: 'GET'
-        }).then(response => response.json()).then((data) => questionData = data);
-        return questionData;
+        }).then(response => response.json()).then((data) => setQuestionData(data));
     } catch (err) {
       console.error(err);
       alert('An error occurred. Please try again');
     }
   };
-
-const Editor = () => {
-    const [user, loading, error] = useAuthState(auth);
-    const location = useLocation();
-    const { matchData } = location.state || {};
-    const { matchId } = useParams();
-    const navigate = useNavigate();
-    const [code, setCode] = useState('// Start coding here...');
-    const [hasSubmitted, setHasSubmitted] = useState(false);
-    const [bothSubmitted, setBothSubmitted] = useState(false);
-    const questionData = fetchQuestions(matchData.question) as any;
-    const codeRef = doc(db, 'sessions', matchId!);
-
+  fetchQuestions();
     // Ensure user is defined before creating the document reference
     const submitStatusRef = user ? doc(db, 'sessions', matchId!, 'submitStatus', user.uid) : null;
     useEffect(() => {

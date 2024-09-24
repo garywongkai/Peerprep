@@ -134,3 +134,24 @@ exports.getQuestionById = async (req, res) => {
 		res.status(404).json({ message: error.message });
 	}
 };
+exports.getRandomQuestion = async (req, res) => {
+    try {
+        const { difficulty } = req.query;
+
+        // Build filter object dynamically
+        const filter = {};
+        if (difficulty) {
+            filter.difficulty = difficulty;
+        }
+
+        // Use MongoDB's $sample to get one random document
+        const randomQuestion = await QuestionModel.aggregate([
+            { $match: filter }, // Apply any filters
+            { $sample: { size: 1 } } // Randomly select one document
+        ]);
+
+        res.status(200).json(randomQuestion[0]); // Return the first (and only) result
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
