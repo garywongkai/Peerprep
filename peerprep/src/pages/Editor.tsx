@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, theme } from '../firebase'; // Firebase setup
@@ -10,7 +10,6 @@ import 'codemirror/mode/javascript/javascript';
 import '../styles/Editor.css';
 import UserHeader from '../components/UserHeader';
 import { ThemeProvider } from '@mui/material';
-import debounce from 'lodash.debounce';
 
 interface MatchData {
     userName1: string;
@@ -53,8 +52,9 @@ const Editor = () => {
         const response = await fetch(url, {
             method: 'GET'
           });
-        const data = await response.json().then((data) => data[0]);
+        const data = await response.json();
         setQuestionData(data);
+        console.log(data);
         } catch (err) {
         console.error(err);
         alert('An error occurred. Please try again');
@@ -81,13 +81,10 @@ const Editor = () => {
         
         return () => unsubscribe();
     }, []);
-    const handleCodeChange = useCallback(
-        debounce((editor, data, value) => {
-            setCode(value);
-            setDoc(codeRef, { code: value }, { merge: true }); // Save the updated code to Firestore
-        }, 500), // 500ms delay for debouncing
-        []
-    );
+    const handleCodeChange = (editor: any, data: any, value: string) => {
+        setCode(value);
+        setDoc(codeRef, { code: value }); // Ensure you save the updated code
+    };
 
     const handleSubmit = async () => {
         if (!user || !submitStatusRef) return; // Ensure user is authenticated and ref is defined
@@ -125,6 +122,7 @@ const Editor = () => {
                     mode: 'javascript',
                     theme: 'material',
                     lineNumbers: true,
+                    readOnly: false,
                 }}
                 onBeforeChange={(editor, data, value) => {
                     setCode(value);
