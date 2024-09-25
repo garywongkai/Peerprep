@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, theme } from '../firebase'; // Firebase setup
@@ -10,6 +10,7 @@ import 'codemirror/mode/javascript/javascript';
 import '../styles/Editor.css';
 import UserHeader from '../components/UserHeader';
 import { ThemeProvider } from '@mui/material';
+import debounce from 'lodash.debounce';
 
 interface MatchData {
     userName1: string;
@@ -81,10 +82,13 @@ const Editor = () => {
         
         return () => unsubscribe();
     }, []);
-    const handleCodeChange = (editor: any, data: any, value: string) => {
-        setCode(value);
-        setDoc(codeRef, { code: value }); // Ensure you save the updated code
-    };
+    const handleCodeChange = useCallback(
+        debounce((editor, data, value) => {
+            setCode(value);
+            setDoc(codeRef, { code: value }, { merge: true }); // Save the updated code to Firestore
+        }, 500), // 500ms delay for debouncing
+        []
+    );
 
     const handleSubmit = async () => {
         if (!user || !submitStatusRef) return; // Ensure user is authenticated and ref is defined
