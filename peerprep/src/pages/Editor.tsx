@@ -53,9 +53,8 @@ const Editor = () => {
         const response = await fetch(url, {
             method: 'GET'
           });
-        const data = await response.json();
+        const data = await response.json().then((data) => data[0]);
         setQuestionData(data);
-        console.log(data);
         } catch (err) {
         console.error(err);
         alert('An error occurred. Please try again');
