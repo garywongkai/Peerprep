@@ -1,14 +1,6 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps,
-  MemoryRouter,
-  Link, BrowserRouter as Router,
-} from 'react-router-dom';
-import {StaticRouter} from 'react-router-dom/server';
-import {
-  AppBar,
-  Toolbar,
   Typography,
   Button,
   Container,
@@ -17,14 +9,9 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CardActions,
-  CssBaseline,
   ThemeProvider,
   createTheme,
-  Switch,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Header from '../components/Header';
 

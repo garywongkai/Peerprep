@@ -8,7 +8,7 @@ import { ThemeProvider } from "react-bootstrap";
 import { updateProfile } from "firebase/auth";
 import UserHeader from "../components/UserHeader";
 import { get, ref, remove, set, update } from "firebase/database";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/theme/material.css';
@@ -16,7 +16,8 @@ import { match } from "assert";
 const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
 
 function Dashboard() {
-  const [isLoading, setLoading] = useState(true);
+  const [alert, setAlert] = useState(false);
+  const [alertContent, setAlertContent] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
@@ -47,7 +48,8 @@ function Dashboard() {
     }
     } catch (err) {
       console.error(err);
-      alert("An error occurred. Please try again");
+      setAlertContent("An error occurred. Please try again");
+      setAlert(true);
     }
   };
 
@@ -77,7 +79,8 @@ function Dashboard() {
         setQuestion(data.questionId);
     } catch (err) {
       console.error(err);
-      alert('An error occurred. Please try again');
+      setAlertContent('An error occurred. Please try again');
+      setAlert(true);
     }
   };
 
@@ -100,7 +103,8 @@ function Dashboard() {
 
   const handleMatch = async () => {
     if (!difficulty) {
-      alert("Please select a difficulty level.");
+      setAlertContent("Please select a difficulty level.");
+      setAlert(true);
       return;
     }
     // Reference for the current user's waiting record
@@ -147,11 +151,13 @@ function Dashboard() {
       // Remove the current user from the waiting_users node
       await deleteDoc(waitingUserRef);
       // Optionally, you can update the UI or provide feedback to the user
-      alert('You have canceled matchmaking.');
+      setAlertContent('You have canceled matchmaking.');
+      setAlert(true);
       window.location.reload();
     } catch (err) {
       console.error("Error removing user from queue: ", err);
-      alert("Failed to cancel matchmaking. Please try again.");
+      setAlertContent("Failed to cancel matchmaking. Please try again.");
+      setAlert(true);
     }
   };
 
@@ -184,7 +190,6 @@ function Dashboard() {
           matchId: matchData.matchId,
           status: "active",
           question: question,
-          questionName: questionName,
         });
         
         // Remove the current user from the waiting_users collection
@@ -207,9 +212,9 @@ function Dashboard() {
       // Optionally, return the user to matching state here
     }
   } else {
-    alert("Match data not found. Please try again.");
-  }
-  };
+    setAlertContent("Match data not found. Please try again.");
+    setAlert(true);
+  }};
 
   useEffect(() => {
     if (loading) return; // Do nothing while loading
@@ -260,7 +265,9 @@ function Dashboard() {
           setIsMatched(false);
           setOpenDialog(true);
           setDoc(snapshot.docs[0].ref, { status: "deleted" });
-        }
+        } else if (match.status === "deleted") {
+          deleteDoc(snapshot.docs[0].ref);
+        } 
       }
     });
     const unsubscribe2 = onSnapshot(matchQuery2, (snapshot) => {
@@ -323,6 +330,7 @@ function Dashboard() {
       <button onClick={handleMatch}>Match</button>
     </div>
      </div>
+     {alert ? <><div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 999 }}><Alert severity='info'>{alertContent}</Alert> </div></> : <></>}
      {!isMatched ? (
         <div>
         </div>
@@ -349,6 +357,7 @@ function Dashboard() {
       <DialogContent>
         <p>Your question is : {matchData?.questionName}</p>
         <p>You have been matched for a {matchData?.difficulty} level problem.</p>
+        <p>Your collaborator: {matchedUserName}</p>
         <p>Do you want to proceed with this match?</p>
       </DialogContent>
       <DialogActions>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, theme } from '../firebase'; // Firebase setup
@@ -10,8 +10,8 @@ import 'codemirror/mode/javascript/javascript';
 import '../styles/Editor.css';
 import UserHeader from '../components/UserHeader';
 import { ThemeProvider } from '@mui/material';
-import { response } from 'express';
-import { set } from 'mongoose';
+import debounce from 'lodash.debounce';
+
 interface MatchData {
     userName1: string;
     userName2: string;
@@ -21,7 +21,9 @@ interface MatchData {
     date: string;
     question: any;
     matchId: string;
-}
+    status: string;
+    questionName: string;
+  }
 
 const Editor = () => {
     const [user, loading, error] = useAuthState(auth);
@@ -35,37 +37,39 @@ const Editor = () => {
     const [questionData, setQuestionData] = useState<any>({});
     const codeRef = doc(db, 'sessions', matchId!);
     const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
-const fetchQuestions = async () => {
-    const questionId = matchData.question
-    try {
-      let url = `${baseurl}/getQuestionById`;
-      const params = new URLSearchParams();
-  
-      if (questionId) {
-        params.append('questionId', questionId);
-      }
-  
-      // Only append query parameters if they exist
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-        fetch(url, {
+    const fetchQuestions = async () => {
+        try {
+        let url = `${baseurl}/getQuestionById`;
+        const params = new URLSearchParams();
+    
+        if (matchData.question) {
+            params.append('questionId', matchData.question);
+        }
+    
+        // Only append query parameters if they exist
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
+        const response = await fetch(url, {
             method: 'GET'
-        }).then(response => response.json()).then((data) => setQuestionData(data));
-    } catch (err) {
-      console.error(err);
-      alert('An error occurred. Please try again');
-    }
-  };
-  fetchQuestions();
+          });
+        const data = await response.json().then((data) => data[0]);
+        setQuestionData(data);
+        } catch (err) {
+        console.error(err);
+        alert('An error occurred. Please try again');
+        }
+    };
+
     // Ensure user is defined before creating the document reference
     const submitStatusRef = user ? doc(db, 'sessions', matchId!, 'submitStatus', user.uid) : null;
     useEffect(() => {
         if (loading) return; // Do nothing while loading
-
         if (!user) return navigate("/signin");
     }, [user, loading]);
     useEffect(() => {
+        if (!matchId) return; // Ensure matchId is defined
+        fetchQuestions();
         const unsubscribe = onSnapshot(codeRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const { code } = docSnapshot.data() || {};
@@ -74,13 +78,16 @@ const fetchQuestions = async () => {
                 }
             }
         });
+        
         return () => unsubscribe();
-    }, [matchId]);
-
-    const handleCodeChange = (editor: any, data: any, value: string) => {
-        setCode(value);
-        setDoc(codeRef, { code: value }); // Ensure you save the updated code
-    };
+    }, []);
+    const handleCodeChange = useCallback(
+        debounce((editor, data, value) => {
+            setCode(value);
+            setDoc(codeRef, { code: value }, { merge: true }); // Save the updated code to Firestore
+        }, 500), // 500ms delay for debouncing
+        []
+    );
 
     const handleSubmit = async () => {
         if (!user || !submitStatusRef) return; // Ensure user is authenticated and ref is defined
@@ -110,7 +117,8 @@ const fetchQuestions = async () => {
         <UserHeader/>
         <div className="editor-container">
             <h3>Collaborative Coding Session</h3>
-            <h4>Question: {questionData.questionTitle}</h4>
+            <h4>Question: {matchData.questionName}</h4>
+            <h5>{questionData.questionDescription}</h5>
             <CodeMirror
                 value={code}
                 options={{
