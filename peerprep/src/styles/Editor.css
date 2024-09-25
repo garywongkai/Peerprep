@@ -28,6 +28,8 @@
     color: #ffffff; /* Light text color */
 }
 
+.react-codemirror2 > .CodeMirror:first-child { display: none; }
+
 /* Button styling */
 .editor-container button {
     display: block; /* Block display to take full width */

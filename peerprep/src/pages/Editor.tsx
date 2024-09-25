@@ -6,6 +6,11 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
+import 'codemirror/theme/dracula.css';
+import 'codemirror/theme/monokai.css';
+import 'codemirror/theme/solarized.css';
+import 'codemirror/theme/twilight.css';
+import 'codemirror/theme/xq-dark.css';
 import 'codemirror/mode/javascript/javascript';
 import '../styles/Editor.css';
 import UserHeader from '../components/UserHeader';
@@ -30,6 +35,7 @@ const Editor = () => {
     const location = useLocation();
     const { matchData } = location.state || {};
     const { matchId } = useParams();
+    const [editortheme, setEditorTheme] = useState('material');
     const navigate = useNavigate();
     const [code, setCode] = useState('// Start coding here...');
     const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -60,7 +66,9 @@ const Editor = () => {
         alert('An error occurred. Please try again');
         }
     };
-
+    const handleTheme = (e: any) => {
+        setEditorTheme(e.target.value)
+    };
     // Ensure user is defined before creating the document reference
     const submitStatusRef = user ? doc(db, 'sessions', matchId!, 'submitStatus', user.uid) : null;
     useEffect(() => {
@@ -80,7 +88,7 @@ const Editor = () => {
         });
         
         return () => unsubscribe();
-    }, []);
+    }, [matchId]);
     const handleCodeChange = useCallback(
         debounce((editor, data, value) => {
             setCode(value);
@@ -119,11 +127,21 @@ const Editor = () => {
             <h3>Collaborative Coding Session</h3>
             <h4>Question: {matchData.questionName}</h4>
             <h5>{questionData.questionDescription}</h5>
+            <div>Select theme:   
+            <select value={editortheme} onChange={handleTheme}>
+                <option value="material">Material</option>
+                <option value="dracula">Dracula</option>
+                <option value="monokai">Monokai</option>
+                <option value="solarized">Solarized</option>
+                <option value="twilight">Twilight</option>
+                <option value="xq-dark">XQ-Dark</option>
+            </select></div>
+            
             <CodeMirror
                 value={code}
                 options={{
                     mode: 'javascript',
-                    theme: 'material',
+                    theme: editortheme,
                     lineNumbers: true,
                     readOnly: false,
                 }}
