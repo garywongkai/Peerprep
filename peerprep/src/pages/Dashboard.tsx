@@ -76,7 +76,7 @@ function Dashboard() {
       
         // console.log(data);
         questionName = data.questionTitle;
-        setQuestion(data.questionId);
+        setQuestion(data._id);
     } catch (err) {
       console.error(err);
       setAlertContent('An error occurred. Please try again');

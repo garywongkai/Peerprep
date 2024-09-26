@@ -8,7 +8,7 @@ const clientOptions = {
 	serverApi: { version: "1", strict: true, deprecationErrors: true },
 };
 const uri =
-	"mongodb+srv://peerprepenjoyer:peerprepenjoyer@cluster.tyji51x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster";
+	"mongodb+srv://questionMaster:questionMaster@cluster.tyji51x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster";
 mongoose.Promise = global.Promise;
 mongoose
 	.connect(uri, clientOptions)

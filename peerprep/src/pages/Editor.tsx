@@ -45,11 +45,11 @@ const Editor = () => {
     const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
     const fetchQuestions = async () => {
         try {
-        let url = `${baseurl}/getQuestionById`;
+        let url = `${baseurl}/`;
         const params = new URLSearchParams();
     
         if (matchData.question) {
-            params.append('questionId', matchData.question);
+            params.append('', matchData.question);
         }
     
         // Only append query parameters if they exist

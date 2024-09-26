@@ -2,7 +2,6 @@ const QuestionModel = require("../models/question");
 // Create and Save a new user
 exports.create = async (req, res) => {
 	if (
-		!req.body.questionId &&
 		!req.body.difficulty &&
 		!req.body.questionTitle &&
 		!req.body.questionDescription &&
@@ -12,7 +11,6 @@ exports.create = async (req, res) => {
 	}
 
 	const question = new QuestionModel({
-		questionId: req.body.questionId,
 		questionTitle: req.body.questionTitle,
 		questionDescription: req.body.questionDescription,
 		questionCategory: req.body.questionCategory,
@@ -81,7 +79,7 @@ exports.update = async (req, res) => {
 };
 // Delete a user with the specified id in the request
 exports.destroy = async (req, res) => {
-	await QuestionModel.findByIdAndRemove(req.params.id)
+	await QuestionModel.findByIdAndDelete(req.params.id)
 		.then((data) => {
 			if (!data) {
 				res.status(404).send({
@@ -135,23 +133,23 @@ exports.getQuestionById = async (req, res) => {
 	}
 };
 exports.getRandomQuestion = async (req, res) => {
-    try {
-        const { difficulty } = req.query;
+	try {
+		const { difficulty } = req.query;
 
-        // Build filter object dynamically
-        const filter = {};
-        if (difficulty) {
-            filter.difficulty = difficulty;
-        }
+		// Build filter object dynamically
+		const filter = {};
+		if (difficulty) {
+			filter.difficulty = difficulty;
+		}
 
-        // Use MongoDB's $sample to get one random document
-        const randomQuestion = await QuestionModel.aggregate([
-            { $match: filter }, // Apply any filters
-            { $sample: { size: 1 } } // Randomly select one document
-        ]);
+		// Use MongoDB's $sample to get one random document
+		const randomQuestion = await QuestionModel.aggregate([
+			{ $match: filter }, // Apply any filters
+			{ $sample: { size: 1 } }, // Randomly select one document
+		]);
 
-        res.status(200).json(randomQuestion[0]); // Return the first (and only) result
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
+		res.status(200).json(randomQuestion[0]); // Return the first (and only) result
+	} catch (error) {
+		res.status(404).json({ message: error.message });
+	}
 };

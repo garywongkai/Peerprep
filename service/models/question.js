@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 var schema = new mongoose.Schema({
 	questionId: {
 		type: Number,
-		required: true,
+		required: false,
 		unique: true,
 	},
 	questionTitle: {
