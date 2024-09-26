@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth, db, theme } from '../firebase';
-import { Button, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider } from '@mui/material';
+import { Button, Chip, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider } from '@mui/material';
 import UserHeader from '../components/UserHeader';
 import '../styles/QuestionList.css';
 function QuestionList() {
@@ -14,13 +14,13 @@ function QuestionList() {
   const [isCreating, setIsCreating] = useState<boolean>(false); // State to manage create form visibility
   const [createTitle, setCreateTitle] = useState<string>(''); // Title for new question
   const [createDescription, setCreateDescription] = useState<string>(''); // Description for new question
-  const [createCategory, setCreateCategory] = useState<string>(''); // Category for new question
+  const [createCategory, setCreateCategory] = useState<string[]>([]); // Category for new question
   const [createDifficulty, setCreateDifficulty] = useState<string>(''); // Difficulty for new question
   const [editQuestion, setEditQuestion] = useState<any>(null); // Store question for editing
   const [newTitle, setNewTitle] = useState<string>(''); // Store new title during editing
   const [newDescription, setNewDescription] = useState<string>(''); // Store new description during editing
   const [newDifficulty, setNewDifficulty] = useState<string>(''); // Store new difficulty during editing
-  const [newCategory, setNewCategory] = useState<string>(''); // Store new category during editing
+  const [newCategory, setNewCategory] = useState<string[]>([]); // Store new category during editing
   const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
   // const baseurl = 'http://localhost:5000/question';
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ function QuestionList() {
       const newQuestion = {
         questionTitle: createTitle,
         questionDescription: createDescription,
-        questionCategory: createCategory,
+        questionCategory: createCategory.join(', '),
         difficulty: createDifficulty,
       };
 
@@ -78,7 +78,7 @@ function QuestionList() {
       setIsCreating(false); // Hide the form after creation
       setCreateTitle('');
       setCreateDescription('');
-      setCreateCategory('');
+      setCreateCategory([]);
       setCreateDifficulty('');
       fetchQuestions(); // Refresh the question list
     } catch (error) {
@@ -93,7 +93,7 @@ function QuestionList() {
     setNewTitle(question.questionTitle); // Pre-fill the fields with current values
     setNewDescription(question.questionDescription);
     setNewDifficulty(question.difficulty);
-    setNewCategory(question.questionCategory);
+    setNewCategory(question.questionCategory.split(', '));
   };
 
   // Handle Save Button Click (Update the Question)
@@ -103,7 +103,7 @@ function QuestionList() {
         questionTitle: newTitle,
         questionDescription: newDescription,
         difficulty: newDifficulty, // Keep difficulty the same, or allow editing
-        category: newCategory, // Keep category the same, or allow editing
+        questionCategory: newCategory.join(', '), // Keep category the same, or allow editing
       };
 
       await fetch(`${baseurl}/${editQuestion._id}`, {
@@ -212,8 +212,16 @@ function QuestionList() {
             <FormControl variant="outlined" style={{ marginBottom: '10px', width: '100%' }}>
               <InputLabel>Category</InputLabel>
               <Select
+                multiple
                 value={createCategory}
-                onChange={(e) => setCreateCategory(e.target.value as string)}
+                onChange={(e) => setCreateCategory(e.target.value as string[])}
+                renderValue={(selected) => (
+                  <div>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} style={{ margin: '2px' }} />
+                    ))}
+                  </div>
+                )}
                 label="Category"
               >
                 <MenuItem value="Strings">Strings</MenuItem>
@@ -286,14 +294,31 @@ function QuestionList() {
               fullWidth
               style={{ marginBottom: '10px' }}
             />
-            <TextField
-              label="Category"
-              variant="outlined"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              fullWidth
-              style={{ marginBottom: '10px' }}
-            />
+            <FormControl variant="outlined" style={{ marginBottom: '10px', width: '100%' }}>
+              <InputLabel>Category</InputLabel>
+              <Select
+                multiple
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value as string[])}
+                renderValue={(selected) => (
+                  <div>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} style={{ margin: '2px' }} />
+                    ))}
+                  </div>
+                )}
+                label="Category"
+              >
+                <MenuItem value="Strings">Strings</MenuItem>
+                <MenuItem value="Algorithms">Algorithms</MenuItem>
+                <MenuItem value="Data Structures">Data Structures</MenuItem>
+                <MenuItem value="Bit Manipulation">Bit Manipulation</MenuItem>
+                <MenuItem value="Recursion">Recursion</MenuItem>
+                <MenuItem value="Databases">Databases</MenuItem>
+                <MenuItem value="Brainteaser">Brainteaser</MenuItem>
+                {/* Add more categories as required */}
+              </Select>
+            </FormControl>
             <Button variant="contained" color="primary" onClick={handleSave}>
               Save
             </Button>
