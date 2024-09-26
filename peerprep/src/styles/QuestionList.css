@@ -88,3 +88,46 @@
   .dropdown MenuItem {
     overflow: visible;  /* Ensure text can overflow if necessary */
   }
+
+  .newQuestion {
+    display: flex;
+    position: flex;
+  }  
+
+  .MuiCard-root:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .MuiButton-containedPrimary {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    max-width: 10vw;
+    max-height: 10vh;
+    gap: 10px;
+    margin: 3px auto;
+  }
+
+  .MuiButton-containedSecondary {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    max-width: 10vw;
+    max-height: 10vh;
+    gap: 10px;
+    margin: 3px auto;
+  }
+  
+  .MuiTypography-h5 {
+    font-weight: bold;
+  }
+  
+  .container {
+    max-width: 120px;
+    margin: 0 auto;
+  }
+
+  .questionEdit {
+    margin: auto;
+    gap: 10px;
+    background-color: #e0e0e0;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }

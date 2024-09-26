@@ -8,7 +8,7 @@ import { ThemeProvider } from "react-bootstrap";
 import { updateProfile } from "firebase/auth";
 import UserHeader from "../components/UserHeader";
 import { get, ref, remove, set, update } from "firebase/database";
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/theme/material.css';
@@ -307,30 +307,38 @@ function Dashboard() {
         }
       }
     });
+    const clearAlert = setTimeout(() => {
+      setAlert(false);
+    }, 3000)
 
+    return () => {
+      if (alert) {
+        clearTimeout(clearAlert);
+      }
+    }
     // Optionally store the unsubscribe function for future cleanup
-  }, [user, loading]);
+  }, [user, loading, alert]);
   
   return ( 
     <ThemeProvider theme={theme}>
         <UserHeader/>
-    <div className="dashboard">
-       <div className="dashboard__container">
-        Logged in as
-         <div>{name}</div>
-         <div>{user?.email}</div>
-       </div>
-       <select value={difficulty} onChange={handleSelect}>
-      <option value="">Select Difficulty</option>
-      <option value="Easy">Easy</option>
-      <option value="Medium">Medium</option>
-      <option value="Hard">Hard</option>
-    </select>
-    <div>
-      <button onClick={handleMatch}>Match</button>
-    </div>
+        <div className="dashboard-container">
+      <h2>Welcome to PeerPrep, {name}</h2>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <div className="matchmaking-container">
+        <h3>Select a Difficulty:</h3>
+        <select value={difficulty} onChange={handleSelect}>
+          <option value="">--Select--</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <Button variant="contained" onClick={handleMatch}>Match</Button>
+        </div>
+        </Box>
+      {alert ? <><div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 999 }}><Alert severity='info'>{alertContent}</Alert> </div></> : <></>}
      </div>
-     {alert ? <><div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 999 }}><Alert severity='info'>{alertContent}</Alert> </div></> : <></>}
+     
      {!isMatched ? (
         <div>
         </div>
@@ -361,7 +369,7 @@ function Dashboard() {
         <p>Do you want to proceed with this match?</p>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => handleConfirmMatch(true)} color="primary">
+        <Button variant="contained" onClick={() => handleConfirmMatch(true)} color="primary">
           Confirm
         </Button>
         <Button onClick={() => handleConfirmMatch(false)} color="secondary">

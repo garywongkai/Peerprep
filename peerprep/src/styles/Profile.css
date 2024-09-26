@@ -51,10 +51,11 @@
   }
   
   .profile__info button {
-    padding: 10px;
+    padding: 10px 0;
     background-color: #5e6266;
     color: white;
     border: none;
+    width: 100%;
     border-radius: 5px;
     cursor: pointer;
   }
@@ -68,7 +69,7 @@
   }
   
   .profile__info button:hover {
-    background-color: #3a4147;
+    background-color: #afafaf;
   }
  
   .profile__info textarea { display: block;

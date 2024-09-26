@@ -1,25 +1,82 @@
 .dashboard {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  padding: 20px;
+  background-color: #f0f4f8; /* Light background for better contrast */
+  min-height: 100vh; /* Full height to fill the viewport */
+}
+
+.dashboard__container {
+  background: white; /* White background for container */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  padding: 30px; /* Increased padding for better spacing */
+  width: 100%; /* Full width */
+  max-width: 400px; /* Maximum width for better readability */
+  text-align: center; /* Center align text */
+}
+
+select {
+  padding: 10px; /* Padding for dropdown */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  margin-bottom: 20px; /* Space below dropdown */
+  width: 100%; /* Full width */
+}
+
+button {
+  background-color: #554f4f; /* Bootstrap primary color */
+  color: white; /* White text */
+  padding: 10px 15px; /* Padding for buttons */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth transition */
+  width: 100%; /* Full width */
+}
+
+button:hover {
+  background-color: #909294; /* Darker blue on hover */
+}
+
+.alert {
+  position: fixed; /* Fixed positioning for alerts */
+  top: 20px; /* Spacing from top */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Centering adjustment */
+  z-index: 999; /* On top of other content */
+  background-color: #f44336; /* Alert background color */
+  color: white; /* White text */
+  padding: 10px; /* Padding */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.dialog {
+  text-align: center; /* Center align dialog text */
+}
+
+.dialog button {
+  margin: 10px; /* Margin between dialog buttons */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .dashboard {
+      padding: 10px; /* Less padding on small screens */
   }
-  .dashboard__container {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    background-color: #dcdcdc;
-    padding: 30px;
+
+  select, button {
+      width: 100%; /* Full width on smaller screens */
   }
-  .dashboard__btn {
-    padding: 10px;
-    font-size: 18px;
-    margin-top: 10px;
-    border: none;
-    color: white;
-    background-color: black;
-  }
-  .dashboard div {
-    margin-top: 7px;
-  }
+}
+
+.matchmaking-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 100vh;
+}

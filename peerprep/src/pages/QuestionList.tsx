@@ -89,6 +89,10 @@ function QuestionList() {
 
   // Handle Edit Button Click
   const handleEdit = (question: any) => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
     setEditQuestion(question); // Set the question to be edited
     setNewTitle(question.questionTitle); // Pre-fill the fields with current values
     setNewDescription(question.questionDescription);
@@ -185,13 +189,19 @@ function QuestionList() {
           </Select>
         </FormControl>
 
-        <Button variant="contained" color="primary" onClick={() => setIsCreating(!isCreating)}>
-          {isCreating ? 'Cancel' : 'Create New Question'}
+        {/* Create New Question Button */}
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ ml: 2 }}
+          onClick={() => setIsCreating(true)}>
+          Create New Question 
         </Button>
 
         {/* Create form for new question */}
         {isCreating && (
-          <div>
+          <div className='questionEdit'>
             <h3>Create New Question</h3>
             <TextField
               label="Title"
@@ -248,27 +258,13 @@ function QuestionList() {
             <Button variant="contained" color="primary" onClick={handleCreate}>
               Create
             </Button>
+            <Button variant="contained" color="secondary" onClick={() => setIsCreating(false)}>
+          Cancel
+        </Button>
           </div>
         )}
-        {/* List of questions */}
-        <ol>
-          {questions.map((question, index) => (
-            <li className="list-group-item" key={index}>
-              <h4>{question.questionTitle}</h4>
-              <h5>{question.difficulty}</h5>
-              <h6>{question.questionDescription}</h6>
-              <p>{question.questionCategory}</p>
-              <Button variant="contained" color="primary" onClick={() => handleEdit(question)}>
-                Edit
-              </Button>
-              <Button variant="contained" color="secondary" onClick={() => handleDelete(question._id)}>
-                Delete
-              </Button>
-            </li>
-          ))}
-        </ol>
         {editQuestion && (
-          <div>
+          <div className='questionEdit'>
             <h3>Edit Question</h3>
             <TextField
               label="Title"
@@ -327,6 +323,24 @@ function QuestionList() {
             </Button>
           </div>
         )}
+        {/* List of questions */}
+        <ol>
+          {questions.map((question, index) => (
+            <li className="list-group-item" key={index}>
+              <h4>{question.questionTitle}</h4>
+              <h5>{question.difficulty}</h5>
+              <h6>{question.questionDescription}</h6>
+              <p>{question.questionCategory}</p>
+              <Button variant="contained" color="primary" onClick={() => handleEdit(question)}>
+                Edit
+              </Button>
+              <Button variant="contained" color="secondary" onClick={() => handleDelete(question._id)}>
+                Delete
+              </Button>
+            </li>
+          ))}
+        </ol>
+        
       </div>
     </ThemeProvider>
   );

@@ -1,0 +1,119 @@
+/* General Styling */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background-color: #04060a; /* Dark primary color */
+    color: white;
+    padding: 50px 0;
+    text-align: center;
+  }
+  
+  .hero-section h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  .hero-section p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  .hero-section .MuiButton-contained {
+    padding: 10px 20px;
+    font-size: 1rem;
+    text-transform: none;
+  }
+  
+  .hero-section .MuiButton-contained:hover {
+    background-color: #0f1825;
+  }
+  
+  /* Features Section */
+  .features-section {
+    background-color: #ffffff;
+    padding: 5px 0;
+  }
+  
+  .features-section h2 {
+    color: #04060a;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .features-section .MuiCard-root {
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+    
+  }
+  
+  .features-section .MuiCard-root:hover {
+    transform: translateY(-10px);
+  }
+  
+  .features-section .MuiCardMedia-root {
+    border-bottom: 5px solid #04060a;
+    
+  }
+  
+  .features-section .MuiCardContent-root {
+    padding: 10px;
+  }
+  
+  .features-section .MuiTypography-h5 {
+    color: #04060a;
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+  }
+  
+  .features-section .MuiTypography-body1 {
+    color: #333;
+    font-size: 1rem;
+  }
+  
+  @media screen and (max-width: 600px) {
+    .hero-section h1 {
+      font-size: 2.25rem;
+    }
+  
+    .hero-section p {
+      font-size: 1rem;
+    }
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  .mediacontainer {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    background-color: rgb(255, 255, 255);
+  }
+  
