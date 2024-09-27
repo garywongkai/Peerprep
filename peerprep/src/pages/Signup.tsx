@@ -68,7 +68,7 @@ const Signup: React.FC = () => {
           Register with Google
         </button>
         <div>
-          Already have an account? <Link to="/signin">Login</Link> now.
+          Already have an account? <Link to="/signin"><u>Login</u></Link> now.
         </div>
       </div>
       <span className="register__divider"/>

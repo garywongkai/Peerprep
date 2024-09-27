@@ -6,6 +6,7 @@ import { auth, db, theme } from '../firebase';
 import { Button, Chip, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider } from '@mui/material';
 import UserHeader from '../components/UserHeader';
 import '../styles/QuestionList.css';
+import Header from '../components/Header';
 function QuestionList() {
   const [user, loading, error] = useAuthState(auth);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -21,6 +22,7 @@ function QuestionList() {
   const [newDescription, setNewDescription] = useState<string>(''); // Store new description during editing
   const [newDifficulty, setNewDifficulty] = useState<string>(''); // Store new difficulty during editing
   const [newCategory, setNewCategory] = useState<string[]>([]); // Store new category during editing
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
   // const baseurl = 'http://localhost:5000/question';
   const navigate = useNavigate();
@@ -140,13 +142,18 @@ function QuestionList() {
   };
 
   useEffect(() => {
-    if (!user) return navigate('/signin');
+    if (!user) {
+      setIsAuth(false);
+    } else {
+      setIsAuth(true);
+    }
+      // return navigate('/signin');
     fetchQuestions();
   }, [user, loading, category, difficulty]);
 
   return (
     <ThemeProvider theme={theme}>
-      <UserHeader />
+      {isAuth ? <UserHeader /> : <Header />}
       <div>
         <h1>Question List</h1>
 
@@ -190,17 +197,38 @@ function QuestionList() {
         </FormControl>
 
         {/* Create New Question Button */}
-        <Button
+        {isAuth ? (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ ml: 2 }}
+            onClick={() => setIsCreating(true)}>
+            Create New Question
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ ml: 2 }}
+            onClick={() => navigate('/signin')}>
+            Sign In to Create Question
+          </Button>
+        )}
+
+        {/* Create form for new question */}
+        {/* <Button
           variant="contained"
           color="primary"
           size="large"
           sx={{ ml: 2 }}
           onClick={() => setIsCreating(true)}>
           Create New Question 
-        </Button>
+        </Button> */}
 
         {/* Create form for new question */}
-        {isCreating && (
+        {isCreating && isAuth && (
           <div className='questionEdit'>
             <h3>Create New Question</h3>
             <TextField
@@ -263,7 +291,7 @@ function QuestionList() {
         </Button>
           </div>
         )}
-        {editQuestion && (
+        {editQuestion && isAuth && (
           <div className='questionEdit'>
             <h3>Edit Question</h3>
             <TextField
@@ -331,12 +359,14 @@ function QuestionList() {
               <h5>{question.difficulty}</h5>
               <h6>{question.questionDescription}</h6>
               <p>{question.questionCategory}</p>
+              {isAuth ? (<>
               <Button variant="contained" color="primary" onClick={() => handleEdit(question)}>
                 Edit
               </Button>
               <Button variant="contained" color="secondary" onClick={() => handleDelete(question._id)}>
                 Delete
-              </Button>
+              </Button></>)
+              : <></>}
             </li>
           ))}
         </ol>

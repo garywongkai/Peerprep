@@ -88,10 +88,10 @@ const Signin: React.FC = () => {
             Login with Google
           </button>
           <div>
-            <Link to="/reset">Forgot Password</Link>
+            <Link to="/reset"><u>Forgot Password</u>?</Link>
           </div>
           <div>
-            Don't have an account? <Link to="/signup">Register</Link> now.
+            Don't have an account? <Link to="/signup"><u>Register</u></Link> now.
           </div>
         </div>
         <span className="login__divider"></span>

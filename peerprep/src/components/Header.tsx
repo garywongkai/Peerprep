@@ -53,6 +53,9 @@ const Header: React.FC = () => {
             
           </Typography>
             <Stack spacing={2} direction="row" justifyContent="center">
+            <Button component={RouterLink} to="/question" variant="contained" color="primary">
+                Question List
+              </Button>
               <Button component={RouterLink} to="/signup" variant="contained" color="primary">
                 Sign up
               </Button>
