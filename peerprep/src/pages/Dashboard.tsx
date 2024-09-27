@@ -73,10 +73,9 @@ function Dashboard() {
         },
       });
       const data = await response.json();
-      
-        // console.log(data);
-        questionName = data.questionTitle;
-        setQuestion(data._id);
+      console.log(data);
+      questionName = data.questionTitle;
+      setQuestion(data._id);
     } catch (err) {
       console.error(err);
       setAlertContent('An error occurred. Please try again');
@@ -329,9 +328,9 @@ function Dashboard() {
         <h3>Select a Difficulty:</h3>
         <select value={difficulty} onChange={handleSelect}>
           <option value="">--Select--</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
         </select>
         <Button variant="contained" onClick={handleMatch}>Match</Button>
         </div>
