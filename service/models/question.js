@@ -9,11 +9,13 @@ var schema = new mongoose.Schema({
 		type: String,
 		default: "",
 		required: true,
+		unique: true,
 	},
 	questionDescription: {
 		type: String,
 		default: "",
 		required: true,
+		unique: true,
 	},
 	questionCategory: {
 		type: String,
