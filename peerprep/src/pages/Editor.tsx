@@ -3,7 +3,7 @@ import { Controlled as CodeMirror } from 'react-codemirror2';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, theme } from '../firebase'; // Firebase setup
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, updateDoc, query, collection, getDocs, where, deleteDoc } from 'firebase/firestore';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import 'codemirror/theme/dracula.css';
@@ -42,7 +42,9 @@ const Editor = () => {
     const [bothSubmitted, setBothSubmitted] = useState(false);
     const [questionData, setQuestionData] = useState<any>({});
     const codeRef = doc(db, 'sessions', matchId!);
+    const [confirmedEnd, setConfirmedEnd] = useState(false);
     const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+    setDoc(codeRef, { status: "coding" }, { merge: true }); // Initialize submitStatus object
     const fetchQuestions = async () => {
         try {
         let url = `${baseurl}/`;
@@ -69,8 +71,20 @@ const Editor = () => {
     const handleTheme = (e: any) => {
         setEditorTheme(e.target.value)
     };
+
+    const handleMatchEnd = async () => {
+        try {
+            const q = query(collection(db, "matches"), where("matchId", "==", matchId!), where("status", "==", "active"));
+            const currentmatch = (await getDocs(q)).docs[0].ref;
+            await updateDoc(currentmatch, { status: "finished", code: code, endTime: new Date().toISOString() });
+        } catch {
+            console.error('Status already updated');
+            return;
+        }
+    };
+
     // Ensure user is defined before creating the document reference
-    const submitStatusRef = user ? doc(db, 'sessions', matchId!, 'submitStatus', user.uid) : null;
+    // const submitStatusRef = user ? doc(db, 'sessions', matchId!, 'submitStatus', user.uid) : null;
     useEffect(() => {
         if (loading) return; // Do nothing while loading
         if (!user) return navigate("/signin");
@@ -98,17 +112,34 @@ const Editor = () => {
     );
 
     const handleSubmit = async () => {
-        if (!user || !submitStatusRef) return; // Ensure user is authenticated and ref is defined
+        if (!user) return; // Ensure user is authenticated and ref is defined
 
         setHasSubmitted(true);
-        await setDoc(submitStatusRef, { submitted: true }, { merge: true }); // Store submission status
-
+        // await setDoc(submitStatusRef, { submitted: true }, { merge: true }); // Store submission status
+        if (user) {
+            try {
+                await updateDoc(codeRef, {
+                    [`submitStatus.${user.uid}`]: { submitted: true }
+                });
+                console.log('Submission status updated for user:', user.uid);
+            } catch (error) {
+                console.error('Error updating submission status:', error);
+            }
+        }
         // Listen for submit status updates
-        const unsubscribe = onSnapshot(doc(db, 'sessions', matchId!, 'submitStatus'), (snapshot) => {
-            const submitStatus = snapshot.data() || {};
-            const bothUsersSubmitted = submitStatus[matchData.userId1]?.submitted && submitStatus[matchData.userId2]?.submitted;
+        const unsubscribe = onSnapshot(codeRef, async (snapshot) => {
+            const sessionData = snapshot.data() || {};
+            const submitStatus = sessionData.submitStatus || {};
+            const bothUsersSubmitted = submitStatus[matchData.userId1]?.submitted === true && submitStatus[matchData.userId2]?.submitted === true;
             if (bothUsersSubmitted) {
                 setBothSubmitted(true);
+                try {
+                    await updateDoc(codeRef, { status: 'submitted' });
+                    await deleteDoc(codeRef);
+                    console.log('Session status updated to "submitted"');
+                } catch (error) {
+                    console.error('Error updating session status:', error);
+                }
                 unsubscribe(); // Stop listening once both have submitted
             }
         });
@@ -117,6 +148,10 @@ const Editor = () => {
     useEffect(() => {
         if (bothSubmitted) {
             alert('Both users have submitted. The session is ending.');
+            handleMatchEnd();
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 5000); 
         }
     }, [bothSubmitted]);
 

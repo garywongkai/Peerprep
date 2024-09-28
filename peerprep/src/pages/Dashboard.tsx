@@ -94,6 +94,7 @@ function Dashboard() {
     matchId: string;
     status: string;
     questionName: string;
+    endTime?: string;
   }
 
   const handleSelect = (e: any) => {
@@ -169,6 +170,7 @@ function Dashboard() {
     if (matchData) {
     const q = query(collection(db, "matches"), where("matchId", "==", matchData.matchId));
     const currentmatch = (await getDocs(q)).docs[0].ref;
+    
     if (confirm) {
       // Set the user's confirmation status
       await updateDoc(currentmatch, { [`${user?.uid}_confirmed`]: true });
@@ -179,6 +181,7 @@ function Dashboard() {
       if (!currentMatchSnapshot.empty) {
         matchStatus = currentMatchSnapshot.docs[0].data();
       }
+    
       if (matchStatus && matchStatus[`${matchData.userId1}_confirmed`] && matchStatus[`${matchData.userId2}_confirmed`]) {
         // Both users confirmed, create the match
         await updateDoc(currentmatch, {
@@ -225,11 +228,11 @@ function Dashboard() {
     
     const matchQuery1 = query(
       collection(db, "matches"),
-      where("userId1", "==", user.uid)
+      where("userId1", "==", user.uid),  where("status", "in", ["active", "pending", "canceled"])
     );
     const matchQuery2 = query(
       collection(db, "matches"),
-      where("userId2", "==", user.uid)
+      where("userId2", "==", user.uid),  where("status", "in", ["active", "pending", "canceled"])
     );
     const unsubscribe1 = onSnapshot(matchQuery1, (snapshot) => {
       if (!snapshot.empty) {
@@ -311,6 +314,8 @@ function Dashboard() {
     }, 3000)
 
     return () => {
+      unsubscribe1();
+      unsubscribe2();
       if (alert) {
         clearTimeout(clearAlert);
       }
