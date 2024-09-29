@@ -52,12 +52,10 @@ steps:
 
   - name: "gcr.io/cloud-builders/npm"
     dir: "service"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        echo "MONGO_DB_URI=$$MONGO_DB_URI" > .env
-    secretEnv: ["MONGO_DB_URI"]
+    args: ["run", "create-env"]
+    env:
+      - "COMMIT_SHA=${COMMIT_SHA}"
+      - "MONGO_DB_URI=${_REACT_APP_MONGO_DB_URI}"
 
   # build the service container image
   - name: "gcr.io/cloud-builders/docker"
