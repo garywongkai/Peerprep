@@ -4,6 +4,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, theme } from '../firebase'; // Firebase setup
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { doc, setDoc, onSnapshot, updateDoc, query, collection, getDocs, where, deleteDoc } from 'firebase/firestore';
+import { CollaborationService } from '../service/CollaborationService';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import 'codemirror/theme/dracula.css';
@@ -17,19 +18,6 @@ import UserHeader from '../components/UserHeader';
 import { ThemeProvider } from '@mui/material';
 import debounce from 'lodash.debounce';
 
-interface MatchData {
-    userName1: string;
-    userName2: string;
-    userId1: string;
-    userId2: string;
-    difficulty: string;
-    date: string;
-    question: any;
-    matchId: string;
-    status: string;
-    questionName: string;
-  }
-
 const Editor = () => {
     const [user, loading, error] = useAuthState(auth);
     const location = useLocation();
@@ -42,8 +30,8 @@ const Editor = () => {
     const [bothSubmitted, setBothSubmitted] = useState(false);
     const [questionData, setQuestionData] = useState<any>({});
     const codeRef = doc(db, 'sessions', matchId!);
-    const [confirmedEnd, setConfirmedEnd] = useState(false);
     const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+    const [collaborationService, setCollaborationService] = useState<CollaborationService | null>(null);
     setDoc(codeRef, { status: "coding" }, { merge: true }); // Initialize submitStatus object
     const fetchQuestions = async () => {
         try {
@@ -83,8 +71,6 @@ const Editor = () => {
         }
     };
 
-    // Ensure user is defined before creating the document reference
-    // const submitStatusRef = user ? doc(db, 'sessions', matchId!, 'submitStatus', user.uid) : null;
     useEffect(() => {
         if (loading) return; // Do nothing while loading
         if (!user) return navigate("/signin");
@@ -92,40 +78,37 @@ const Editor = () => {
     useEffect(() => {
         if (!matchId) return; // Ensure matchId is defined
         fetchQuestions();
-        const unsubscribe = onSnapshot(codeRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const { code } = docSnapshot.data() || {};
-                if (code !== undefined && code !== null) {
-                    setCode(code);
-                }
-            }
-        });
-        
-        return () => unsubscribe();
+        if (matchId) {
+            const service = new CollaborationService(matchId);
+            setCollaborationService(service);
+            service.initializeSession('// Start coding here...');
+          }
     }, [matchId]);
+
+    useEffect(() => {
+        if (collaborationService) {
+          const unsubscribe = collaborationService.subscribeToCodeChanges((newCode) => {
+            setCode(newCode);
+          });
+          return () => unsubscribe();
+        }
+      }, [collaborationService]);
+
     const handleCodeChange = useCallback(
         debounce((editor, data, value) => {
             setCode(value);
-            setDoc(codeRef, { code: value }, { merge: true }); // Save the updated code to Firestore
+             if (collaborationService) {
+                collaborationService.updateCode(value);
+            }
         }, 500), // 500ms delay for debouncing
-        []
+        [collaborationService]
     );
 
     const handleSubmit = async () => {
-        if (!user) return; // Ensure user is authenticated and ref is defined
+        if (!user || !collaborationService) return; // Ensure user is authenticated and ref is defined
 
         setHasSubmitted(true);
-        // await setDoc(submitStatusRef, { submitted: true }, { merge: true }); // Store submission status
-        if (user) {
-            try {
-                await updateDoc(codeRef, {
-                    [`submitStatus.${user.uid}`]: { submitted: true }
-                });
-                console.log('Submission status updated for user:', user.uid);
-            } catch (error) {
-                console.error('Error updating submission status:', error);
-            }
-        }
+        await collaborationService.submitCode(user.uid);
         // Listen for submit status updates
         const unsubscribe = onSnapshot(codeRef, async (snapshot) => {
             const sessionData = snapshot.data() || {};
@@ -133,14 +116,8 @@ const Editor = () => {
             const bothUsersSubmitted = submitStatus[matchData.userId1]?.submitted === true && submitStatus[matchData.userId2]?.submitted === true;
             if (bothUsersSubmitted) {
                 setBothSubmitted(true);
-                try {
-                    await updateDoc(codeRef, { status: 'submitted' });
-                    await deleteDoc(codeRef);
-                    console.log('Session status updated to "submitted"');
-                } catch (error) {
-                    console.error('Error updating session status:', error);
-                }
-                unsubscribe(); // Stop listening once both have submitted
+                collaborationService.endSession();
+        unsubscribe();
             }
         });
     };
