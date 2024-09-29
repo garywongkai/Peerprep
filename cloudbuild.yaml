@@ -63,11 +63,11 @@ steps:
     args:
       [
         "build",
-        "--build-arg",
-        "NODE_ENV=production",
         "-t",
-        "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
-        ".",
+        "gcr.io/$PROJECT_ID/service:$COMMIT_SHA",
+        "-f",
+        "service/Dockerfile",
+        "service",
       ]
 
   # push the service container image to Container Registry (GCR)
