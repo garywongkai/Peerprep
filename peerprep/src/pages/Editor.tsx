@@ -30,7 +30,8 @@ const Editor = () => {
     const [bothSubmitted, setBothSubmitted] = useState(false);
     const [questionData, setQuestionData] = useState<any>({});
     const codeRef = doc(db, 'sessions', matchId!);
-    const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+    // const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
+    const baseurl = 'http://localhost:5000';
     const [collaborationService, setCollaborationService] = useState<CollaborationService | null>(null);
     setDoc(codeRef, { status: "coding" }, { merge: true }); // Initialize submitStatus object
     const fetchQuestions = async () => {

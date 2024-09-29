@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
@@ -7,8 +8,7 @@ const mongoose = require("mongoose");
 const clientOptions = {
 	serverApi: { version: "1", strict: true, deprecationErrors: true },
 };
-const uri =
-	"mongodb+srv://questionMaster:questionMaster@cluster.tyji51x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster";
+const uri = process.env.MONGO_DB_URI;
 mongoose.Promise = global.Promise;
 mongoose
 	.connect(uri, clientOptions)
