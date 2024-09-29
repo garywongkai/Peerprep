@@ -1,6 +1,8 @@
 steps:
   - name: 'ubuntu'
     args: ['bash', '-c', 'find /workspace -name Dockerfile']
+  - name: 'ubuntu'
+    args: ['bash', '-c', 'echo "Root .dockerignore:" && cat /workspace/.dockerignore 2>/dev/null || echo "No root .dockerignore" && echo "Service .dockerignore:" && cat /workspace/service/.dockerignore 2>/dev/null || echo "No service .dockerignore"']
   # - name: "gcr.io/cloud-builders/npm"
   #   dir: "peerprep"
   #   args: ["install"]
