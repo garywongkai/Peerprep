@@ -1,8 +1,8 @@
 steps:
-  - name: 'ubuntu'
+  - name: "ubuntu"
     args:
-      - 'bash'
-      - '-c'
+      - "bash"
+      - "-c"
       - |
         if [ ! -f /workspace/service/Dockerfile ]; then
           echo "FROM node:20.17.0-alpine as base" > /workspace/service/Dockerfile
@@ -75,6 +75,8 @@ steps:
     args:
       [
         "build",
+        "--build-arg",
+        "NODE_ENV=production",
         "-t",
         "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
         "./service",
@@ -100,14 +102,6 @@ steps:
       - --set-env-vars=MONGO_DB_URI=$$MONGO_DB_URI
       - --platform=managed
     secretEnv: ["MONGO_DB_URI"]
-
-  - name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        echo "Listing Docker images:"
-        docker images
 
 images:
   - "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
@@ -135,7 +129,7 @@ options:
 
 availableSecrets:
   secretManager:
-    - versionName: projects/$PROJECT_ID/secrets/MONGO_DB_URI/versions/latest
+    - versionName: projects/$PROJECT_ID/secrets/MONGO_DB_URI/versions/1
       env: "MONGO_DB_URI"
 # availableSecrets:
 #   secretManager:
