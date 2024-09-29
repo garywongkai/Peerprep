@@ -49,6 +49,7 @@ steps:
 
   # # Deploy the container image to Cloud Run
   # - name: "gcr.io/cloud-builders/gcloud"
+  #   dir: "peerprep"
   #   args:
   #     - run
   #     - deploy
@@ -93,6 +94,7 @@ steps:
 
   # Deploy the service container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
+    dir: "service"
     args:
       - run
       - deploy
