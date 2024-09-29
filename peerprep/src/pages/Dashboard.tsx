@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import { auth, db, theme } from "../firebase";
 import { doc, query, collection, getDocs, where, deleteDoc, getDoc, setDoc, onSnapshot, updateDoc } from "firebase/firestore";
-import { ThemeProvider } from "react-bootstrap";
+import { Table, ThemeProvider } from "react-bootstrap";
 import { updateProfile } from "firebase/auth";
 import UserHeader from "../components/UserHeader";
-import { MatchmakingService, MatchData } from '../service/MatchmakingService';
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { MatchmakingService, MatchData, QuestionHistoryItem } from '../service/MatchmakingService';
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/theme/material.css';
@@ -27,6 +27,7 @@ function Dashboard() {
   const [isMatched, setIsMatched] = useState(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [matchmakingService, setMatchmakingService] = useState<MatchmakingService | null>(null);
+  const [questionHistory, setQuestionHistory] = useState<QuestionHistoryItem[]>([]);
   const [matchDeclined, setMatchDeclined] = useState(false);
   let matchedUser:any;
   const fetchUserName = async () => {
@@ -114,6 +115,18 @@ function Dashboard() {
       console.error("Error removing user from queue: ", err);
       setAlertContent("Failed to cancel matchmaking. Please try again.");
       setAlert(true);
+    }
+  };
+  useEffect(() => {
+    if (matchmakingService) {
+      fetchQuestionHistory();
+    }
+  }, [matchmakingService]);
+
+  const fetchQuestionHistory = async () => {
+    if (matchmakingService) {
+      const history = await matchmakingService.getQuestionHistory();
+      setQuestionHistory(history);
     }
   };
 
@@ -255,6 +268,27 @@ function Dashboard() {
         <Button variant="contained" onClick={handleMatch}>Match</Button>
         </div>
         </Box>
+        <h2>Question History</h2>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Question</TableCell>
+              <TableCell>Difficulty</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {questionHistory.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>{new Date(item.date).toLocaleString()}</TableCell>
+                <TableCell>{item.questionName}</TableCell>
+                <TableCell>{item.difficulty}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
       {alert ? <><div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 999 }}><Alert severity='info'>{alertContent}</Alert> </div></> : <></>}
      </div>
      

@@ -1,5 +1,5 @@
 import { db, auth } from '../firebase';
-import { collection, doc, setDoc, query, where, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, query, where, getDocs, deleteDoc, updateDoc, orderBy, QuerySnapshot } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
 
@@ -28,6 +28,14 @@ const fetchQuestions = async (difficulty: string) => {
       console.error(err);
     }
   };
+
+export interface QuestionHistoryItem {
+  date: string;
+  questionName: string;
+  difficulty: string;
+  matchId: string;
+  collaborator: string;
+}
 
 export interface MatchData {
     userName1: string;
@@ -166,6 +174,50 @@ export class MatchmakingService {
         }
     
         return false;
+      }
+      async getQuestionHistory(): Promise<QuestionHistoryItem[]> {
+        if (!this.user) throw new Error("User not authenticated");
+    
+        const matchesQuery = query(
+          collection(db, "matches"),
+          where("status", "==", "finished"),
+          where("userId1", "==", this.user.uid),
+          orderBy("date", "desc")
+        );
+    
+        const matchesQuery2 = query(
+          collection(db, "matches"),
+          where("status", "==", "finished"),
+          where("userId2", "==", this.user.uid),
+          orderBy("date", "desc")
+        );
+    
+        const [snapshot1, snapshot2] = await Promise.all([
+          getDocs(matchesQuery),
+          getDocs(matchesQuery2)
+        ]);
+    
+        const history: QuestionHistoryItem[] = [];
+    
+        const processSnapshot = (snapshot: QuerySnapshot) => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            history.push({
+              date: data.date || 'Unknown Date',
+              questionName: data.questionName || 'Unknown Question',
+              difficulty: data.difficulty || 'Unknown Difficulty',
+              matchId: data.matchId || doc.id,
+              collaborator: this.user!.uid === data.userId1 ? data.userName2 : data.userName1
+            });
+        });
+        }
+        processSnapshot(snapshot1);
+        processSnapshot(snapshot2);
+    
+        // Sort combined results by date
+        history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+        return history;
       }
 }
 
