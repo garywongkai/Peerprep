@@ -13,6 +13,16 @@ steps:
           echo "EXPOSE 8080" >> /workspace/service/Dockerfile
           echo "CMD [ \"npm\", \"start\" ]" >> /workspace/service/Dockerfile
         fi
+  - name: 'node:18'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Node version:" && node --version
+        echo "NPM version:" && npm --version
+        echo "Contents of package.json:" && cat package.json
+        echo "MongoDB version:" && npm list mongodb
+        echo "BSON version:" && npm list bson
   # - name: "gcr.io/cloud-builders/npm"
   #   dir: "peerprep"
   #   args: ["install"]
