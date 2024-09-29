@@ -1,4 +1,6 @@
 steps:
+  - name: 'ubuntu'
+    args: ['bash', '-c', 'ls -R /workspace']
   - name: "gcr.io/cloud-builders/npm"
     dir: "peerprep"
     args: ["install"]
