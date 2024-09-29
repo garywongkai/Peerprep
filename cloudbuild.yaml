@@ -60,7 +60,13 @@ steps:
   # build the service container image
   - name: "gcr.io/cloud-builders/docker"
     dir: "service"
-    args: ["build", "-t", "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",, "-f", "."]
+    args:
+      [
+        "build",
+        "-t",
+        "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
+        ".",
+      ]
 
   # push the service container image to Container Registry (GCR)
   - name: "gcr.io/cloud-builders/docker"
