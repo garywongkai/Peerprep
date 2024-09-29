@@ -87,10 +87,7 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     dir: "service"
     args:
-      [
-        "push",
-        "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
-      ]
+      ["push", "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA"]
 
   # Deploy the service container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
