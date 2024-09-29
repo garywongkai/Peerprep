@@ -5,13 +5,13 @@ steps:
       - '-c'
       - |
         if [ ! -f /workspace/service/Dockerfile ]; then
-          echo "FROM node:18-alpine" > /workspace/service/Dockerfile
+          echo "FROM node:20.17.0-alpine as base" > /workspace/service/Dockerfile
           echo "WORKDIR /app" >> /workspace/service/Dockerfile
           echo "COPY package*.json ./" >> /workspace/service/Dockerfile
           echo "RUN npm install" >> /workspace/service/Dockerfile
           echo "COPY . ." >> /workspace/service/Dockerfile
           echo "EXPOSE 5000" >> /workspace/service/Dockerfile
-          echo "CMD [ \"npm\", \"start\" ]" >> /workspace/service/Dockerfile
+          echo 'CMD [ "npm", "start" ]' >> /workspace/service/Dockerfile
         fi
   # - name: "gcr.io/cloud-builders/npm"
   #   dir: "peerprep"
