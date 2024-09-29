@@ -8,6 +8,9 @@
     "start": "node server.js",
     "create-env": "printenv > .env"
   },
+  "engines": {
+       "node": ">=16.0.0"
+     },
   "author": "Wong Kai Li",
   "license": "ISC",
   "dependencies": {
