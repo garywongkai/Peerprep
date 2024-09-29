@@ -1,8 +1,18 @@
 steps:
   - name: 'ubuntu'
-    args: ['bash', '-c', 'find /workspace -name Dockerfile']
-  - name: 'ubuntu'
-    args: ['bash', '-c', 'echo "Root .dockerignore:" && cat /workspace/.dockerignore 2>/dev/null || echo "No root .dockerignore" && echo "Service .dockerignore:" && cat /workspace/service/.dockerignore 2>/dev/null || echo "No service .dockerignore"']
+    args:
+      - 'bash'
+      - '-c'
+      - |
+        if [ ! -f /workspace/service/Dockerfile ]; then
+          echo "FROM node:14" > /workspace/service/Dockerfile
+          echo "WORKDIR /app" >> /workspace/service/Dockerfile
+          echo "COPY package*.json ./" >> /workspace/service/Dockerfile
+          echo "RUN npm install" >> /workspace/service/Dockerfile
+          echo "COPY . ." >> /workspace/service/Dockerfile
+          echo "EXPOSE 8080" >> /workspace/service/Dockerfile
+          echo "CMD [ \"npm\", \"start\" ]" >> /workspace/service/Dockerfile
+        fi
   # - name: "gcr.io/cloud-builders/npm"
   #   dir: "peerprep"
   #   args: ["install"]
