@@ -57,6 +57,17 @@ steps:
       - "COMMIT_SHA=${COMMIT_SHA}"
       - "MONGO_DB_URI=${_REACT_APP_MONGO_DB_URI}"
 
+  - name: 'ubuntu'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Contents of build context:"
+        ls -R
+        echo "Current working directory:"
+        pwd
+
+
   # build the service container image
   - name: "gcr.io/cloud-builders/docker"
     dir: "service"
