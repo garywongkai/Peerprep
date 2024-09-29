@@ -25,7 +25,7 @@ steps:
         "NODE_ENV=production",
         "-t",
         "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA",
-        "./peerprep",
+        ".",
       ]
 
   # push the container image to Container Registry (GCR)
@@ -52,12 +52,12 @@ steps:
 
   - name: "gcr.io/cloud-builders/npm"
     dir: "service"
-    entrypoint: 'bash'
+    entrypoint: "bash"
     args:
-      - '-c'
+      - "-c"
       - |
         echo "MONGO_DB_URI=$$MONGO_DB_URI" > .env
-    secretEnv: ['MONGO_DB_URI']
+    secretEnv: ["MONGO_DB_URI"]
 
   # build the service container image
   - name: "gcr.io/cloud-builders/docker"
@@ -69,14 +69,17 @@ steps:
         "NODE_ENV=production",
         "-t",
         "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
-        "./service",
+        ".",
       ]
 
   # push the service container image to Container Registry (GCR)
   - name: "gcr.io/cloud-builders/docker"
     dir: "service"
     args:
-      ["push", "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA"]
+      [
+        "push",
+        "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
+      ]
 
   # Deploy the service container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
@@ -88,7 +91,7 @@ steps:
       - --region=${_LOCATION}
       - --set-env-vars=MONGO_DB_URI=$$MONGO_DB_URI
       - --platform=managed
-    secretEnv: ['MONGO_DB_URI']
+    secretEnv: ["MONGO_DB_URI"]
 
 images:
   - "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
@@ -117,7 +120,7 @@ options:
 availableSecrets:
   secretManager:
     - versionName: projects/$PROJECT_ID/secrets/MONGO_DB_URI/versions/latest
-      env: 'MONGO_DB_URI'
+      env: "MONGO_DB_URI"
 # availableSecrets:
 #   secretManager:
 #     - versionName: projects/327190433280/secrets/firebase/versions/1
