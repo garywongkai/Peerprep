@@ -122,13 +122,53 @@ export class MatchmakingService {
     async declineMatch(matchId: string): Promise<void> {
         if (!this.user) throw new Error("User not authenticated");
 
-        const q = query(collection(db, "matches"), where("matchId", "==", matchId));
-        const currentMatch = (await getDocs(q)).docs[0].ref;
-
-        await updateDoc(currentMatch, {
-            status: "canceled",
+        const matchesQuery = query(collection(db, "matches"), where("matchId", "==", matchId));
+        const matchSnapshot = await getDocs(matchesQuery);
+        const matchDoc = matchSnapshot.docs[0];
+        const matchData = matchSnapshot.docs[0].data() as MatchData;
+        
+        // Delete the match
+        // Update the match status to 'canceled'
+        await updateDoc(matchDoc.ref, { status: "canceled" });
+    
+        // Determine the other user's ID
+        const otherUserId = matchData.userId1 === this.user.uid ? matchData.userId2 : matchData.userId1;
+   
+        // Notify the other user that the match was declined (you might want to implement a notification system)
+        // For now, we'll just update a field in the user's document
+        const otherUserRef = doc(collection(db, "users"), otherUserId);
+        await updateDoc(otherUserRef, {
+          lastMatchDeclined: true,
+          lastMatchDeclinedAt: new Date().toISOString()
         });
+
+        
+
+        await deleteDoc(doc(collection(db, "waiting_users"), this.user.uid));
+        // await deleteDoc(doc(collection(db, "waiting_users"), otherUserId));
     }
+
+    async checkAndHandleDeclinedMatch(): Promise<boolean> {
+        if (!this.user) throw new Error("User not authenticated");
+    
+        const userRef = doc(collection(db, "users"), this.user.uid);
+        const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", this.user.uid)));
+        const userData = userDoc.docs[0].data();
+    
+        if (userData.matchDeclined) {
+          // Reset the matchDeclined flag
+          await updateDoc(userRef, { 
+            matchDeclined: false,
+            matchDeclinedAt: null
+          });
+    
+          return true;
+        }
+    
+        return false;
+      }
 }
+
+
 
 export const createMatchmakingService = (user: User | null) => new MatchmakingService(user);

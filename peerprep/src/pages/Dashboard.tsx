@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
@@ -27,6 +27,7 @@ function Dashboard() {
   const [isMatched, setIsMatched] = useState(false);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [matchmakingService, setMatchmakingService] = useState<MatchmakingService | null>(null);
+  const [matchDeclined, setMatchDeclined] = useState(false);
   let matchedUser:any;
   const fetchUserName = async () => {
     try {
@@ -50,10 +51,38 @@ function Dashboard() {
       setAlert(true);
     }
   };
+  
 
   const handleSelect = (e: any) => {
     setDifficulty(e.target.value);
   };
+
+  const checkDeclinedMatch = async () => {
+    if (matchmakingService) {
+      const wasDeclined = await matchmakingService.checkAndHandleDeclinedMatch();
+      if (wasDeclined) {
+        setMatchDeclined(true);
+        setOpenMatchDialog(false);
+        setIsMatched(false);
+        setAlertContent("Your last match was declined. You can start a new match when you're ready.");
+        setAlert(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (matchDeclined) {
+      setAlertContent("Your last match was declined. You've been returned to the waiting queue.");
+      setAlert(true);
+      setMatchDeclined(false);
+    }
+  }, [matchDeclined]);
+
+  useEffect(() => {
+    if (user && matchmakingService) {
+      checkDeclinedMatch();
+    }
+  }, [user, matchmakingService]);
 
   const handleMatch = async () => {
     if (!difficulty) {
@@ -62,6 +91,7 @@ function Dashboard() {
       return;
     }
     if (matchmakingService) {
+      setMatchDeclined(false);
       await matchmakingService.initiateMatch(difficulty, name);
       const match = await matchmakingService.findMatch(difficulty);
       if (match) {
@@ -101,6 +131,8 @@ function Dashboard() {
         setOpenMatchDialog(false);
         setIsMatched(false);
         handleCancel();
+        setAlertContent("You've declined the match. You can start a new match when you're ready.");
+        setAlert(true);
       }
     }
   };
