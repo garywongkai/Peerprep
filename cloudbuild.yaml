@@ -1,6 +1,4 @@
 steps:
-  - name: 'ubuntu'
-    args: ['bash', '-c', 'ls -R /workspace']
   - name: "gcr.io/cloud-builders/npm"
     dir: "peerprep"
     args: ["install"]
@@ -70,6 +68,7 @@ steps:
 
   # push the service container image to Container Registry (GCR)
   - name: "gcr.io/cloud-builders/docker"
+    dir: "service"
     args:
       [
         "push",
