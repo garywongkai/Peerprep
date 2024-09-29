@@ -1,1 +1,4 @@
 * @garywongkai
+
+# Owner for a specific file <replace path to a actual file> change @ConfigManager to own username
+# /config/important-config.json @ConfigManager
