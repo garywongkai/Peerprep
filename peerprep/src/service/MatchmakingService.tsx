@@ -1,6 +1,6 @@
 import { db, auth } from '../firebase';
+import { userService, User } from './UserService';
 import { collection, doc, setDoc, query, where, getDocs, deleteDoc, updateDoc, orderBy, QuerySnapshot } from 'firebase/firestore';
-import { User } from 'firebase/auth';
 const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
 
 const fetchQuestions = async (difficulty: string) => {
@@ -58,35 +58,44 @@ export class MatchmakingService {
         this.user = user;
     }
 
+    async initialize(): Promise<void> {
+        try {
+            this.user = await userService.verifyToken();
+        } catch (error) {
+            console.error("Authentication error:", error);
+            throw new Error("User not authenticated");
+        }
+    }
+
     async initiateMatch(difficulty: string, name: string): Promise<void> {
         if (!this.user) throw new Error("User not authenticated");
 
-        const waitingUserRef = doc(collection(db, "waiting_users"), this.user.uid);
+        const waitingUserRef = doc(collection(db, "waiting_users"), this.user.id);
         await setDoc(waitingUserRef, {
             userName: name,
             difficulty,
             timestamp: new Date().toISOString(),
-            userId: this.user.uid,
+            userId: this.user.id,
         });
     }
 
     async findMatch(difficulty: string): Promise<MatchData | null> {
         if (!this.user) throw new Error("User not authenticated");
 
-        const q = query(collection(db, "waiting_users"), where("difficulty", "==", difficulty), where("userId", "!=", this.user.uid));
+        const q = query(collection(db, "waiting_users"), where("difficulty", "==", difficulty), where("userId", "!=", this.user.id));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const matchedUser = querySnapshot.docs[0];
             const matchRef = doc(collection(db, "matches"));
-            const newMatchId = `${matchedUser.id}_${this.user.uid}`;
+            const newMatchId = `${matchedUser.id}_${this.user.id}`;
             this.question = await fetchQuestions(difficulty);
             
             const matchData: MatchData = {
                 userName1: matchedUser.data().userName,
-                userName2: this.user.displayName || '',
+                userName2: this.user.username || '',
                 userId1: matchedUser.id,
-                userId2: this.user.uid,
+                userId2: this.user.id,
                 difficulty,
                 date: new Date().toISOString(),
                 matchId: newMatchId,
@@ -105,7 +114,7 @@ export class MatchmakingService {
     async cancelMatch(): Promise<void> {
         if (!this.user) throw new Error("User not authenticated");
 
-        const waitingUserRef = doc(collection(db, "waiting_users"), this.user.uid);
+        const waitingUserRef = doc(collection(db, "waiting_users"), this.user.id);
         await deleteDoc(waitingUserRef);
     }
 
@@ -115,7 +124,7 @@ export class MatchmakingService {
         const q = query(collection(db, "matches"), where("matchId", "==", matchId));
         const currentMatch = (await getDocs(q)).docs[0].ref;
 
-        await updateDoc(currentMatch, { [`${this.user.uid}_confirmed`]: true });
+        await updateDoc(currentMatch, { [`${this.user.id}_confirmed`]: true });
 
         const currentMatchSnapshot = await getDocs(q);
         const matchStatus = currentMatchSnapshot.docs[0].data();
@@ -140,7 +149,7 @@ export class MatchmakingService {
         await updateDoc(matchDoc.ref, { status: "canceled" });
     
         // Determine the other user's ID
-        const otherUserId = matchData.userId1 === this.user.uid ? matchData.userId2 : matchData.userId1;
+        const otherUserId = matchData.userId1 === this.user.id ? matchData.userId2 : matchData.userId1;
    
         // Notify the other user that the match was declined (you might want to implement a notification system)
         // For now, we'll just update a field in the user's document
@@ -152,15 +161,15 @@ export class MatchmakingService {
 
         
 
-        await deleteDoc(doc(collection(db, "waiting_users"), this.user.uid));
+        await deleteDoc(doc(collection(db, "waiting_users"), this.user.id));
         // await deleteDoc(doc(collection(db, "waiting_users"), otherUserId));
     }
 
     async checkAndHandleDeclinedMatch(): Promise<boolean> {
         if (!this.user) throw new Error("User not authenticated");
     
-        const userRef = doc(collection(db, "users"), this.user.uid);
-        const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", this.user.uid)));
+        const userRef = doc(collection(db, "users"), this.user.id);
+        const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", this.user.id)));
         const userData = userDoc.docs[0].data();
     
         if (userData.matchDeclined) {
@@ -181,14 +190,14 @@ export class MatchmakingService {
         const matchesQuery = query(
           collection(db, "matches"),
           where("status", "==", "finished"),
-          where("userId1", "==", this.user.uid),
+          where("userId1", "==", this.user.id),
           orderBy("date", "desc")
         );
     
         const matchesQuery2 = query(
           collection(db, "matches"),
           where("status", "==", "finished"),
-          where("userId2", "==", this.user.uid),
+          where("userId2", "==", this.user.id),
           orderBy("date", "desc")
         );
     
@@ -207,7 +216,7 @@ export class MatchmakingService {
               questionName: data.questionName || 'Unknown Question',
               difficulty: data.difficulty || 'Unknown Difficulty',
               matchId: data.matchId || doc.id,
-              collaborator: this.user!.uid === data.userId1 ? data.userName2 : data.userName1
+              collaborator: this.user!.id === data.userId1 ? data.userName2 : data.userName1
             });
         });
         }

@@ -64,7 +64,20 @@
       "last 1 firefox version",
       "last 1 safari version"
     ],
-    "proxy": "http://localhost:5000"
+    "proxy": {
+      "/auth": {
+        "target": "http://localhost:3001",
+        "changeOrigin": true
+      },
+      "/users": {
+        "target": "http://localhost:3001",
+        "changeOrigin": true
+      },
+      "/question": {
+        "target": "http://localhost:5000",
+        "changeOrigin": true
+      }
+    }
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.9"

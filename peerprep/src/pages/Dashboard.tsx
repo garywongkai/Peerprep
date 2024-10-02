@@ -12,6 +12,7 @@ import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/theme/material.css';
+import { User } from "../service/UserService";
 const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
 
 function Dashboard() {
@@ -30,29 +31,7 @@ function Dashboard() {
   const [questionHistory, setQuestionHistory] = useState<QuestionHistoryItem[]>([]);
   const [matchDeclined, setMatchDeclined] = useState(false);
   let matchedUser:any;
-  const fetchUserName = async () => {
-    try {
-      const q = query(collection(db, "users"), where("uid", "==", user?.uid), where("email", "==", user?.email));
-      const doc = await getDocs(q);
-      const data = doc.docs[0].data();
-      if (user) { 
-        if(user.displayName !== null) {
-          setName(data.name);
-        }
-        if(user.displayName === null) {
-          await updateProfile(user, {
-            displayName: data.name
-          });
-          setName(data.name);
-      }
-    }
-    } catch (err) {
-      console.error(err);
-      setAlertContent("An error occurred. Please try again");
-      setAlert(true);
-    }
-  };
-  
+ 
 
   const handleSelect = (e: any) => {
     setDifficulty(e.target.value);
@@ -154,10 +133,17 @@ function Dashboard() {
     if (loading) return; // Do nothing while loading
    
     if (user) {
-        fetchUserName();
-        setMatchmakingService(new MatchmakingService(user));
+        const userForService: User = {
+          id: user.uid,
+          username: user.displayName || '',
+          isAdmin: false // Assuming regular users by default
+          ,
+          email: ""
+        };
+        setMatchmakingService(new MatchmakingService(userForService));
+    } else {
+        return navigate("/signin");
     }
-    if (!user) return navigate("/signin");
     
     const matchQuery1 = query(
       collection(db, "matches"),

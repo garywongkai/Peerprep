@@ -5,6 +5,7 @@ import { auth, db, theme } from '../firebase'; // Firebase setup
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { doc, setDoc, onSnapshot, updateDoc, query, collection, getDocs, where, deleteDoc } from 'firebase/firestore';
 import { CollaborationService } from '../service/CollaborationService';
+import { User, userService } from '../service/UserService';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import 'codemirror/theme/dracula.css';
@@ -19,7 +20,7 @@ import { ThemeProvider } from '@mui/material';
 import debounce from 'lodash.debounce';
 
 const Editor = () => {
-    const [user, loading, error] = useAuthState(auth);
+    const [user, setUser] = useState<User | null>(null);
     const location = useLocation();
     const { matchData } = location.state || {};
     const { matchId } = useParams();
@@ -29,6 +30,7 @@ const Editor = () => {
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [bothSubmitted, setBothSubmitted] = useState(false);
     const [questionData, setQuestionData] = useState<any>({});
+    const [loading, setLoading] = useState(true);
     const codeRef = doc(db, 'sessions', matchId!);
     // const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
     const baseurl = 'http://localhost:5000';
@@ -73,8 +75,18 @@ const Editor = () => {
     };
 
     useEffect(() => {
-        if (loading) return; // Do nothing while loading
-        if (!user) return navigate("/signin");
+        const checkAuth = async () => {
+            try {
+                const userData = await userService.verifyToken();
+                setUser(userData);
+            } catch (error) {
+                console.error("Authentication error:", error);
+                navigate('/signin');
+            } finally {
+                setLoading(false);
+            }
+        };
+        checkAuth();
     }, [user, loading]);
     useEffect(() => {
         if (!matchId) return; // Ensure matchId is defined
@@ -109,7 +121,7 @@ const Editor = () => {
         if (!user || !collaborationService) return; // Ensure user is authenticated and ref is defined
 
         setHasSubmitted(true);
-        await collaborationService.submitCode(user.uid);
+        await collaborationService.submitCode(user.id);
         // Listen for submit status updates
         const unsubscribe = onSnapshot(codeRef, async (snapshot) => {
             const sessionData = snapshot.data() || {};

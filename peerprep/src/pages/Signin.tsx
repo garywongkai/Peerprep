@@ -6,26 +6,27 @@ import '../styles/Signin.css';
 import Header from '../components/Header';
 import { ThemeProvider } from 'react-bootstrap';
 import placeholderImage from '../assets/placeholder.jpg';
+import { useState } from 'react';
+import { userService } from '../service/UserService';
 const Signin: React.FC = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [user, loading, error] = useAuthState(auth);
-  const signin = () => {
-    if (!password || !email) alert("Please fill in all the fields");
-    else {
-      logInWithEmailAndPassword(email, password);
+  const [error, setError] = useState('');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await userService.login(email, password);
+      const user = await userService.verifyToken();
+      console.log(`Welcome, ${user.username}!`); // This will print the user's name
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Login failed. Please check your credentials.');
+      console.error(err);
     }
   };
-  React.useEffect(() => {
-    if (loading) {
-      return;
-    }
-    if (user) {
-      navigate("/dashboard");
-    } 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading]);
+
   return (
     // <ThemeProvider theme={theme}>
     //   <Header/>
@@ -81,7 +82,7 @@ const Signin: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
           />
-          <button className="login__btn" onClick={signin}>
+          <button className="login__btn" onClick={handleLogin}>
             Login
           </button>
           <button className="login__btn login__google" onClick={signInWithGoogle}>

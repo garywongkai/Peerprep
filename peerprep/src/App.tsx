@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Routes, Route,
   BrowserRouter as Router,
+  Navigate,
 } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Signup from './pages/Signup';
@@ -15,6 +16,14 @@ import Editor from './pages/Editor';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/signin" replace />;
+  }
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
   return (<Router>
     <Routes>
@@ -24,11 +33,11 @@ const App: React.FC = () => {
             path="/signin"
             element={<Signin />}
         />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/question" element={<QuestionList />} />
         <Route path="/reset" element={<Forgot />} />
-        <Route path="/profile" element={<Profile/>} />
-        <Route path="/editor/:matchId" element={<Editor />} />
+        <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+        <Route path="/editor/:matchId" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
     </Routes>
 </Router>)
 };
