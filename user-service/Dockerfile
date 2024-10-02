@@ -16,10 +16,7 @@ FROM node:${NODE_VERSION}-alpine as base
 WORKDIR /app
 
 COPY package*.json ./
-RUN apk add --no-cache --virtual .build-deps make gcc g++ python3 && \
-    npm install && \
-    npm rebuild bcrypt --build-from-source && \
-    apk del .build-deps
+RUN npm install
 
 COPY . .
 EXPOSE 3001
