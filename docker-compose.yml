@@ -10,12 +10,25 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    environment:
+      - BROWSERSLIST=">0.2%, not dead, not ie <= 11, not op_mini all"
   service:
     build: ./service
     ports:
       - "5000:5000"
     volumes:
       - ./service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+  user-service:
+    build: 
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./user-service:/app
       - /app/node_modules
     networks:
       - peerprep-network
