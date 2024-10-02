@@ -73,7 +73,7 @@ class UserService {
 
   async register(username: string, email: string, password: string): Promise<void> {
     const response = await axios.post(`${API_URL}/users`, { username, email, password });
-    const token = response.data.token;
+    const token = response.data.data.accessToken;
     localStorage.setItem('token', token);
   }
 }
