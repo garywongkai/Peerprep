@@ -10,6 +10,9 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    depends_on:
+      - user-service
+      - service
   service:
     build: ./service
     ports:
@@ -17,6 +20,14 @@ services:
     volumes:
       - ./service:/app
       - /app/node_modules
+    networks:
+      - peerprep-network
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
     networks:
       - peerprep-network
 networks:

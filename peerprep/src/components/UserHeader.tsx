@@ -27,9 +27,22 @@ import {
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
-import { logout, theme } from '../firebase';
+import { theme } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+
 
 const UserHeader: React.FC = () => {
+    const handleLogout = async () => {
+      try {
+        
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        navigate('/signin');
+      } catch (error) {
+        console.error('Logout failed', error);
+      }
+    };
+    const navigate = useNavigate();
     return (
       <ThemeProvider theme={theme}>
       <AppBar position="static">
@@ -47,7 +60,7 @@ const UserHeader: React.FC = () => {
               <Button component={RouterLink} to="/profile" variant="contained" color="primary">
                 Profile
               </Button>
-              <Button variant="outlined" color="inherit" onClick={logout}>
+              <Button variant="outlined" color="inherit" onClick={handleLogout}>
                 Sign out
               </Button>
             </Stack>

@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth, db, theme } from '../firebase';
+import { userService, User } from '../service/UserService';
 import { Button, Chip, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider } from '@mui/material';
 import UserHeader from '../components/UserHeader';
 import '../styles/QuestionList.css';
 import Header from '../components/Header';
 function QuestionList() {
-  const [user, loading, error] = useAuthState(auth);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<any[]>([]);
   const [category, setCategory] = useState<string>('');
   const [difficulty, setDifficulty] = useState<string>('');
@@ -142,14 +144,21 @@ function QuestionList() {
   };
 
   useEffect(() => {
-    if (!user) {
-      setIsAuth(false);
-    } else {
-      setIsAuth(true);
-    }
-      // return navigate('/signin');
+    const checkAuth = async () => {
+      try {
+        const userData = await userService.verifyToken();
+        setUser(userData);
+        setIsAuth(true);
+      } catch (error) {
+        console.error("Authentication error:", error);
+        setIsAuth(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
     fetchQuestions();
-  }, [user, loading, category, difficulty]);
+  }, [category, difficulty]);
 
   return (
     <ThemeProvider theme={theme}>
