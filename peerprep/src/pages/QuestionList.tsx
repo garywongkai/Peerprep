@@ -1,30 +1,39 @@
 //Retrieve questionlist from api
-import React, { useEffect, useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useNavigate } from 'react-router-dom';
-import { auth, db, theme } from '../firebase';
-import { Button, Chip, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider } from '@mui/material';
-import UserHeader from '../components/UserHeader';
-import '../styles/QuestionList.css';
-import Header from '../components/Header';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import theme from "../theme/theme";
+import {
+  Button,
+  Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  ThemeProvider,
+} from "@mui/material";
+import UserHeader from "../components/UserHeader";
+import Header from "../components/Header";
+import "../styles/QuestionList.css";
+import { getCookie } from "../utils/cookieUtils";
+
 function QuestionList() {
-  const [user, loading, error] = useAuthState(auth);
   const [questions, setQuestions] = useState<any[]>([]);
-  const [category, setCategory] = useState<string>('');
-  const [difficulty, setDifficulty] = useState<string>('');
+  const [category, setCategory] = useState<string>("");
+  const [difficulty, setDifficulty] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false); // State to manage create form visibility
-  const [createTitle, setCreateTitle] = useState<string>(''); // Title for new question
-  const [createDescription, setCreateDescription] = useState<string>(''); // Description for new question
+  const [createTitle, setCreateTitle] = useState<string>(""); // Title for new question
+  const [createDescription, setCreateDescription] = useState<string>(""); // Description for new question
   const [createCategory, setCreateCategory] = useState<string[]>([]); // Category for new question
-  const [createDifficulty, setCreateDifficulty] = useState<string>(''); // Difficulty for new question
+  const [createDifficulty, setCreateDifficulty] = useState<string>(""); // Difficulty for new question
   const [editQuestion, setEditQuestion] = useState<any>(null); // Store question for editing
-  const [newTitle, setNewTitle] = useState<string>(''); // Store new title during editing
-  const [newDescription, setNewDescription] = useState<string>(''); // Store new description during editing
-  const [newDifficulty, setNewDifficulty] = useState<string>(''); // Store new difficulty during editing
+  const [newTitle, setNewTitle] = useState<string>(""); // Store new title during editing
+  const [newDescription, setNewDescription] = useState<string>(""); // Store new description during editing
+  const [newDifficulty, setNewDifficulty] = useState<string>(""); // Store new difficulty during editing
   const [newCategory, setNewCategory] = useState<string[]>([]); // Store new category during editing
   const [isAuth, setIsAuth] = useState<boolean>(false);
   // const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
-  const baseurl = 'http://localhost:5000/question';
+  const baseurl = "http://localhost:5000/question";
   const navigate = useNavigate();
 
   const fetchQuestions = async () => {
@@ -33,29 +42,34 @@ function QuestionList() {
       const params = new URLSearchParams();
 
       if (category) {
-        params.append('category', category);
+        params.append("category", category);
       }
       if (difficulty) {
-        params.append('difficulty', difficulty);
+        params.append("difficulty", difficulty);
       }
-  
+
       // Only append query parameters if they exist
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-        fetch(url, {
-            method: 'GET'
-        }).then(response => response.json()).then((data) => {
+      fetch(url, {
+        method: "GET",
+      })
+        .then((response) => response.json())
+        .then((data) => {
           // Sort questions by difficulty (Easy, Medium, Hard)
           const sortedQuestions = data.sort((a: any, b: any) => {
-            const difficultyOrder = ['Easy', 'Medium', 'Hard'];
-            return difficultyOrder.indexOf(a.difficulty) - difficultyOrder.indexOf(b.difficulty);
+            const difficultyOrder = ["Easy", "Medium", "Hard"];
+            return (
+              difficultyOrder.indexOf(a.difficulty) -
+              difficultyOrder.indexOf(b.difficulty)
+            );
           });
           setQuestions(sortedQuestions);
         });
     } catch (err) {
       console.error(err);
-      alert('An error occurred. Please try again');
+      alert("An error occurred. Please try again");
     }
   };
 
@@ -65,41 +79,40 @@ function QuestionList() {
       const newQuestion = {
         questionTitle: createTitle,
         questionDescription: createDescription,
-        questionCategory: createCategory.join(', '),
+        questionCategory: createCategory.join(", "),
         difficulty: createDifficulty,
       };
 
       await fetch(`${baseurl}/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(newQuestion),
       });
 
       setIsCreating(false); // Hide the form after creation
-      setCreateTitle('');
-      setCreateDescription('');
+      setCreateTitle("");
+      setCreateDescription("");
       setCreateCategory([]);
-      setCreateDifficulty('');
+      setCreateDifficulty("");
       fetchQuestions(); // Refresh the question list
     } catch (error) {
-      console.error('Error creating question:', error);
+      console.error("Error creating question:", error);
     }
   };
-
 
   // Handle Edit Button Click
   const handleEdit = (question: any) => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
     setEditQuestion(question); // Set the question to be edited
     setNewTitle(question.questionTitle); // Pre-fill the fields with current values
     setNewDescription(question.questionDescription);
     setNewDifficulty(question.difficulty);
-    setNewCategory(question.questionCategory.split(', '));
+    setNewCategory(question.questionCategory.split(", "));
   };
 
   // Handle Save Button Click (Update the Question)
@@ -109,13 +122,13 @@ function QuestionList() {
         questionTitle: newTitle,
         questionDescription: newDescription,
         difficulty: newDifficulty, // Keep difficulty the same, or allow editing
-        questionCategory: newCategory.join(', '), // Keep category the same, or allow editing
+        questionCategory: newCategory.join(", "), // Keep category the same, or allow editing
       };
 
       await fetch(`${baseurl}/${editQuestion._id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedQuestion),
       });
@@ -123,33 +136,39 @@ function QuestionList() {
       setEditQuestion(null); // Close the edit form
       fetchQuestions(); // Refresh the question list
     } catch (error) {
-      console.error('Error updating question:', error);
+      console.error("Error updating question:", error);
     }
   };
 
   // Handle Delete Button Click
   const handleDelete = async (_id: string) => {
-    if (window.confirm('Are you sure you want to delete this question?')) {
+    if (window.confirm("Are you sure you want to delete this question?")) {
       try {
         await fetch(`${baseurl}/${_id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         fetchQuestions(); // Refresh the question list
       } catch (error) {
-        console.error('Error deleting question:', error);
+        console.error("Error deleting question:", error);
       }
     }
   };
 
   useEffect(() => {
-    if (!user) {
-      setIsAuth(false);
-    } else {
+    // Get access_token from cookies
+    const token = getCookie("access_token");
+
+    // Set authentication state based on token presence
+    if (token) {
       setIsAuth(true);
+    } else {
+      setIsAuth(false);
+      // Optional: Navigate to signin if not authenticated
+      // navigate('/signin');
     }
-      // return navigate('/signin');
+
     fetchQuestions();
-  }, [user, loading, category, difficulty]);
+  }, [category, difficulty]); // Remove `user` from dependencies as it's not needed
 
   return (
     <ThemeProvider theme={theme}>
@@ -158,8 +177,14 @@ function QuestionList() {
         <h1>Question List</h1>
 
         {/* Dropdown for category */}
-        <FormControl className="dropdown" variant="outlined" style={{ margin: '10px' }}>
-          <InputLabel  id="category-label"  variant='filled'>Category</InputLabel>
+        <FormControl
+          className="dropdown"
+          variant="outlined"
+          style={{ margin: "10px" }}
+        >
+          <InputLabel id="category-label" variant="filled">
+            Category
+          </InputLabel>
           <Select
             labelId="category-label"
             className="dropdown"
@@ -180,7 +205,7 @@ function QuestionList() {
         </FormControl>
 
         {/* Dropdown for difficulty */}
-        <FormControl variant="outlined" style={{ margin: '10px' }}>
+        <FormControl variant="outlined" style={{ margin: "10px" }}>
           <InputLabel id="difficulty-label">Difficulty</InputLabel>
           <Select
             labelId="difficulty-label"
@@ -203,7 +228,8 @@ function QuestionList() {
             color="primary"
             size="large"
             sx={{ ml: 2 }}
-            onClick={() => setIsCreating(true)}>
+            onClick={() => setIsCreating(true)}
+          >
             Create New Question
           </Button>
         ) : (
@@ -212,7 +238,8 @@ function QuestionList() {
             color="primary"
             size="large"
             sx={{ ml: 2 }}
-            onClick={() => navigate('/signin')}>
+            onClick={() => navigate("/signin")}
+          >
             Sign In to Create Question
           </Button>
         )}
@@ -229,7 +256,7 @@ function QuestionList() {
 
         {/* Create form for new question */}
         {isCreating && isAuth && (
-          <div className='questionEdit'>
+          <div className="questionEdit">
             <h3>Create New Question</h3>
             <TextField
               label="Title"
@@ -237,7 +264,7 @@ function QuestionList() {
               value={createTitle}
               onChange={(e) => setCreateTitle(e.target.value)}
               fullWidth
-              style={{ marginBottom: '10px' }}
+              style={{ marginBottom: "10px" }}
             />
             <TextField
               label="Description"
@@ -245,9 +272,12 @@ function QuestionList() {
               value={createDescription}
               onChange={(e) => setCreateDescription(e.target.value)}
               fullWidth
-              style={{ marginBottom: '10px' }}
+              style={{ marginBottom: "10px" }}
             />
-            <FormControl variant="outlined" style={{ marginBottom: '10px', width: '100%' }}>
+            <FormControl
+              variant="outlined"
+              style={{ marginBottom: "10px", width: "100%" }}
+            >
               <InputLabel>Category</InputLabel>
               <Select
                 multiple
@@ -256,7 +286,11 @@ function QuestionList() {
                 renderValue={(selected) => (
                   <div>
                     {selected.map((value) => (
-                      <Chip key={value} label={value} style={{ margin: '2px' }} />
+                      <Chip
+                        key={value}
+                        label={value}
+                        style={{ margin: "2px" }}
+                      />
                     ))}
                   </div>
                 )}
@@ -271,7 +305,10 @@ function QuestionList() {
                 <MenuItem value="Brainteaser">Brainteaser</MenuItem>
               </Select>
             </FormControl>
-            <FormControl variant="outlined" style={{ marginBottom: '10px', width: '100%' }}>
+            <FormControl
+              variant="outlined"
+              style={{ marginBottom: "10px", width: "100%" }}
+            >
               <InputLabel>Difficulty</InputLabel>
               <Select
                 value={createDifficulty}
@@ -286,13 +323,17 @@ function QuestionList() {
             <Button variant="contained" color="primary" onClick={handleCreate}>
               Create
             </Button>
-            <Button variant="contained" color="secondary" onClick={() => setIsCreating(false)}>
-          Cancel
-        </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setIsCreating(false)}
+            >
+              Cancel
+            </Button>
           </div>
         )}
         {editQuestion && isAuth && (
-          <div className='questionEdit'>
+          <div className="questionEdit">
             <h3>Edit Question</h3>
             <TextField
               label="Title"
@@ -300,7 +341,7 @@ function QuestionList() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               fullWidth
-              style={{ marginBottom: '10px' }}
+              style={{ marginBottom: "10px" }}
             />
             <TextField
               label="Description"
@@ -308,7 +349,7 @@ function QuestionList() {
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               fullWidth
-              style={{ marginBottom: '10px' }}
+              style={{ marginBottom: "10px" }}
             />
             <TextField
               label="Difficulty"
@@ -316,9 +357,12 @@ function QuestionList() {
               value={newDifficulty}
               onChange={(e) => setNewDifficulty(e.target.value)}
               fullWidth
-              style={{ marginBottom: '10px' }}
+              style={{ marginBottom: "10px" }}
             />
-            <FormControl variant="outlined" style={{ marginBottom: '10px', width: '100%' }}>
+            <FormControl
+              variant="outlined"
+              style={{ marginBottom: "10px", width: "100%" }}
+            >
               <InputLabel>Category</InputLabel>
               <Select
                 multiple
@@ -327,7 +371,11 @@ function QuestionList() {
                 renderValue={(selected) => (
                   <div>
                     {selected.map((value) => (
-                      <Chip key={value} label={value} style={{ margin: '2px' }} />
+                      <Chip
+                        key={value}
+                        label={value}
+                        style={{ margin: "2px" }}
+                      />
                     ))}
                   </div>
                 )}
@@ -346,7 +394,12 @@ function QuestionList() {
             <Button variant="contained" color="primary" onClick={handleSave}>
               Save
             </Button>
-            <Button variant="contained" color="secondary" onClick={() => setEditQuestion(null)} style={{ marginLeft: '10px' }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setEditQuestion(null)}
+              style={{ marginLeft: "10px" }}
+            >
               Cancel
             </Button>
           </div>
@@ -359,18 +412,29 @@ function QuestionList() {
               <h5>{question.difficulty}</h5>
               <h6>{question.questionDescription}</h6>
               <p>{question.questionCategory}</p>
-              {isAuth ? (<>
-              <Button variant="contained" color="primary" onClick={() => handleEdit(question)}>
-                Edit
-              </Button>
-              <Button variant="contained" color="secondary" onClick={() => handleDelete(question._id)}>
-                Delete
-              </Button></>)
-              : <></>}
+              {isAuth ? (
+                <>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleEdit(question)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDelete(question._id)}
+                  >
+                    Delete
+                  </Button>
+                </>
+              ) : (
+                <></>
+              )}
             </li>
           ))}
         </ol>
-        
       </div>
     </ThemeProvider>
   );

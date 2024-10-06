@@ -1,12 +1,13 @@
 // Header.tsx
-import React from 'react';
+import React from "react";
 import {
   Link as RouterLink,
   LinkProps as RouterLinkProps,
   MemoryRouter,
-  Link, 
-} from 'react-router-dom';
-import {StaticRouter} from 'react-router-dom/server';
+  Link,
+  useNavigate,
+} from "react-router-dom";
+import { StaticRouter } from "react-router-dom/server";
 import {
   AppBar,
   Toolbar,
@@ -22,39 +23,83 @@ import {
   CssBaseline,
   ThemeProvider,
   createTheme,
-  Switch, 
-} from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material/styles';
-import Stack from '@mui/material/Stack';
-import { logout, theme } from '../firebase';
+  Switch,
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import { Theme } from "@mui/material/styles";
+import Stack from "@mui/material/Stack";
+import theme from "../theme/theme";
 
 const UserHeader: React.FC = () => {
-    return (
-      <ThemeProvider theme={theme}>
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/logout", {
+        method: "POST",
+        credentials: "include", // Ensure cookies are sent
+      });
+
+      if (response.ok) {
+        // Clear any localStorage, sessionStorage, etc. if you are using them to store tokens
+        // localStorage.removeItem("accessToken");
+
+        // Redirect the user after successful logout
+        navigate("/signin");
+        alert("Logged out successfully!");
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Logout failed");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+      alert("An error occurred during logout");
+    }
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <a href="/dashboard" style={{ textDecoration: 'none', color: 'white' }}><img src='https://i.ibb.co/DRGcDJG/logo.png' alt="Peerprep" width="42" height="42"/></a>
-            
+            <a
+              href="/dashboard"
+              style={{ textDecoration: "none", color: "white" }}
+            >
+              <img
+                src="https://i.ibb.co/DRGcDJG/logo.png"
+                alt="Peerprep"
+                width="42"
+                height="42"
+              />
+            </a>
           </Typography>
-            <Stack spacing={2} direction="row" justifyContent="left">
-              <Button component={RouterLink} to="/question" variant="contained" color="primary">
-                Question List
-              </Button>
-              </Stack>
-            <Stack spacing={2} direction="row" justifyContent="center">
-              <Button component={RouterLink} to="/profile" variant="contained" color="primary">
-                Profile
-              </Button>
-              <Button variant="outlined" color="inherit" onClick={logout}>
-                Sign out
-              </Button>
-            </Stack>
-          
+          <Stack spacing={2} direction="row" justifyContent="left">
+            <Button
+              component={RouterLink}
+              to="/question"
+              variant="contained"
+              color="primary"
+            >
+              Question List
+            </Button>
+          </Stack>
+          <Stack spacing={2} direction="row" justifyContent="center">
+            <Button
+              component={RouterLink}
+              to="/profile"
+              variant="contained"
+              color="primary"
+            >
+              Profile
+            </Button>
+            <Button variant="outlined" color="inherit" onClick={handleLogout}>
+              Sign out
+            </Button>
+          </Stack>
         </Toolbar>
       </AppBar>
-      </ThemeProvider>
-    );
-  };
+    </ThemeProvider>
+  );
+};
 export default UserHeader;
