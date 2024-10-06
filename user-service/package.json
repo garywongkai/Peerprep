@@ -1,0 +1,21 @@
+{
+  "name": "user-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+  },
+  "keywords": [],
+  "author": "Yap Zong Xin",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "firebase": "^10.14.0",
+    "firebase-admin": "^12.6.0"
+  }
+}

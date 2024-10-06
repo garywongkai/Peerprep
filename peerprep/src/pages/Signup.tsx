@@ -1,82 +1,119 @@
 import React, { useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  auth,
-  registerWithEmailAndPassword,
-  signInWithGoogle,
-  theme,
-} from "../firebase";
 import "../styles/Signup.css";
 import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
-import placeholderImage from '../assets/placeholder.jpg';
+import placeholderImage from "../assets/placeholder.jpg";
+import theme from "../theme/theme";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getCookie } from "../utils/cookieUtils";
 
 const Signup: React.FC = () => {
-  const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [user, loading, error] = useAuthState(auth);;
-  const register = () => {
-    if (!name || !password || !email) alert("Please fill in all the fields");
-    else {
-      registerWithEmailAndPassword(name, email, password);
+  const navigate = useNavigate();
+  const auth = getAuth(); // Initialize Firebase Auth
+  const provider = new GoogleAuthProvider(); // Create a Google Auth provider instance
+
+  const handleSignup = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5001/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (response.ok) {
+        alert("Registration successful! Please verify your email.");
+        navigate("/signin"); // Redirect to the sign-in page upon successful registration
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Registration failed");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("An error occurred during registration");
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const uid = user.uid;
+      const email = user.email;
+
+      alert("User logged in successfully with Google");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+      alert("An error occurred during Google login");
     }
   };
 
   useEffect(() => {
-    if (loading) return;
-    if (user) {
+    // Check for access_token in cookies
+    const token = getCookie("access_token");
+    if (token) {
       navigate("/dashboard");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading]);
+  }, [navigate]);
+
   return (
     <ThemeProvider theme={theme}>
-    <Header />
-    <div className="register">
-      <div className="register__container">
-        <input
-          type="text"
-          className="register__textBox"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Full Name"
-        />
-        <input
-          type="text"
-          className="register__textBox"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-mail Address"
-        />
-        <input
-          type="password"
-          className="register__textBox"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-        />
-        <button className="register__btn" onClick={register}>
-          Register
-        </button>
-        <button
-          className="register__btn register__google"
-          onClick={signInWithGoogle}
-        >
-          Register with Google
-        </button>
-        <div>
-          Already have an account? <Link to="/signin"><u>Login</u></Link> now.
+      <Header />
+      <div className="register">
+        <div className="register__container">
+          <input
+            type="text"
+            className="register__textBox"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full Name"
+          />
+          <input
+            type="text"
+            className="register__textBox"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-mail Address"
+          />
+          <input
+            type="password"
+            className="register__textBox"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button className="register__btn" onClick={handleSignup}>
+            Register
+          </button>
+          {/* <button
+            className="register__btn register__google"
+            onClick={signInWithGoogle}
+          >
+            Register with Google
+          </button> */}
+          <div>
+            Already have an account?{" "}
+            <Link to="/signin">
+              <u>Login</u>
+            </Link>{" "}
+            now.
+          </div>
+        </div>
+        <span className="register__divider" />
+        <div className="register__image">
+          <img src={placeholderImage} alt="Placeholder" />
         </div>
       </div>
-      <span className="register__divider"/>
-      <div className="register__image">
-        <img src={placeholderImage} alt="Placeholder" />
-      </div>
-    </div>
-  </ThemeProvider>
+    </ThemeProvider>
   );
-}
+};
 export default Signup;
