@@ -38,7 +38,7 @@ const Profile = () => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:5001/update-profile", {
+      const response = await fetch("https://user-service-327190433280.asia-southeast1.run.app/update-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

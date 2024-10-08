@@ -20,7 +20,7 @@ const Signup: React.FC = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5001/register", {
+      const response = await fetch("https://user-service-327190433280.asia-southeast1.run.app/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

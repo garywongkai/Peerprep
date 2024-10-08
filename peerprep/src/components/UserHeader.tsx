@@ -35,7 +35,7 @@ const UserHeader: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5001/logout", {
+      const response = await fetch("https://user-service-327190433280.asia-southeast1.run.app/logout", {
         method: "POST",
         credentials: "include", // Ensure cookies are sent
       });
