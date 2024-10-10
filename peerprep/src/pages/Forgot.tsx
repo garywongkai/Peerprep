@@ -14,7 +14,10 @@ function Forgot() {
     event.preventDefault();
 
     try {
-      const response = await fetch("https://user-service-327190433280.asia-southeast1.run.app/reset-password", {
+      const url = process.env.NODE_ENV === "development"
+      ? "http://localhost:5001/reset-password"
+      : "https://user-service-327190433280.asia-southeast1.run.app/reset-password";
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

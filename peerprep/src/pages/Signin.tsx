@@ -17,9 +17,11 @@ const SignIn: React.FC = () => {
 
   const handleSignIn = async (event: React.FormEvent) => {
     event.preventDefault();
-
+    const url = process.env.NODE_ENV === "development"
+      ? "http://localhost:5001/login"
+      : "https://user-service-327190433280.asia-southeast1.run.app/login";
     try {
-      const response = await fetch("https://user-service-327190433280.asia-southeast1.run.app/login", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
