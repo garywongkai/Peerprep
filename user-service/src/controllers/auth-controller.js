@@ -13,6 +13,7 @@ const {
 // This ensure that the operations are performed within the correct authentication context, preventing unauthorized access or manipulation of user data.
 const auth = getAuth();
 const isDev = process.env.REACT_APP_ENV === "development";
+const domain = isDev ? undefined : "peerprep-327190433280.asia-southeast1.run.app";
 const registerUser = (req, res) => {
 	const { name, email, password } = req.body;
 	if (!name || !email || !password) {
@@ -78,31 +79,31 @@ const loginUser = (req, res) => {
 					httpOnly: false,
 					secure: !isDev,
 					sameSite: isDev ? "Lax" : "None",
-					domain: isDev ? undefined : ".asia-southeast1.run.app",
+					domain: domain,
 				});
 				res.cookie("uid", uid, {
 					httpOnly: false,
 					secure: !isDev,
 					sameSite: isDev ? "Lax" : "None",
-					domain: isDev ? undefined : ".asia-southeast1.run.app",
+					domain: domain,
 				});
 				res.cookie("email", email, {
 					httpOnly: false,
 					secure: !isDev,
 					sameSite: isDev ? "Lax" : "None",
-					domain: isDev ? undefined : ".asia-southeast1.run.app",
+					domain: domain,
 				});
 				res.cookie("displayName", displayName, {
 					httpOnly: false,
 					secure: !isDev,
 					sameSite: isDev ? "Lax" : "None",
-					domain: isDev ? undefined : ".asia-southeast1.run.app",
+					domain: domain,
 				});
 				res.cookie("photoURL", photoURL, {
 					httpOnly: false,
 					secure: !isDev,
 					sameSite: isDev ? "Lax" : "None",
-					domain: isDev ? undefined : ".asia-southeast1.run.app",
+					domain: domain,
 				});
 
 				res.status(200).json({
