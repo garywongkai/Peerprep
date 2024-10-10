@@ -32,7 +32,7 @@ function QuestionList() {
   const [newDifficulty, setNewDifficulty] = useState<string>(""); // Store new difficulty during editing
   const [newCategory, setNewCategory] = useState<string[]>([]); // Store new category during editing
   const [isAuth, setIsAuth] = useState<boolean>(false);
-  const baseurl = process.env.NODE_ENV === "development"
+  const baseurl = process.env.REACT_APP_ENV === "development"
   ? "http://localhost:5000/question"
   : "https://service-327190433280.asia-southeast1.run.app/question";
   const navigate = useNavigate();

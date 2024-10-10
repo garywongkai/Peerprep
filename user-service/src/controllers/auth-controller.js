@@ -12,7 +12,7 @@ const {
 // Each of the authentication methods takes a number of parameters, including a mandatory auth object that needs to be included and passed alongside the requests.
 // This ensure that the operations are performed within the correct authentication context, preventing unauthorized access or manipulation of user data.
 const auth = getAuth();
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.REACT_APP_ENV === 'development';
 const registerUser = (req, res) => {
 	const { name, email, password } = req.body;
 	if (!name || !email || !password) {

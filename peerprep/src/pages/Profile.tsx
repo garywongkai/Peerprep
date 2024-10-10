@@ -38,7 +38,7 @@ const Profile = () => {
     setMessage("");
 
     try {
-      const url = process.env.NODE_ENV === "development"
+      const url = process.env.REACT_APP_ENV === "development"
       ? "http://localhost:5001/update-profile"
       : "https://user-service-327190433280.asia-southeast1.run.app/update-profile";
       const response = await fetch(url, {
