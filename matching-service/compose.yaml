@@ -5,7 +5,7 @@ services:
     build: .
     container_name: matching-service
     ports:
-      - "5002:5002"
+      - "5000:5000"
     environment:
       - NODE_ENV=production
       - MONGO_DB_URI=mongodb://mongo:27017/matching-db
