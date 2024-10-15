@@ -4,7 +4,10 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.2",
     "bootstrap": "^5.3.3",
-    "firebase": "^10.14.0",
+    "firebase": "^10.14.1",
     "react-bootstrap": "^2.10.5"
+  },
+  "devDependencies": {
+    "@types/react-transition-group": "^4.4.11"
   }
 }
