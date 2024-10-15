@@ -23,7 +23,7 @@ const firebaseService = {
   type: process.env.USER_SERVICE_TYPE,
   project_id: process.env.USER_SERVICE_PROJECT_ID,
   private_key_id: process.env.USER_SERVICE_PRIVATE_KEY_ID,
-  private_key: process.env.USER_SERVICE_PRIVATE_KEY, // Handle multiline private key
+  private_key: process.env.USER_SERVICE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Handle multiline private key
   client_email: process.env.USER_SERVICE_CLIENT_EMAIL,
   client_id: process.env.USER_SERVICE_CLIENT_ID,
   auth_uri: process.env.USER_SERVICE_AUTH_URI,
