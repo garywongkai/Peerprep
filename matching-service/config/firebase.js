@@ -1,70 +1,79 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import {
-    getAuth,
-    updateProfile,
-    GoogleAuthProvider,
-    signInWithPopup,
-} from "firebase/auth";
-import {
-    getFirestore,
-    query,
-    getDocs,
-    collection,
-    where,
-    setDoc,
-    doc,
-} from "firebase/firestore";
-import { getDatabase } from "firebase/database";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { createTheme } from "@mui/material/styles";
-import { Link, Navigate } from "react-router-dom";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// require("dotenv").config({ path: __dirname + "/./../../.env" });
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+require("dotenv").config(); // 加载环境变量
+// const firebase = require("firebase/app");
+
+const { initializeApp } = require("firebase/app");
+// const { getAnalytics } = require("firebase/analytics");
+// const {
+//     getAuth,
+//     updateProfile,
+//     GoogleAuthProvider,
+//     signInWithPopup,
+// } = require("firebase/auth");
+const { getFirestore } = require("firebase/firestore");
+// const { getDatabase } = require("firebase/database");
+// const {
+//     getDownloadURL,
+//     getStorage,
+//     ref,
+//     uploadBytes,
+// } = require("firebase/storage");
+// // const admin = require("firebase-admin");
+
+// const firebaseService = {
+//     type: process.env.USER_SERVICE_TYPE,
+//     project_id: process.env.USER_SERVICE_PROJECT_ID,
+//     private_key_id: process.env.USER_SERVICE_PRIVATE_KEY_ID,
+//     private_key: process.env.USER_SERVICE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Handle multiline private key
+//     client_email: process.env.USER_SERVICE_CLIENT_EMAIL,
+//     client_id: process.env.USER_SERVICE_CLIENT_ID,
+//     auth_uri: process.env.USER_SERVICE_AUTH_URI,
+//     token_uri: process.env.USER_SERVICE_TOKEN_URI,
+//     auth_provider_x509_cert_url:
+//         process.env.USER_SERVICE_AUTH_PROVIDER_X509_CERT_URL,
+//     client_x509_cert_url: process.env.USER_SERVICE_CLIENT_X509_CERT_URL,
+//     universe_domain: process.env.USER_SERVICE_UNIVERSE_DOMAIN,
+// };
+
+// admin.initializeApp({
+//     credential: admin.credential.cert(firebaseService),
+// });
+
+// Firebase 配置，从 .env 文件中读取环境变量
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
     projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
     storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.REACT_APP_FIREBASE_APP_ID,
-    measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
+// firebase.initializeApp(firebaseConfig);
+
+
+// 初始化 Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
+// const analytics = getAnalytics(app);
+// const auth = getAuth(app);
 const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
-const firestore = getFirestore(app);
-const storage = getStorage();
-const realtime = getDatabase();
-// const db = firebase.firestore();
-// const storage = firebase.storage();
-// const functions = firebase.functions();
-// export { auth, db, storage, functions };
-// export const auth = firebase.auth();
+// const googleProvider = new GoogleAuthProvider();
+// const storage = getStorage();
+// const realtime = getDatabase();
 
-async function uploadimage(file, currentUser, setLoading) {
-    const fileRef = ref(storage, currentUser.uid + ".png");
+// 上传图片的辅助函数
+// async function uploadimage(file, currentUser, setLoading) {
+//     const fileRef = ref(storage, currentUser.uid + ".png");
 
-    setLoading(true);
+//     setLoading(true);
 
-    const snapshot = await uploadBytes(fileRef, file);
-    const photoURL = await getDownloadURL(fileRef);
+//     const snapshot = await uploadBytes(fileRef, file);
+//     const photoURL = await getDownloadURL(fileRef);
 
-    updateProfile(currentUser, { photoURL });
+//     updateProfile(currentUser, { photoURL });
 
-    setLoading(false);
-    alert("Uploaded file!");
-}
+//     setLoading(false);
+//     alert("Uploaded file!");
+// }
 
-export { auth, db, realtime, uploadimage };
-
-export default app;
+// 导出需要的模块
+module.exports = { db };

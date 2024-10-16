@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  matching-service:
+    build: ./matching-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./matching-service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+
+networks:
+  peerprep-network:

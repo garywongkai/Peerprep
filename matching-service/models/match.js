@@ -1,5 +1,17 @@
-import { db } from "../config/firebase";
-import { collection, doc, setDoc, getDocs, query, where, deleteDoc, updateDoc, orderBy } from "firebase/firestore";
+const { db } = require("../config/firebase");
+const { 
+    collection, 
+    doc, 
+    setDoc, 
+    getDocs, 
+    query, 
+    where, 
+    deleteDoc, 
+    updateDoc, 
+    orderBy 
+} = require("firebase/firestore");
+
+// 你的其他逻辑代码
 
 const fetchQuestions = async (difficulty) => {
     try {
@@ -29,7 +41,7 @@ const fetchQuestions = async (difficulty) => {
 };
 
 
-export class QuestionHistoryItem {
+class QuestionHistoryItem {
     constructor(date, questionName, difficulty, matchId, collaborator) {
         this.date = date;
         this.questionName = questionName;
@@ -39,7 +51,7 @@ export class QuestionHistoryItem {
     }
 }
 
-export class MatchData {
+class MatchData {
     constructor(
         userName1, userName2, userId1, userId2, 
         difficulty, date, question, matchId, status, questionName, endTime
@@ -59,7 +71,7 @@ export class MatchData {
 }
 
 
-export class MatchingService {
+class MatchingService {
     async initiateMatch(difficulty, name, user) {
         if (!user) throw new Error("User not authenticated");
 
@@ -249,5 +261,6 @@ export class MatchingService {
     }
 }
 
-export const matchingService = new MatchingService();
+const matchingService = new MatchingService();
+module.exports = { matchingService };
 
