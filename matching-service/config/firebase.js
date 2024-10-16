@@ -3,12 +3,12 @@ require("dotenv").config(); // 加载环境变量
 
 const { initializeApp } = require("firebase/app");
 // const { getAnalytics } = require("firebase/analytics");
-// const {
-//     getAuth,
-//     updateProfile,
-//     GoogleAuthProvider,
-//     signInWithPopup,
-// } = require("firebase/auth");
+const {
+    getAuth,
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup,
+} = require("firebase/auth");
 const { getFirestore } = require("firebase/firestore");
 // const { getDatabase } = require("firebase/database");
 // const {
@@ -17,7 +17,8 @@ const { getFirestore } = require("firebase/firestore");
 //     ref,
 //     uploadBytes,
 // } = require("firebase/storage");
-// // const admin = require("firebase-admin");
+// const admin = require("firebase-admin");
+// import * as admin from 'firebase-admin';
 
 // const firebaseService = {
 //     type: process.env.USER_SERVICE_TYPE,
@@ -54,7 +55,7 @@ const firebaseConfig = {
 // 初始化 Firebase
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
-// const auth = getAuth(app);
+const auth = getAuth(app);
 const db = getFirestore(app);
 // const googleProvider = new GoogleAuthProvider();
 // const storage = getStorage();
@@ -76,4 +77,4 @@ const db = getFirestore(app);
 // }
 
 // 导出需要的模块
-module.exports = { db };
+module.exports = { db, getAuth};

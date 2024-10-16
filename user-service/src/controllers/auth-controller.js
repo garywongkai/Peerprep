@@ -164,6 +164,7 @@ const updateUserProfile = (req, res) => {
 	}
 
 	const user = auth.currentUser; // Get the current user
+	console.log("Current user:", auth.currentUser);
 
 	if (!user) {
 		return res.status(401).json({ error: "User not authenticated" });

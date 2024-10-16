@@ -73,8 +73,9 @@ class MatchData {
 
 class MatchingService {
     async initiateMatch(difficulty, name, user) {
+        console.log("dif: ", difficulty, "name: ", name, "user: ", user);
         if (!user) throw new Error("User not authenticated");
-
+        
         const waitingUserRef = doc(collection(db, "waiting_users"), user.uid);
         await setDoc(waitingUserRef, {
             userName: name,
