@@ -87,6 +87,16 @@ const UserHeader: React.FC = () => {
               Question List
             </Button>
           </Stack>
+          <Stack spacing={2} direction="row" justifyContent="left">
+            <Button
+              component={RouterLink}
+              to="/match"
+              variant="contained"
+              color="primary"
+            >
+              Match
+            </Button>
+          </Stack>
           <Stack spacing={2} direction="row" justifyContent="center">
             <Button
               component={RouterLink}

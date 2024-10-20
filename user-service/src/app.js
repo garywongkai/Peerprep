@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const router = require("./routes");
+const router = require("./routes"); // this requires the .js file in ./routes must be named as 'index.js', otherwise you need to point out the filename explicitly
 const cookieParser = require("cookie-parser");
 const cors = require("cors"); // Import CORS
 const app = express();
