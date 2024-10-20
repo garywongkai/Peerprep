@@ -9,7 +9,8 @@ import QuestionList from "./pages/QuestionList";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
-import Match from "./pages/Match"
+import Match from "./pages/Matching/Match"
+import Room from "./pages/Matching/Room"
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
@@ -28,6 +29,7 @@ const App: React.FC = () => {
         <Route path="/editor/:matchId" element={<Editor />} />
 
         <Route path="/match" element={<Match />} />
+        <Route path="/match/:roomId" element={<Room />} />
 
       </Routes>
     </Router>

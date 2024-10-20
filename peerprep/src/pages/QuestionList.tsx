@@ -54,6 +54,7 @@ function QuestionList() {
             if (params.toString()) {
                 url += `?${params.toString()}`;
             }
+            // console.log(url);
             fetch(url, {
                 method: "GET",
             })
@@ -98,6 +99,9 @@ function QuestionList() {
             setCreateDescription("");
             setCreateCategory([]);
             setCreateDifficulty("");
+
+            // setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+
             fetchQuestions(); // Refresh the question list
         } catch (error) {
             console.error("Error creating question:", error);
