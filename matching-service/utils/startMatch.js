@@ -14,14 +14,14 @@ exports.startMatch = async (
     )
         .then((question) => {
             if (question) {
-                const roomId = crypto.randomUUID();
+                const roomId = crypto.randomUUID(); // generate unique room ID
                 rooms.set(roomId, {
                     questionId: question._id,
                     user1Id: user1Socket.handshake.query.uid,
                     user2Id: user2Socket.handshake.query.uid,
                 });
 
-                user1Socket.emit(
+                user1Socket.emit( // send match found signal to frontend of both user
                     "match found",
                     roomId,
                     "You are matched with another user!"
