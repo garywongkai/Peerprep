@@ -10,12 +10,12 @@ const Matchmaking: React.FC = () => {
     const [seconds, setSeconds] = useState(0); // 用于存储计时器的秒数
     const [matchStatus, setMatchStatus] = useState<string>(""); // 匹配的状态信息
     const [isMatching, setIsMatching] = useState<boolean>(false); // 表示用户是否正在匹配过程中
-    const [selectedDifficulty, setSelectedDifficulty] =
-        useState<string>("Easy"); // 用户选择的难度
-    const [selectedCategory, setSelectedCategory] = useState<string>("Array"); // 主题
+    const [selectedDifficulty, setSelectedDifficulty] = useState<string>(""); // 用户选择的难度
+    const [selectedCategory, setSelectedCategory] = useState<string>(""); // 主题
     const [isMatchFound, setMatchFound] = useState<boolean>(false); // 表示是否已经找到匹配的对手
     const navigate = useNavigate(); // React Router 提供的函数，用于在找到匹配时导航到新的页面。
     const timerId = useRef<NodeJS.Timeout | null>(null);
+    // const matchCanceledByButton = useRef(false);
 
     useEffect(() => {
         function matchFound(roomId: string, msg: string) {
@@ -34,9 +34,21 @@ const Matchmaking: React.FC = () => {
             }, 2000); // 2 seconds delay
         }
 
+        function matchCanceled() {
+            setIsMatching(false);
+            // Clear the timer stored on the socket object
+            if (timerId.current) {
+                clearInterval(timerId.current);
+                timerId.current = null;
+            }
+        }
+
         socket.on("match found", matchFound); // 当 WebSocket 服务器发送 "match found" 事件时，调用 matchFound 函数处理匹配成功逻辑。
+        socket.on("match canceled", matchCanceled);
         return () => {
+            // clearTimeout(connectionCheckTimeout);
             socket.off("match found", matchFound);
+            socket.off("match canceled", matchCanceled); 
         };
     }, [selectedDifficulty, selectedCategory]); // 在依赖项（[selectedDifficulty, selectedCategory]）改变时重新运行
 
@@ -90,25 +102,56 @@ const Matchmaking: React.FC = () => {
         setMatchStatus(`Matching... (${formattedTime})`);
     }, [seconds]); // 每当秒数变化时，更新显示的匹配时间
 
+    // const handleMatchClick = () => {
+    //     startTimer ();
+    //     // setMatchStatus("Matching...");
+    //     matchCanceledByButton.current = false;
+    //     socket.emit("start match", selectedDifficulty, selectedCategory);
+    //     setIsMatching(true);
+    //     const timeoutID = setTimeout(() => {
+    //         stopTimer(timeoutID);
+    //         setIsMatching(false);
+    //         if (!matchCanceledByButton && !isMatchFound) {
+    //             console.log(seconds);
+    //             setMatchStatus("No matches available. Try again later.");
+    //             socket.emit("cancel match by timeout"); 
+    //         }
+    //         clearTimeout(timeoutID);
+    //     }, 10000);
+    // }
+    // const handleCancelMatchClick = () => {
+    //     stopTimer (timeoutID);
+    //     setMatchStatus("Matching canceled.");
+    //     setIsMatching(false);
+    //     matchCanceledByButton.current = true;
+    //     socket.emit("cancel match by button");
+    // }
+
+    
+    
     const handleMatchClick = () => {
+        let matchTimeout;
         // start match or cancel match
         if (isMatching) {
             stopTimer();
+            clearTimeout(matchTimeout);
             setMatchStatus("Matching canceled.");
-            socket.emit("cancel match"); // Emit a cancel signal to the server
+            socket.emit("cancel match by button"); // Emit a cancel signal to the server
         } else {
             startTimer();
             setMatchStatus("Matching...");
             socket.emit("start match", selectedDifficulty, selectedCategory);
-            setTimeout(() => { // Automatically cancel the match after 30 seconds
+            matchTimeout = setTimeout(() => { // Automatically cancel the match after 30 seconds
                 stopTimer();
                 setMatchStatus("No matches available. Try again later.");
-                socket.emit("cancel match"); // Emit a cancel signal to the server
+                socket.emit("cancel match by timeout"); // Emit a cancel signal to the server
                 setIsMatching(false);
-            }, 30000); // 30 seconds
+            }, 10000); // 30 seconds
+            // clearTimeout(matchTimeout);
         }
         setIsMatching(!isMatching); // reverse setIsMatching status
     };
+
     const handleDifficultyClick = (difficulty: string) => {
         setSelectedDifficulty(difficulty);
     };
@@ -205,12 +248,7 @@ const Matchmaking: React.FC = () => {
                         </div>
 
                         <div className="d-flex align-items-center justify-content-end">
-                            {/* 间距 */}
                             &nbsp;
-                            {/* Match Status (Static Text) */}
-                            {/* <div id="matchStatus" className="text-right">
-                                {matchStatus}
-                            </div> */}
                             <div className="timer-container">
                                 <div id="matchStatus" className="timer-large">
                                     {matchStatus}

@@ -36,10 +36,20 @@ exports.matchUser = (socket, selectedDifficulty, selectedCategory) => {
     }
 };
 
-exports.cancelMatch = (socket) => {
+exports.cancelMatchByButton = (socket) => {
     const index = waitingQueue.indexOf(socket);
     if (index !== -1) { 
         waitingQueue.splice(index, 1);
-        console.log("Match is canceled by you.");
+        console.log("Match is canceled by button.");
+        socket.emit("match canceled");
+    }
+};
+
+exports.cancelMatchByTimeout = (socket) => {
+    const index = waitingQueue.indexOf(socket);
+    if (index !== -1) { 
+        waitingQueue.splice(index, 1);
+        console.log("Match is canceled because of timeout.");
+        socket.emit("match canceled");
     }
 };
