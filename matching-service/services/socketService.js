@@ -5,7 +5,11 @@ exports.handleSocketConnection = (socket) => {
         matchController.matchUser(socket, selectedDifficulty, selectedCategory,);
     });
 
-    socket.on("cancel match", () => {
-        matchController.cancelMatch(socket);
+    socket.on("cancel match by button", () => {
+        matchController.cancelMatchByButton(socket);
+    });
+
+    socket.on("cancel match by timeout", () => {
+        matchController.cancelMatchByTimeout(socket);
     });
 };

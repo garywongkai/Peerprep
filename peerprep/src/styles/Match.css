@@ -1,222 +1,120 @@
-/* 整体容器样式 */
-/* 确保容器占满整个页面 */
+/* Container styles to fill the entire page */
 .container {
-  width: 100vw; /* 占满视口的整个宽度 */
-  height: 100vh; /* 占满视口的整个高度 */
-  min-width: 100vw; /* 确保最小宽度是视口宽度 */
-  min-height: 100vh; /* 确保最小高度是视口高度 */
-  margin: 0; /* 清除外边距 */
-  padding: 20px; /* 内边距，防止内容贴边 */
-  background: #ffffff; /* 背景颜色 */
-  border-radius: 0; /* 如果不需要圆角 */
-  box-shadow: none; /* 移除阴影 */
-  color: #333;
-  font-family: "Poppins", sans-serif;
-  position: relative;
-  top: 0;
-  /* 使用 Flexbox 布局 */
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  flex-direction: column; /* 如果需要垂直排列内容 */
-}
-
-/* 内容部分，防止被压缩 */
-.content {
-  max-width: 100%; /* 确保内容部分的宽度不会被压缩 */
-  max-height: 100%; /* 确保内容部分的高度不会被压缩 */
-  flex-grow: 1; /* 让内容部分占据剩余空间 */
-}
-
-
-/* .container:hover {
-  transform: scale(1.02);
-} */
-
-/* 为 UserHeader 设置向上移动 */
-.user-header {
-  margin-top: -20px; /* 使用负的 margin-top 向上移动 */
-}
-
-/* 标题 */
-.category-header,
-.difficulty-header {
-    font-size: 2.5rem;
-    text-align: center; 
-    font-weight: bold;
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    min-width: 100vw; /* Minimum width matches viewport */
+    min-height: 100vh; /* Minimum height matches viewport */
+    margin: 0; /* Remove margin */
+    padding: 20px; /* Add padding */
+    background: #ffffff; /* White background */
     color: #333;
-    text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
-    margin-bottom: 100px;
-}
-.form-group {
-  width: 100%;
-  margin-bottom: 40px; /* 增加表单组与其他元素之间的距离 */
-}
-/* 下拉菜单样式 */
-.MuiFormControl-root {
+    font-family: "Poppins", sans-serif;
+    position: relative;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column; /* Stack content vertically */
+  }
+  
+  /* Ensure content fills available space */
+  .content {
+    max-width: 100%; /* Prevent content from shrinking */
+    max-height: 100%; /* Prevent content from shrinking */
+    flex-grow: 1; /* Allow content to grow */
+  }
+  
+  /* Move header upwards */
+  .user-header {
+    margin-top: -20px; /* Adjust vertical positioning */
+  }
+  
+  /* Header styles */
+  .category-header,
+  .difficulty-header {
+      font-size: 2.5rem;
+      text-align: center; 
+      font-weight: bold;
+      color: #333;
+      text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 100px;
+  }
+  
+  .form-group {
     width: 100%;
-    margin-bottom: 20px;
-}
-
-.MuiSelect-outlined {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
-    padding: 10px;
-    font-size: 3rem;
-    font-weight: bold;
-    color: #333;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 2px solid #0c0c0c;
-}
-
-.MuiSelect-outlined:hover {
-  background-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  border-color: #0a0a0a; /* 悬停时也保持蓝色边框 */
-}
-
-/* 下拉菜单项 */
-.MuiMenuItem-root {
-    font-size: 1.1rem;
-    padding: 12px 20px;
-    transition:
-        background-color 0.3s ease,
-        color 0.3s ease;
-}
-
-.MuiMenuItem-root:hover {
-    background-color: #a777e3;
-    color: #fff;
-}
-
-/* 按钮样式 */
-.btn {
-    background-color: #ff6b6b;
-    color: #fff;
-    padding: 12px 20px;
-    font-size: 1.1rem;
-    border-radius: 30px;
-    font-weight: bold;
-    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
-    transition:
-        background-color 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.2s ease;
-    cursor: pointer;
-}
-
-.btn:hover {
-    background-color: #ff8b8b;
-    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
-    transform: translateY(-3px);
-}
-
-.btn:disabled {
-    background-color: rgba(255, 107, 107, 0.6);
-    cursor: not-allowed;
-}
-
-/* 自定义匹配按钮 */
-/* 父容器：使用 Flexbox 居中对齐按钮 */
-.button-container {
-    display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    height: 100vh; /* 使容器占满整个视口高度 */
-    position: relative; /* 相对定位 */
-    height: auto;
-    top: 0px; /*通过 top 向上移动50px */
-}
-
-/* 自定义匹配按钮样式 */
-.custom-match-button {
-    background-color: #050505;
-    color: #fff;
-    font-size: 10rem;
-    border-radius: 50px;
-    padding: 10px 30px;
-    transition: all 0.3s ease;
-    box-shadow: 0px 10px 15px rgba(80, 81, 81, 0.4);
-    border: none; /* 移除按钮边框 */
-}
-
-/* 悬停效果 */
-.custom-match-button:hover {
-    background-color: #767977;
-    box-shadow: 0px 15px 20px rgba(55, 56, 55, 0.6);
-    transform: translateY(-3px);
-}
-
-/* 父容器：使用 Flexbox 居中对齐 */
-/* .spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: auto;
-} */
-
-/* 修改 spinner-border 的样式 */
-/* .spinner-border {
-  width: 2rem;
-  height: 2rem;
-  border: 0.25rem solid rgba(255, 255, 255, 0.3);
-  border-top-color: #0a0a0a;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-} */
-
-/* 定义旋转动画 */
-@keyframes spin {
-  0% {
-      transform: rotate(0deg);
+    margin-bottom: 40px; /* Add spacing between form groups */
   }
-  100% {
-      transform: rotate(360deg);
+  
+  /* Dropdown control styles */
+  .MuiFormControl-root {
+      width: 100%;
+      margin-bottom: 20px;
   }
-}
-
-/* 保证 Loading 文字不旋转且保持隐藏状态，仅供屏幕阅读器使用 */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-}
-
-/* 匹配状态文本 */
-#matchStatus {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* 输入框、表单样式 */
-.MuiInputBase-root {
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-/* 使用 Flexbox 布局将计时器居中，并往上挪 */
-.timer-container {
-    display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    height: auto; /* 占满整个视口高度 */
-    position: relative; /* 相对定位以便调整位置 */
-    top: 10px; /*通过负的top值稍微往上挪*/
-}
-
-/* 保持计时器的大字体和其他样式 */
-.timer-large {
-    font-size: 3rem !important;
-    font-weight: bold !important;
-    color: #030303 !important;
-    text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5) !important;
-    animation: pulse 1.5s infinite;
-}
+  
+  .MuiSelect-outlined {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #333;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 2px solid #0c0c0c;
+  }
+  
+  /* Dropdown hover effect */
+  .MuiSelect-outlined:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border-color: #0a0a0a;
+  }
+  
+  /* Dropdown item styles */
+  .MuiMenuItem-root {
+      font-size: 1.1rem;
+      padding: 12px 20px;
+      transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+  }
+  
+  /* Button container layout */
+  .button-container {
+      display: flex;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 100vh; /* Full viewport height */
+      position: relative;
+      height: auto;
+      top: 0px; /* Adjust top positioning */
+  }
+  
+  /* Button styles */
+  .custom-match-button {
+      background-color: #fff;
+      color: #000;
+      font-size: 2rem;
+      border-radius: 50px;
+      padding: 10px 30px;
+      transition: all 0.3s ease;
+      box-shadow: 0px 10px 15px rgba(80, 81, 81, 0.4);
+      border: 1px solid #b6b5b5;
+  }
+  
+  /* Hover effect for buttons */
+  .custom-match-button:hover {
+      background-color: #000;
+      color: #fff;
+      box-shadow: 0px 15px 20px rgba(55, 56, 55, 0.6);
+      transform: translateY(-3px);
+  }
+  
+  /* Disabled button styles */
+  .custom-match-button:disabled {
+      background-color: #f0f0f0; /* Gray background when disabled */
+      color: #aaa; /* Lighter text when disabled */
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+  }
+  
