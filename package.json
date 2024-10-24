@@ -12,6 +12,8 @@
     "react-router-dom": "^6.27.0",
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.8.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "@hocuspocus/server": "^2.13.7",
+    "@hocuspocus/provider": "^2.13.7"
   }
 }

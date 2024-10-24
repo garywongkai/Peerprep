@@ -18,23 +18,27 @@ const Matchmaking: React.FC = () => {
     const timerId = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        function matchFound(roomId: string, msg: string) {
+        function matchFound(roomId: string, msg: string, question: any) {
             setMatchFound(true); // Set match found to true
             setMatchStatus(msg);
 
             setTimeout(() => {
                 setIsMatching(false);
-                navigate(`/match/${roomId}`, {
+                // redirect to collaboration room
+                navigate(`/collaboration/${roomId}`, {
                     state: {
                         socketId: socket.id,
+                        roomId: roomId,
                         difficulty: selectedDifficulty,
                         category: selectedCategory,
+                        question: question
                     },
                 });
             }, 2000); // 2 seconds delay
         }
 
         socket.on("match found", matchFound); // 当 WebSocket 服务器发送 "match found" 事件时，调用 matchFound 函数处理匹配成功逻辑。
+
         return () => {
             socket.off("match found", matchFound);
         };

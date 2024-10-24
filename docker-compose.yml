@@ -40,6 +40,16 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+  
+  collaboration-service:
+    build: ./collaboration-service
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./collaboration-service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
 
 networks:
   peerprep-network:

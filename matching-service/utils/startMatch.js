@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const rooms = new Map();
 const {generateQuestion} = require('./generateQuestion');
+//const {collaborationService} = require('../../collaboration-service/src/service/collaboration-service');
 
 exports.startMatch = async (
     user1Socket,
@@ -24,12 +25,14 @@ exports.startMatch = async (
                 user1Socket.emit(
                     "match found",
                     roomId,
-                    "You are matched with another user!"
+                    "You are matched with another user!",
+                    question
                 );
                 user2Socket.emit(
                     "match found",
                     roomId,
-                    "You are matched with another user!"
+                    "You are matched with another user!",
+                    question
                 );
 
                 user1Socket.join(roomId);
