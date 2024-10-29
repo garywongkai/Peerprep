@@ -14,6 +14,10 @@
     "socket.io-client": "^4.8.0",
     "uuid": "^10.0.0",
     "@hocuspocus/server": "^2.13.7",
-    "@hocuspocus/provider": "^2.13.7"
+    "@hocuspocus/provider": "^2.13.7",
+    "@tiptap/react": "2.9.1",
+    "@tiptap/starter-kit": "2.9.1",
+    "@tiptap/extension-collaboration": "2.9.1",
+    "yjs": "13.6.20"
   }
 }

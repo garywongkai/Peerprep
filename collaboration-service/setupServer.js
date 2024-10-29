@@ -1,6 +1,5 @@
 require("dotenv").config({ path: "./.env" });
-//const { Server } = require("@hocuspocus/server");
-//const { HocuspocusProvider  } = require("@hocuspocus/provider");
+const { Server } = require("@hocuspocus/server");
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -8,10 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const socketIo = require("socket.io");
 const collaborationService = require("./service/collaboration-service");
+const Y = require('yjs');
 
 
 const SOCKET_MATCHING_PORT = 5003;
-const HOCUSPOCUS_PORT = 5004;
 
 const io = socketIo(server, {
   cors: {
@@ -31,12 +30,12 @@ server.listen(SOCKET_MATCHING_PORT, () => {
 });
 
 //const hocuspocusServer = Server.configure({
-//    extensions: [
-//      new WebSocketServer(),
-//    ],
+//    async onLoadDocument({ documentName }) {
+//      const ydoc = new Y.Doc();
+//      return ydoc;
+//    },
+//    debounce: 200,
 //  });
-
-//hocuspocusServer.listen(3003);
 
 app.use(cors());
 app.use(express.json());
@@ -48,4 +47,12 @@ app.get("/", (req, res) => {
 io.on("connection", async (socket) => {
     //console.log(`${socket.id} connected to collaboration server`);
     collaborationService.handleCollaboration(socket);
+    /*
+    socket.on('client-update', ({ roomId, update }) => {
+        console.log(`Server heard editor changes`);
+        hocuspocusServer.applyUpdate({ update });
+        socket.to(roomId).emit('document-update', update);
+        console.log(`Server transmitted editor changes`);
+    });
+    */
 });

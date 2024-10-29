@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { getCookie } from '../../utils/cookieUtils'; // 假设 getCookie 函数放在这个文件中
+import { getCookie } from '../../utils/cookieUtils';
 
 const cookieToken = getCookie('access_token');
 const displayName = getCookie('displayName');
@@ -28,7 +28,6 @@ export const socket = io(URL, {
 
 socket.on('connect', () => {
     console.log('Socket connected successfully. Socket ID:', socket.id);
-    console.log('Socket connected successfully. Socket ID:', socket.displayName);
 });
 socket.on('connect_error', (error) => {
     console.log('Socket connection failed:', error);
