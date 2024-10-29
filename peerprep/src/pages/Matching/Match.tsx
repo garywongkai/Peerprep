@@ -17,18 +17,23 @@ const Matchmaking: React.FC = () => {
     const [isTimedOut, setIsTimedOut] = useState(false);
 
     useEffect(() => {
-        function matchFound(roomId: string, msg: string) {
+
+        function matchFound(roomId: string, msg: string, question: any) {
             setTimeout(() => {
                 setIsMatching(false);
-                navigate(`/match/${roomId}`, {
+                // redirect to collaboration room
+                navigate(`/collaboration/${roomId}`, {
                     state: {
                         socketId: socket.id,
+                        roomId: roomId,
                         difficulty: selectedDifficulty,
                         category: selectedCategory,
+                        question: question
                     },
                 });
             }, 2000); // 2 seconds delay
         }
+
 
         // When the WebSocket server sends a "match found" event, the matchFound function is called to handle the match success logic
         socket.on("match found", matchFound); 

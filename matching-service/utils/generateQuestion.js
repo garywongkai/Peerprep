@@ -23,6 +23,8 @@ exports.generateQuestion = async (difficulty, category) => {
             );
         }
         const responseData = await response.json();
+        console.log("Question Meta Data:")
+        console.log(responseData);
         return responseData;
     } catch (error) {
         console.error("Error to generate question:", error);
