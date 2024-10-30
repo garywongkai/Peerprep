@@ -17,6 +17,7 @@ app.use(
 			"https://peerprep-327190433280.asia-southeast1.run.app:5000",
 		],
 		credentials: true, // Allow credentials (cookies) to be sent
+		allowedHeaders: ["Content-Type", "Authorization"],
 	})
 );
 

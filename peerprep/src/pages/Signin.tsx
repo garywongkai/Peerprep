@@ -62,6 +62,7 @@ const SignIn: React.FC = () => {
 
   useEffect(() => {
     // Check for access_token in cookies
+    console.log(getCookie);
     const token = getCookie("access_token");
     if (token) {
       navigate("/dashboard");
