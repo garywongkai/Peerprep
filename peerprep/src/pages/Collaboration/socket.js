@@ -14,7 +14,9 @@ if (cookieToken) {
 }
 
 
-const URL = "http://localhost:5003";
+const URL = process.env.REACT_APP_ENV === "development"
+? "http://localhost:5003"
+: "https://collaboration-service-327190433280.asia-southeast1.run.app";;
 
 export const socket = io(URL, {
     query: {
