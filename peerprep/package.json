@@ -39,11 +39,8 @@
     "webpack-cli": "^5.1.4",
     "lodash.debounce": "^4.0.8",
     "@types/lodash.debounce": "^4.0.7",
-    "@tiptap/react": "2.9.1",
-    "@tiptap/starter-kit": "2.9.1",
-    "@tiptap/extension-collaboration": "2.9.1",
-    "yjs": "13.6.20",
-    "@hocuspocus/provider": "2.13.7"
+    "react-monaco-editor": "0.56.2"
+
   },
   "scripts": {
     "start": "react-scripts start",

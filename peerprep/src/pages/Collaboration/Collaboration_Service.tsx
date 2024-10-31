@@ -1,57 +1,20 @@
-import React, { useState, useEffect } from "react";
-//import { EditorContent, useEditor } from '@tiptap/react';
-//import StarterKit from '@tiptap/starter-kit';
-//import Collaboration from '@tiptap/extension-collaboration';
-//import { HocuspocusProvider } from '@hocuspocus/provider';
+import React, { useState, useEffect, useRef } from "react";
 import io from 'socket.io-client';
 import { useLocation } from 'react-router-dom';
-//import * as Y from 'yjs';
-//import { FormControl, MenuItem, Select } from "@mui/material";
+import MonacoEditor from "react-monaco-editor";
+import * as monaco from 'monaco-editor'
 
-
-//const ydoc = new Y.Doc();
-//const provider = new HocuspocusProvider({
-//    url: 'ws://localhost:5004', // Hocuspocus server URL
-//    name: 'my-shared-document', // Unique identifier for the document
-//    document: ydoc,
-//  });
 
 const Collaboration_Service: React.FC = () => {
     const socket = io("http://localhost:5003");
     const [message, setMessage] = useState("");
     const [messageList, setMessageList] = useState<string[]>([]);
+    
+    const [code, setCode] = useState("// Start coding together!");
+    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
     const location = useLocation();
     const { socketId, roomId, difficulty, category, question } = location.state || {};
-
-    //const editor = useEditor({
-    //    extensions: [
-    //        StarterKit, // Basic editor setup with formatting options
-    //        Collaboration.configure({
-    //            document: ydoc, // Use Y.js document to sync Tiptap editor content
-    //        }),
-    //    ],
-    //});
-
-    /*
-    useEffect(() => {
-
-        socket.on('document-update', (update: Uint8Array) => {
-            Y.applyUpdate(ydoc, new Uint8Array(update));
-        });
-
-        provider.on('update', ({ roomId, update }: { roomId: string; update: Uint8Array }) => {
-            socket.emit('client-update', { roomId, update: Array.from(update) });
-        });
-    }, [editor]);
-    */
-    useEffect(() => {
-        socket.on('connect', () => {
-            socket.emit('joinRoom', roomId)
-        });
-    });
-
-
 
     useEffect(() => {
         socket.on('receive_message', (message) => {
@@ -63,6 +26,31 @@ const Collaboration_Service: React.FC = () => {
         };
     });
 
+    useEffect(() => {
+        socket.on('connect', () => {
+            socket.emit('joinRoom', roomId)
+        });
+    });
+
+    const onChange = (newCode: string) => {
+        setCode(newCode);
+        socket.emit("code-update", newCode, roomId); // Emit updated code to the server
+    };
+
+    useEffect(() => {
+        // Listen for incoming changes from other users
+        socket.on("code-update", (newCode: string, roomId: string) => {
+          if (newCode !== code) {
+            setCode(newCode);
+          }
+        });
+    
+        // Clean up on component unmount
+        return () => {
+          socket.off("code-update");
+        };
+    }, [code]);
+    
 
     const sendMessage = () => {
         if (message !== "") { // server socket
@@ -73,6 +61,11 @@ const Collaboration_Service: React.FC = () => {
         }
     };
 
+    const options = {
+        selectOnLineNumbers: true,
+        automaticLayout: true,
+      };
+
     return (
         <div>
             <h2>{question.questionId}.{question.questionTitle}</h2>
@@ -80,7 +73,23 @@ const Collaboration_Service: React.FC = () => {
             <h3>Difficulty: {difficulty}</h3>
             <p>{question.questionDescription}</p>
 
-            
+                <div>
+                    <h2>Collaborative Code Editor</h2>
+                    <MonacoEditor
+                    width="800"
+                    height="600"
+                    language="javascript"
+                    theme="vs-dark"
+                    value={code}
+                    options={options}
+                    onChange={onChange}
+                    editorDidMount={(editor: monaco.editor.IStandaloneCodeEditor) => {
+                    editorRef.current = editor;
+                    }}
+                />
+                </div>
+
+
                 <div>
                     {messageList.map((msg, index) => (
                         <div key={index}>{msg}</div>
