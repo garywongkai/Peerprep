@@ -1,229 +1,253 @@
-import React, { useEffect, useState } from 'react';
-import { auth, db, theme, uploadimage } from '../firebase'; // Import your Firebase setup
-import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, ThemeProvider } from '@mui/material';
-import UserHeader from '../components/UserHeader';
-import '../styles/Profile.css';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useNavigate } from 'react-router-dom';
-import { updateProfile } from 'firebase/auth';
-import { getDownloadURL, getStorage, ref } from 'firebase/storage';
+import React, { useState, useEffect } from "react";
+import { getCookie, setCookie } from "../utils/cookieUtils"; // Assume you have a utility to get cookies
+import { auth } from "../firebase"; // Import your Firebase authentication setup
+import { useAuthState } from "react-firebase-hooks/auth"; // Import the hook for user state
+import { useNavigate } from "react-router-dom"; // Import the navigation hook
+import { ThemeProvider } from "react-bootstrap";
+import UserHeader from "../components/UserHeader";
+import theme from "../theme/theme";
+import "../styles/Profile.css";
+
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+} from "@mui/material"; // Import Material-UI components
 
 const Profile = () => {
-  const [email, setEmail] = useState('');
-  const [bio, setBio] = useState('');
-  const [avatar, setAvatar] = useState(null);
-  const [photoURL, setPhotoURL] = useState("https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png");
-  const [isLoading, setLoading] = useState(true)
-  const [user, loading, error] = useAuthState(auth);
-  const [isHovering, setIsHovering] = useState(false);
-  const [name, setName] = useState("");
-  const navigate = useNavigate();
-  const [openDialog, setOpenDialog] = useState(false); // For the delete dialog
-  const [confirmText, setConfirmText] = useState("");
-  const fetchUserProfile = async () => {
-    if (user) {
-      const storage = getStorage();
-      const imageRef = ref(storage, `avatars/${user.uid}`);
-      try {
-        const url = await getDownloadURL(imageRef);
-        setPhotoURL(url);
-      } catch (err) {
-        console.error("Error fetching image URL: ", err);
-      }
-    }
-  };
-  const fetchUserName = async () => {
-    try {
-      const q = query(collection(db, "users"), where("uid", "==", user?.uid), where("email", "==", user?.email));
-      const doc = await getDocs(q);
-      const data = doc.docs[0].data();
-      if (user) { 
-        if(user.displayName !== null) {
-          setName(data.name);
-          setEmail(data.email);
+    const [displayName, setDisplayName] = useState(
+        getCookie("displayName") || ""
+    );
+    const [photoURL, setPhotoURL] = useState(getCookie("photoURL") || "");
+    const [loading, setLoading] = useState(false); // Not loading initially
+    const [message, setMessage] = useState("");
+    const [confirmText, setConfirmText] = useState(""); // For account deletion confirmation
+    const [openDialog, setOpenDialog] = useState(false); // For the delete account dialog
+    const email = getCookie("email");
+
+    const [user, loadingUser] = useAuthState(auth); // Get the current user
+
+    const navigate = useNavigate(); // For navigation
+
+    // Form submission to update the profile
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setLoading(true);
+        setMessage("");
+		
+        try {
+            const url =
+                process.env.REACT_APP_ENV === "development"
+                    ? "http://localhost:5001/update-profile"
+                    : "https://user-service-327190433280.asia-southeast1.run.app/update-profile";
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include", // Ensure cookies are sent for authentication
+                body: JSON.stringify({
+                    displayName,
+                    photoURL,
+                }),
+            });
+			
+
+            if (response.ok) {
+                const data = await response.json();
+                setCookie("displayName", displayName);
+                setCookie("photoURL", photoURL);
+                setMessage(data.message); // Profile updated successfully
+            } else {
+                const errorData = await response.json();
+                setMessage(errorData.error || "Failed to update profile");
+            }
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            setMessage("An error occurred while updating profile");
+        } finally {
+            setLoading(false);
         }
-        if(user.displayName === null) {
-          await updateProfile(user, {
-            displayName: data.name
-          });
-          setName(data.name);
+    };
+
+    const handleDeleteAccount = async () => {
+        if (confirmText === "confirm" && user) {
+            try {
+                const response = await fetch(
+                    "http://localhost:5001/delete-account",
+                    {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${await user.getIdToken()}`, // Send the user's ID token for authentication
+                        },
+                        credentials: "include",
+                        body: JSON.stringify({ uid: user.uid }), // Optionally send the user's UID if your backend needs it
+                    }
+                );
+
+                if (response.ok) {
+                    alert("User deleted successfully");
+                    navigate("/signin");
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.error || "Failed to delete account");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred. Please try again");
+            }
+            setOpenDialog(false);
         }
-        setEmail(data.email);
-        setBio(data.bio);
-    }
-    } catch (err) {
-      console.error(err);
-      alert("An error occurred. Please try again");
-    }
-  };
+    };
 
-  function handleChange(e: any) {
-    if (e.target.files && e.target.files[0]) {
-        const selectedFile = e.target.files[0];
-    
-        // Check if the file type is an image
-        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-        if (!validTypes.includes(selectedFile.type)) {
-          alert("Please upload a valid image file (JPEG, PNG, GIF, SVG).");
-          setIsHovering(false);
-          return;
+    const handleResetPassword = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!email) {
+            alert("User email not found!");
+            return;
         }
 
-        setAvatar(selectedFile);
-    }
-  }
+        try {
+            const response = await fetch(
+                "http://localhost:5001/reset-password",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email }), // Use the logged-in user's email
+                }
+            );
 
-  function handleClick() {
-    uploadimage(avatar, user, setLoading);
-    window.location.reload();
-  }
-
-  const handleUpdateProfile = async () => {
-    if (user) {
-      try {
-        await updateProfile(user, {
-          displayName: name,
-        });
-
-        // Update Firestore user data if necessary
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, { name: name, bio:bio });
-
-        alert("Profile updated successfully!");
-      } catch (err) {
-        console.error("Error updating profile: ", err);
-        alert("An error occurred while updating the profile.");
-      }
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (confirmText === 'confirm' && user) {
-      try {
-        if (user) {
-            await user.delete();
-          }
-          alert("User deleted successfully");
-          navigate("/signin");
-        } catch (err) {
-          console.error(err);
-          alert("An error occurred. Please try again");
+            if (response.ok) {
+                alert("Password reset email sent successfully!");
+                navigate("/profile"); // Redirect to the sign-in page after sending the email
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || "Failed to send reset email");
+            }
+        } catch (error) {
+            console.error("Error during password reset:", error);
+            alert("An error occurred while sending the password reset email");
         }
-        setOpenDialog(false); // Close the dialog
-      } 
-  };
+    };
 
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
+    const handleClickOpen = () => {
+        setOpenDialog(true);
+    };
 
-  const handleClose = () => {
-    setOpenDialog(false);
-    setConfirmText(""); // Reset the confirm text on close
-  };
+    const handleClose = () => {
+        setOpenDialog(false);
+        setConfirmText(""); // Reset the confirm text on close
+    };
 
-  useEffect(() => {
-    if (loading) return; // Do nothing while loading
-    if (user) {
-        fetchUserName();
-        fetchUserProfile();
-      }
-    if (user?.photoURL) {
-        setPhotoURL(user.photoURL);
-      }
-    if (!user) return navigate("/signin");
-  }, [user, loading]);
-  return (
-    <ThemeProvider theme={theme}>
-      <UserHeader />
-      <div className="profile">
-        <h1>Profile</h1>
-        <div className="profile__container">
-          <div className="profile__avatar">
-            {photoURL ? (
-              <img onClick={() => (isHovering) ? setIsHovering(false) : setIsHovering(true)} src={photoURL} alt="Avatar" className="avatar" />
-            ) : (
-              <div onClick={() => (isHovering) ? setIsHovering(false) : setIsHovering(true)} className="avatar-placeholder">No Avatar</div>
-            )}
-            {isHovering && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleChange}
-                  style={{ display: 'block', marginTop: '10px' }}
-                />
-                <button
-                  disabled={loading || !avatar}
-                  onClick={handleClick}
-                >
-                  Upload Image
-                </button>
-              </>
-            )}
-            {/* <button disabled={loading || !avatar} onClick={handleClick}>Upload Image</button> */}
-          </div>
-          <div className="profile__info">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-            />
-            <input
-              type="email"
-              value={email}
-              placeholder="Email"
-              disabled
-            />
-            <textarea
-              className='biofield'
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Bio"
-            />
-            <button onClick={handleUpdateProfile}>Update Profile</button>
-            &nbsp;
-            {/* Delete Account Section */}
-          <button className='delete' onClick={handleClickOpen}>
-            Delete Account
-          </button>
+    useEffect(() => {
+        // Check for access_token in cookies
+        const token = getCookie("access_token");
+        if (!token) {
+            navigate("/signin");
+        }
+    }, [navigate]);
 
-          <Dialog open={openDialog} onClose={handleClose}>
-            <DialogTitle>Confirm Account Deletion</DialogTitle>
-            <DialogContent>
-              <p>To delete your account, please type <strong>confirm</strong> below:</p>
-              <TextField
-                autoFocus
-                margin="dense"
-                label="Type confirm"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleDeleteAccount}
-                color="error"
-                disabled={confirmText !== "confirm"} // Enable only when user types 'confirm'
-              >
-                Delete Account
-              </Button>
-            </DialogActions>
-          </Dialog>
-          </div>
-        </div>
-      </div>
-    </ThemeProvider>
-  );
-  };
-
+    return (
+        <ThemeProvider theme={theme}>
+            <UserHeader />
+            <div className="profile">
+                <h1>Profile</h1>
+                <div className="profile__container">
+                    <div className="profile__avatar">
+                        {photoURL ? (
+                            <img
+                                src={photoURL}
+                                alt="Avatar"
+                                className="avatar"
+                            />
+                        ) : (
+                            <div className="avatar-placeholder">No Avatar</div>
+                        )}
+                    </div>
+                    <div className="profile__info">
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                type="text"
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
+                                placeholder="Display Name"
+                                required
+                            />
+                            <input
+                                type="email"
+                                value={email}
+                                placeholder="Email"
+                                disabled
+                            />
+                            {/* <textarea
+                className="biofield"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Bio"
+              /> */}
+                            <input
+                                type="text"
+                                value={photoURL}
+                                onChange={(e) => setPhotoURL(e.target.value)}
+                                placeholder="Photo URL"
+                                required
+                            />
+                            <button type="submit" disabled={loading}>
+                                {loading ? "Updating..." : "Update Profile"}
+                            </button>
+                        </form>
+                        <button onClick={handleResetPassword}>
+                            Reset Password
+                        </button>
+                        {message && <p>{message}</p>}
+                        <button className="delete" onClick={handleClickOpen}>
+                            Delete Account
+                        </button>
+                        <Dialog open={openDialog} onClose={handleClose}>
+                            <DialogTitle>Confirm Account Deletion</DialogTitle>
+                            <DialogContent>
+                                <p>
+                                    To delete your account, please type{" "}
+                                    <strong>confirm</strong> below:
+                                </p>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    label="Type confirm"
+                                    type="text"
+                                    fullWidth
+                                    variant="outlined"
+                                    value={confirmText}
+                                    onChange={(e) =>
+                                        setConfirmText(e.target.value)
+                                    }
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleClose} color="primary">
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleDeleteAccount}
+                                    color="error"
+                                    disabled={confirmText !== "confirm"}
+                                >
+                                    Delete Account
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                    </div>
+                </div>
+            </div>
+        </ThemeProvider>
+    );
+};
 
 export default Profile;

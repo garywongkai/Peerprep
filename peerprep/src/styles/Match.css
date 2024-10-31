@@ -1,0 +1,120 @@
+/* Container styles to fill the entire page */
+.container {
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    min-width: 100vw; /* Minimum width matches viewport */
+    min-height: 100vh; /* Minimum height matches viewport */
+    margin: 0; /* Remove margin */
+    padding: 20px; /* Add padding */
+    background: #ffffff; /* White background */
+    color: #333;
+    font-family: "Poppins", sans-serif;
+    position: relative;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column; /* Stack content vertically */
+  }
+  
+  /* Ensure content fills available space */
+  .content {
+    max-width: 100%; /* Prevent content from shrinking */
+    max-height: 100%; /* Prevent content from shrinking */
+    flex-grow: 1; /* Allow content to grow */
+  }
+  
+  /* Move header upwards */
+  .user-header {
+    margin-top: -20px; /* Adjust vertical positioning */
+  }
+  
+  /* Header styles */
+  .category-header,
+  .difficulty-header {
+      font-size: 2.5rem;
+      text-align: center; 
+      font-weight: bold;
+      color: #333;
+      text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 100px;
+  }
+  
+  .form-group {
+    width: 100%;
+    margin-bottom: 40px; /* Add spacing between form groups */
+  }
+  
+  /* Dropdown control styles */
+  .MuiFormControl-root {
+      width: 100%;
+      margin-bottom: 20px;
+  }
+  
+  .MuiSelect-outlined {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #333;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 2px solid #0c0c0c;
+  }
+  
+  /* Dropdown hover effect */
+  .MuiSelect-outlined:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border-color: #0a0a0a;
+  }
+  
+  /* Dropdown item styles */
+  .MuiMenuItem-root {
+      font-size: 1.1rem;
+      padding: 12px 20px;
+      transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+  }
+  
+  /* Button container layout */
+  .button-container {
+      display: flex;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 100vh; /* Full viewport height */
+      position: relative;
+      height: auto;
+      top: 0px; /* Adjust top positioning */
+  }
+  
+  /* Button styles */
+  .custom-match-button {
+      background-color: #fff;
+      color: #000;
+      font-size: 2rem;
+      border-radius: 50px;
+      padding: 10px 30px;
+      transition: all 0.3s ease;
+      box-shadow: 0px 10px 15px rgba(80, 81, 81, 0.4);
+      border: 1px solid #b6b5b5;
+  }
+  
+  /* Hover effect for buttons */
+  .custom-match-button:hover {
+      background-color: #000;
+      color: #fff;
+      box-shadow: 0px 15px 20px rgba(55, 56, 55, 0.6);
+      transform: translateY(-3px);
+  }
+  
+  /* Disabled button styles */
+  .custom-match-button:disabled {
+      background-color: #f0f0f0; /* Gray background when disabled */
+      color: #aaa; /* Lighter text when disabled */
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+  }
+  

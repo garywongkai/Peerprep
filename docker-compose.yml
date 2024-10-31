@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   peerprep:
@@ -10,6 +10,7 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+
   service:
     build: ./service
     ports:
@@ -19,5 +20,36 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+  
+  matching-service:
+    build: ./matching-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./matching-service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+  
+  collaboration-service:
+    build: ./collaboration-service
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./collaboration-service:/app
+      - /app/node_modules
+    networks:
+      - peerprep-network
+
 networks:
   peerprep-network:

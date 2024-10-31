@@ -2,9 +2,9 @@ const QuestionModel = require("../models/question");
 // Create and Save a new user
 exports.create = async (req, res) => {
 	if (
-		!req.body.difficulty &&
-		!req.body.questionTitle &&
-		!req.body.questionDescription &&
+		!req.body.difficulty ||
+		!req.body.questionTitle ||
+		!req.body.questionDescription ||
 		!req.body.questionCategory
 	) {
 		res.status(400).send({ message: "Content can not be empty!" });
@@ -134,10 +134,13 @@ exports.getQuestionById = async (req, res) => {
 };
 exports.getRandomQuestion = async (req, res) => {
 	try {
-		const { difficulty } = req.query;
+		const { category, difficulty } = req.query;
 
 		// Build filter object dynamically
 		const filter = {};
+		if (category) {
+			filter.questionCategory = { $regex: category, $options: "i" };
+		}
 		if (difficulty) {
 			filter.difficulty = difficulty;
 		}
