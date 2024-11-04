@@ -5,15 +5,12 @@ import placeholderImage from "../assets/placeholder.jpg";
 import Header from "../components/Header";
 import theme from "../theme/theme";
 import "../styles/Signin.css";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { getCookie } from "../utils/cookieUtils";
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const auth = getAuth(); // Initialize Firebase Auth
-  const provider = new GoogleAuthProvider(); // Create a Google Auth provider instance
 
   const handleSignIn = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -41,22 +38,6 @@ const SignIn: React.FC = () => {
     } catch (error) {
       console.error("Error during login:", error);
       alert("An error occurred during login");
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const uid = user.uid;
-      const email = user.email;
-
-      alert("User logged in successfully with Google");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Error during Google sign-in:", error);
-      alert("An error occurred during Google login");
     }
   };
 
@@ -103,7 +84,7 @@ const SignIn: React.FC = () => {
             </Link>
           </div>
           <div>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link to="/signup">
               <u>Register</u>
             </Link>{" "}

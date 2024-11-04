@@ -2,7 +2,12 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@hocuspocus/provider": "^2.13.7",
+    "@hocuspocus/server": "^2.13.7",
     "@mui/material": "^6.1.2",
+    "@tiptap/extension-collaboration": "2.9.1",
+    "@tiptap/react": "2.9.1",
+    "@tiptap/starter-kit": "2.9.1",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "cookie-parser": "^1.4.7",
@@ -13,11 +18,9 @@
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.8.0",
     "uuid": "^10.0.0",
-    "@hocuspocus/server": "^2.13.7",
-    "@hocuspocus/provider": "^2.13.7",
-    "@tiptap/react": "2.9.1",
-    "@tiptap/starter-kit": "2.9.1",
-    "@tiptap/extension-collaboration": "2.9.1",
     "yjs": "13.6.20"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.12.2"
   }
 }

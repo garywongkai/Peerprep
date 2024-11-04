@@ -61,7 +61,7 @@ function Forgot() {
                         Send password reset email
                     </button>
                     <div>
-                        Don't have an account?{" "}
+                        Don&apos;t have an account?{" "}
                         <Link to="/signup">Register</Link> now.
                     </div>
                 </div>
