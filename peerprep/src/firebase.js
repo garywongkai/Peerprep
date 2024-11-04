@@ -1,25 +1,14 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import {
   getAuth,
   updateProfile,
-  GoogleAuthProvider,
-  signInWithPopup,
 } from "firebase/auth";
 import {
   getFirestore,
-  query,
-  getDocs,
-  collection,
-  where,
-  setDoc,
-  doc,
 } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { createTheme } from "@mui/material/styles";
-import { Link, Navigate } from "react-router-dom";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 // require("dotenv").config({ path: __dirname + "/./../../.env" });
@@ -38,11 +27,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
-const firestore = getFirestore(app);
 const storage = getStorage();
 const realtime = getDatabase();
 // const db = firebase.firestore();
