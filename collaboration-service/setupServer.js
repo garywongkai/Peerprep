@@ -5,9 +5,8 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const socketIo = require("socket.io");
-const collaborationService = require("./service/collaboration-service");
-const Y = require('yjs');
-
+const { YSocketIO } = require('y-socket.io/dist/server');
+const socketService = require("./services/socketService");
 
 const SOCKET_MATCHING_PORT = 5003;
 
@@ -38,30 +37,9 @@ app.get("/", (req, res) => {
     res.json({ message: "Peerprep collaboration-service" });
 });
 
+const ysocketio = new YSocketIO(io);
+ysocketio.initialize();
 
 io.on("connection", async (socket) => {
-    //console.log(`${socket.id} connected to collaboration server`);
-    //collaborationService.handleCollaboration(socket, yDoc);
-    socket.on('send_message', (message, roomID) => {
-        console.log(`Server heard this message in room ${roomID}: ${message}`);
-        socket.to(roomID).emit('receive_message', message);
-        console.log(`Server relayed message to everyone in room`);
-    });
-
-    //socket.emit("code-update", codeState);
-
-    socket.on('joinRoom', (roomId) => {
-        socket.join(roomId);
-        socket.roomId = roomId;
-        console.log(`Socket join room ${roomId}`);
-        socket.to(roomId).emit("code-update", codeState);
-
-    });
-
-    socket.on("code-update", (newCode, roomId) => {
-        codeState = newCode;
-        socket.to(roomId).emit("code-update", newCode, roomId); // Broadcast to other clients
-    });
-        
-    
+    socketService.handleSocketConnection(socket);
 });
