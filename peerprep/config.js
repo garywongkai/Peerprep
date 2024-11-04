@@ -1,5 +1,6 @@
 // Import all env vars from .env file
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 export const configs = {
 	FIREBASE_API_KEY: process.env.REACT_APP_FIREBASE_API_KEY,

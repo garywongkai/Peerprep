@@ -24,9 +24,9 @@ app.use(express.json());
 app.use(router);
 
 app.get("/", (req, res) => {
-  res.json({ message: "Peerprep user-service" });
+	res.json({ message: "Peerprep user-service" });
 });
 
 app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
+	console.log(`Listening on port ${PORT}`);
 });

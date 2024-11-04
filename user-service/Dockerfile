@@ -11,12 +11,14 @@ ARG NODE_VERSION=20.17.0
 ################################################################################
 # Use node image for base image for all stages.
 FROM node:${NODE_VERSION}-alpine as base
-
+ARG NODE_ENV=development
+ENV REACT_APP_ENV=${NODE_ENV}
 # Set working directory for all build stages.
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
 COPY . .
+
 EXPOSE 5001
 CMD ["npm", "start"]

@@ -11,8 +11,6 @@ const Signup: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const auth = getAuth(); // Initialize Firebase Auth
-  const provider = new GoogleAuthProvider(); // Create a Google Auth provider instance
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -40,22 +38,6 @@ const Signup: React.FC = () => {
     } catch (error) {
       console.error("Error during registration:", error);
       alert("An error occurred during registration");
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const uid = user.uid;
-      const email = user.email;
-
-      alert("User logged in successfully with Google");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Error during Google sign-in:", error);
-      alert("An error occurred during Google login");
     }
   };
 

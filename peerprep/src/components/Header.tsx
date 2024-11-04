@@ -2,45 +2,17 @@
 import React from "react";
 import {
   Link as RouterLink,
-  LinkProps as RouterLinkProps,
-  MemoryRouter,
-  Link,
 } from "react-router-dom";
-import { StaticRouter } from "react-router-dom/server";
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
-  Container,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActions,
-  CssBaseline,
   ThemeProvider,
-  createTheme,
-  Switch,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import { Theme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 import theme from "../theme/theme";
 
-const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, "to">>(
-  (props, ref) => <RouterLink ref={ref} to="/" {...props} role={undefined} />
-);
-
-function Router(props: { children?: React.ReactNode }) {
-  const { children } = props;
-  if (typeof window === "undefined") {
-    return <StaticRouter location="/">{children}</StaticRouter>;
-  }
-
-  return <MemoryRouter>{children}</MemoryRouter>;
-}
 
 const Header: React.FC = () => {
   return (

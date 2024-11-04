@@ -8,12 +8,12 @@ import theme from "../theme/theme";
 import "../styles/Profile.css";
 
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
 } from "@mui/material"; // Import Material-UI components
 
 const Profile = () => {

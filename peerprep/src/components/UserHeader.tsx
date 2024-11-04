@@ -1,4 +1,3 @@
-// Header.tsx
 import React from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
@@ -6,20 +5,8 @@ import {
   Toolbar,
   Typography,
   Button,
-  Container,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActions,
-  CssBaseline,
   ThemeProvider,
-  createTheme,
-  Switch,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import { Theme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 import theme from "../theme/theme";
 
@@ -82,6 +69,16 @@ const UserHeader: React.FC = () => {
               color="primary"
             >
               Question List
+            </Button>
+          </Stack>
+          <Stack spacing={2} direction="row" justifyContent="left">
+            <Button
+              component={RouterLink}
+              to="/match"
+              variant="contained"
+              color="primary"
+            >
+              Match
             </Button>
           </Stack>
           <Stack spacing={2} direction="row" justifyContent="center">
