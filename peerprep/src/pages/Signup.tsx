@@ -5,8 +5,6 @@ import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
 import placeholderImage from "../assets/placeholder.jpg";
 import theme from "../theme/theme";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getCookie } from "../utils/cookieUtils";
 
 const Signup: React.FC = () => {
   const [name, setName] = useState("");
@@ -20,7 +18,11 @@ const Signup: React.FC = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5001/register", {
+      const url =
+        process.env.REACT_APP_ENV === "development"
+          ? "http://localhost:5001/register"
+          : "https://user-service-327190433280.asia-southeast1.run.app/register";
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,8 +60,8 @@ const Signup: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check for access_token in cookies
-    const token = getCookie("access_token");
+    // Check for accessToken in localStorage
+    const token = localStorage.getItem("accessToken");
     if (token) {
       navigate("/dashboard");
     }
@@ -94,12 +96,6 @@ const Signup: React.FC = () => {
           <button className="register__btn" onClick={handleSignup}>
             Register
           </button>
-          {/* <button
-            className="register__btn register__google"
-            onClick={signInWithGoogle}
-          >
-            Register with Google
-          </button> */}
           <div>
             Already have an account?{" "}
             <Link to="/signin">

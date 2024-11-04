@@ -13,6 +13,8 @@ const {
 // This ensure that the operations are performed within the correct authentication context, preventing unauthorized access or manipulation of user data.
 const auth = getAuth();
 const isDev = process.env.REACT_APP_ENV === "development";
+console.log("isDev value:", isDev);
+console.log("process.env.REACT_APP_ENV: ", process.env.REACT_APP_ENV);
 const registerUser = (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -73,33 +75,6 @@ const loginUser = (req, res) => {
       const photoURL = userCredential.user.photoURL || ""; // Get photoURL
 
       if (idToken && uid) {
-        // Store all essential user details in cookies
-        res.cookie("access_token", idToken, {
-          httpOnly: false,
-          secure: true,
-          sameSite: "None",
-        });
-        res.cookie("uid", uid, {
-          httpOnly: false,
-          secure: true,
-          sameSite: "None",
-        });
-        res.cookie("email", email, {
-          httpOnly: false,
-          secure: true,
-          sameSite: "None",
-        });
-        res.cookie("displayName", displayName, {
-          httpOnly: false,
-          secure: true,
-          sameSite: "None",
-        });
-        res.cookie("photoURL", photoURL, {
-          httpOnly: false,
-          secure: true,
-          sameSite: "None",
-        });
-
         res.status(200).json({
           message: "User logged in successfully",
           uid,
@@ -122,11 +97,6 @@ const loginUser = (req, res) => {
 const logoutUser = (req, res) => {
   signOut(auth)
     .then(() => {
-      res.clearCookie("access_token");
-      res.clearCookie("uid");
-      res.clearCookie("email");
-      res.clearCookie("displayName");
-      res.clearCookie("photoURL");
       res.status(200).json({ message: "User logged out successfully" });
     })
     .catch((error) => {
@@ -137,6 +107,7 @@ const logoutUser = (req, res) => {
 
 const resetPassword = (req, res) => {
   const { email } = req.body;
+
   if (!email) {
     return res.status(422).json({
       email: "Email is required",
@@ -193,13 +164,6 @@ const deleteUserAccount = (req, res) => {
   user
     .delete()
     .then(() => {
-      // Clear user cookies if needed
-      res.clearCookie("access_token");
-      res.clearCookie("uid");
-      res.clearCookie("email");
-      res.clearCookie("displayName");
-      res.clearCookie("photoURL");
-
       res.status(200).json({ message: "User account deleted successfully" });
     })
     .catch((error) => {

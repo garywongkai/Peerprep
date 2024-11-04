@@ -15,7 +15,6 @@ import {
 import UserHeader from "../components/UserHeader";
 import Header from "../components/Header";
 import "../styles/QuestionList.css";
-import { getCookie } from "../utils/cookieUtils";
 
 function QuestionList() {
   const [questions, setQuestions] = useState<any[]>([]);
@@ -32,8 +31,10 @@ function QuestionList() {
   const [newDifficulty, setNewDifficulty] = useState<string>(""); // Store new difficulty during editing
   const [newCategory, setNewCategory] = useState<string[]>([]); // Store new category during editing
   const [isAuth, setIsAuth] = useState<boolean>(false);
-  // const baseurl = 'https://service-327190433280.asia-southeast1.run.app/question';
-  const baseurl = "http://localhost:5000/question";
+  const baseurl =
+    process.env.REACT_APP_ENV === "development"
+      ? "http://localhost:5000/question"
+      : "https://service-327190433280.asia-southeast1.run.app/question";
   const navigate = useNavigate();
 
   const fetchQuestions = async () => {
@@ -52,6 +53,7 @@ function QuestionList() {
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
+      // console.log(url);
       fetch(url, {
         method: "GET",
       })
@@ -96,6 +98,9 @@ function QuestionList() {
       setCreateDescription("");
       setCreateCategory([]);
       setCreateDifficulty("");
+
+      // setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+
       fetchQuestions(); // Refresh the question list
     } catch (error) {
       console.error("Error creating question:", error);
@@ -155,8 +160,8 @@ function QuestionList() {
   };
 
   useEffect(() => {
-    // Get access_token from cookies
-    const token = getCookie("access_token");
+    // Get accessToken from localStorage
+    const token = localStorage.getItem("accessToken");
 
     // Set authentication state based on token presence
     if (token) {

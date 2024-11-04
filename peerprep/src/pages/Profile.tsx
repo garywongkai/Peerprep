@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { getCookie, setCookie } from "../utils/cookieUtils"; // Assume you have a utility to get cookies
 import { auth } from "../firebase"; // Import your Firebase authentication setup
 import { useAuthState } from "react-firebase-hooks/auth"; // Import the hook for user state
 import { useNavigate } from "react-router-dom"; // Import the navigation hook
@@ -19,16 +18,19 @@ import {
 
 const Profile = () => {
   const [displayName, setDisplayName] = useState(
-    getCookie("displayName") || ""
+    localStorage.getItem("displayName") || ""
   );
-  const [photoURL, setPhotoURL] = useState(getCookie("photoURL") || "");
+  const [photoURL, setPhotoURL] = useState(
+    localStorage.getItem("photoURL") || ""
+  );
+  const email = localStorage.getItem("email") || "";
   const [loading, setLoading] = useState(false); // Not loading initially
   const [message, setMessage] = useState("");
   const [confirmText, setConfirmText] = useState(""); // For account deletion confirmation
   const [openDialog, setOpenDialog] = useState(false); // For the delete account dialog
-  const email = getCookie("email");
 
   const [user, loadingUser] = useAuthState(auth); // Get the current user
+
   const navigate = useNavigate(); // For navigation
 
   // Form submission to update the profile
@@ -38,12 +40,16 @@ const Profile = () => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:5001/update-profile", {
+      const url =
+        process.env.REACT_APP_ENV === "development"
+          ? "http://localhost:5001/update-profile"
+          : "https://user-service-327190433280.asia-southeast1.run.app/update-profile";
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Ensure cookies are sent for authentication
+        credentials: "include",
         body: JSON.stringify({
           displayName,
           photoURL,
@@ -52,8 +58,8 @@ const Profile = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setCookie("displayName", displayName);
-        setCookie("photoURL", photoURL);
+        localStorage.setItem("displayName", displayName);
+        localStorage.setItem("photoURL", photoURL);
         setMessage(data.message); // Profile updated successfully
       } else {
         const errorData = await response.json();
@@ -68,20 +74,19 @@ const Profile = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (confirmText === "confirm" && user) {
+    if (confirmText === "confirm" && email) {
       try {
         const response = await fetch("http://localhost:5001/delete-account", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${await user.getIdToken()}`, // Send the user's ID token for authentication
           },
-          credentials: "include",
-          body: JSON.stringify({ uid: user.uid }), // Optionally send the user's UID if your backend needs it
+          body: JSON.stringify({ email }), // Send the email directly
         });
 
         if (response.ok) {
-          alert("User deleted successfully");
+          localStorage.clear();
+          alert("Your account has been deleted successfully.");
           navigate("/signin");
         } else {
           const errorData = await response.json();
@@ -92,6 +97,8 @@ const Profile = () => {
         alert("An error occurred. Please try again");
       }
       setOpenDialog(false);
+    } else {
+      alert("Error.");
     }
   };
 
@@ -135,8 +142,8 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    // Check for access_token in cookies
-    const token = getCookie("access_token");
+    // Check for accessToken in localStorage
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       navigate("/signin");
     }
@@ -165,12 +172,6 @@ const Profile = () => {
                 required
               />
               <input type="email" value={email} placeholder="Email" disabled />
-              {/* <textarea
-                className="biofield"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Bio"
-              /> */}
               <input
                 type="text"
                 value={photoURL}
