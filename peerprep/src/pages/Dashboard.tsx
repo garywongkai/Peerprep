@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCookie } from "../utils/cookieUtils";
 import { ThemeProvider } from "react-bootstrap";
 import theme from "../theme/theme";
 import UserHeader from "../components/UserHeader";
@@ -8,11 +7,11 @@ import UserHeader from "../components/UserHeader";
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState(
-    getCookie("displayName") || ""
+    localStorage.getItem("displayName") || ""
   );
 
   useEffect(() => {
-    const token = getCookie("access_token");
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       navigate("/");
     }

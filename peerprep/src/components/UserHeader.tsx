@@ -1,9 +1,5 @@
-// Header.tsx
 import React from "react";
-import {
-  Link as RouterLink,
-  useNavigate,
-} from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -19,21 +15,25 @@ const UserHeader: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      const url = process.env.NODE_ENV === "development"
-      ? "http://localhost:5001/logout"
-      : "https://user-service-327190433280.asia-southeast1.run.app/logout";
+      const url =
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:5001/logout"
+          : "https://user-service-327190433280.asia-southeast1.run.app/logout";
       const response = await fetch(url, {
         method: "POST",
-        credentials: "include", // Ensure cookies are sent
+        credentials: "include",
       });
 
       if (response.ok) {
         // Clear any localStorage, sessionStorage, etc. if you are using them to store tokens
-        // localStorage.removeItem("accessToken");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("displayName");
+        localStorage.removeItem("selectedCategory");
+        localStorage.removeItem("selectedDifficulty");
+        localStorage.removeItem("uid");
 
-        // Redirect the user after successful logout
-        navigate("/signin");
         alert("Logged out successfully!");
+        navigate("/signin");
       } else {
         const errorData = await response.json();
         alert(errorData.error || "Logout failed");

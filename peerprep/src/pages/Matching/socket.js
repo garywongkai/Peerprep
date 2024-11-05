@@ -1,6 +1,5 @@
 import io from "socket.io-client";
 
-// Retrieve values from localStorage
 const accessToken = localStorage.getItem("accessToken");
 const displayName = localStorage.getItem("displayName");
 const selectedCategory = localStorage.getItem("selectedCategory");
@@ -20,7 +19,7 @@ const URL =
 
 export const socket = io(URL, {
   query: {
-    token: accessToken, // accessToken
+    token: accessToken, // access_token
     displayName: displayName, // User's display name
     selectedCategory: selectedCategory, // Selected category
     selectedDifficulty: selectedDifficulty, // Selected difficulty

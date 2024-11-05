@@ -15,7 +15,6 @@ import {
 import UserHeader from "../components/UserHeader";
 import Header from "../components/Header";
 import "../styles/QuestionList.css";
-import { getCookie } from "../utils/cookieUtils";
 
 function QuestionList() {
     const [questions, setQuestions] = useState<any[]>([]);
@@ -161,8 +160,8 @@ function QuestionList() {
     };
 
     useEffect(() => {
-        // Get access_token from cookies
-        const token = getCookie("access_token");
+        // Get access_token from localStorage
+        const token = localStorage.getItem("accessToken");
 
         // Set authentication state based on token presence
         if (token) {
