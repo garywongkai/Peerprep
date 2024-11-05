@@ -1,5 +1,5 @@
 // App.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route, BrowserRouter as Router } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Signin from "./pages/Signin";
@@ -11,29 +11,91 @@ import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import Match from "./pages/Matching/Match";
 import Collaboration_Service from "./pages/Collaboration/Collaboration_Service";
+import Notification from "./components/Notification";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const App: React.FC = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/reset" element={<Forgot />} />
-        <Route path="/question" element={<QuestionList />} />
+    const [notification, setNotification] = useState<{
+        message: string;
+        type: "success" | "error";
+    } | null>(null);
 
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/editor/:matchId" element={<Editor />} />
+    const successNotification = (
+        message: string,
+        type: "success" = "success"
+    ) => {
+        setNotification({ message, type });
+    };
 
-        <Route path="/match" element={<Match />} />
-        <Route path="/collaboration/:roomId" element={<Collaboration_Service />} />
+    const errorNotification = (message: string, type: "error" = "error") => {
+        setNotification({ message, type });
+    };
 
-      </Routes>
-    </Router>
-  );
+    const closeNotification = () => {
+        setNotification(null);
+    };
+
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route
+                    path="/signin"
+                    element={
+                        <Signin
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route
+                    path="/signup"
+                    element={
+                        <Signup
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route
+                    path="/reset"
+                    element={
+                        <Forgot
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route path="/question" element={<QuestionList />} />
+
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                    path="/profile"
+                    element={
+                        <Profile
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route path="/editor/:matchId" element={<Editor />} />
+
+                <Route path="/match" element={<Match />} />
+                <Route
+                    path="/collaboration/:roomId"
+                    element={<Collaboration_Service />}
+                />
+            </Routes>
+            {notification && (
+                <Notification
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={closeNotification}
+                />
+            )}
+        </Router>
+    );
 };
 
 export default App;
