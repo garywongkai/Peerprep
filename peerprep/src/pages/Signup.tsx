@@ -6,91 +6,104 @@ import Header from "../components/Header";
 import placeholderImage from "../assets/placeholder.jpg";
 import theme from "../theme/theme";
 
-const Signup: React.FC = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+interface SignupProps {
+    successNotification: (message: string, type?: "success") => void;
+    errorNotification: (message: string, type?: "error") => void;
+}
 
-  const handleSignup = async (event: React.FormEvent) => {
-    event.preventDefault();
+const Signup: React.FC<SignupProps> = ({
+    successNotification,
+    errorNotification,
+}) => {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
-    try {
-      const url =
-        process.env.REACT_APP_ENV === "development"
-          ? "http://localhost:5001/register"
-          : "https://user-service-327190433280.asia-southeast1.run.app/register";
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
+    const handleSignup = async (event: React.FormEvent) => {
+        event.preventDefault();
 
-      if (response.ok) {
-        alert("Registration successful! Please verify your email.");
-        navigate("/signin"); // Redirect to the sign-in page upon successful registration
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Registration failed");
-      }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      alert("An error occurred during registration");
-    }
-  };
+        try {
+            const url =
+                process.env.REACT_APP_ENV === "development"
+                    ? "http://localhost:5001/register"
+                    : "https://user-service-327190433280.asia-southeast1.run.app/register";
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
 
-  useEffect(() => {
-    // Check for accessToken in localStorage
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, [navigate]);
+            if (response.ok) {
+                successNotification(
+                    "Registration successful! Please verify your email."
+                );
+                navigate("/signin"); // Redirect to the sign-in page upon successful registration
+            } else {
+                const errorData = await response.json();
+                errorNotification(errorData.error || "Registration failed");
+            }
+        } catch (error) {
+            console.error("Error during registration:", error);
+            errorNotification("An error occurred during registration");
+        }
+    };
 
-  return (
-    <ThemeProvider theme={theme}>
-      <Header />
-      <div className="register-page">
-        <div className="register">
-          <div className="register__container">
-            <input
-              type="text"
-              className="register__textBox"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Full Name"
-            />
-            <input
-              type="text"
-              className="register__textBox"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-mail Address"
-            />
-            <input
-              type="password"
-              className="register__textBox"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-            />
-            <button className="register__btn" onClick={handleSignup}>
-              Register
-            </button>
-            <div>
-              Already have an account?{" "}
-              <Link to="/signin">
-                <u>Login</u>
-              </Link>{" "}
-              now.
+    useEffect(() => {
+        // Check for accessToken in localStorage
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            navigate("/dashboard");
+        }
+    }, [navigate]);
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Header />
+            <div className="register-page">
+                <div className="register">
+                    <div className="register__container">
+                        <input
+                            type="text"
+                            className="register__textBox"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Full Name"
+                        />
+                        <input
+                            type="text"
+                            className="register__textBox"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="E-mail Address"
+                        />
+                        <input
+                            type="password"
+                            className="register__textBox"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                        />
+                        <button
+                            className="register__btn"
+                            onClick={handleSignup}
+                        >
+                            Register
+                        </button>
+                        <div>
+                            Already have an account?{" "}
+                            <Link to="/signin">
+                                <u>Login</u>
+                            </Link>{" "}
+                            now.
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </ThemeProvider>
-  );
+        </ThemeProvider>
+    );
 };
 
 export default Signup;

@@ -6,7 +6,15 @@ import { ThemeProvider } from "@emotion/react";
 import Header from "../components/Header";
 import theme from "../theme/theme";
 
-function Forgot() {
+interface ForgotProps {
+    successNotification: (message: string, type?: "success") => void;
+    errorNotification: (message: string, type?: "error") => void;
+}
+
+const Forgot: React.FC<ForgotProps> = ({
+    successNotification,
+    errorNotification,
+}) => {
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
 
@@ -27,15 +35,19 @@ function Forgot() {
             });
 
             if (response.ok) {
-                alert("Password reset email sent successfully!");
+                successNotification("Password reset email sent successfully!");
                 navigate("/signin"); // Redirect to the sign-in page after sending the email
             } else {
                 const errorData = await response.json();
-                alert(errorData.error || "Failed to send reset email");
+                errorNotification(
+                    errorData.error || "Failed to send reset email"
+                );
             }
         } catch (error) {
             console.error("Error during password reset:", error);
-            alert("An error occurred while sending the password reset email");
+            errorNotification(
+                "An error occurred while sending the password reset email"
+            );
         }
     };
 
@@ -68,5 +80,5 @@ function Forgot() {
             </div>
         </ThemeProvider>
     );
-}
+};
 export default Forgot;
