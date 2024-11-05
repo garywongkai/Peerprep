@@ -16,7 +16,7 @@ const UserHeader: React.FC = () => {
   const handleLogout = async () => {
     try {
       const url =
-        process.env.REACT_APP_ENV === "development"
+        process.env.NODE_ENV === "development"
           ? "http://localhost:5001/logout"
           : "https://user-service-327190433280.asia-southeast1.run.app/logout";
       const response = await fetch(url, {
