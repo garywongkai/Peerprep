@@ -1,18 +1,18 @@
-import './Tiptap.scss'
+import './Tiptap.scss';
 
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Collaboration from '@tiptap/extension-collaboration';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
-import { Editor, EditorContent, ReactNodeViewRenderer, useEditor } from '@tiptap/react';
+import { Editor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import { all, createLowlight } from 'lowlight';
 import React, { useEffect, useState } from "react";
 import { useLocation } from 'react-router-dom';
-import io from 'socket.io-client';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 import CodeBlockComponent from './CodeBlockComponent';
+import { socket } from "./socket";
 
 const initialText = `
 <pre><code class="language-javascript">
@@ -21,7 +21,6 @@ console.log("Hello World!");
 </code></pre>`;
 
 const Collaboration_Service: React.FC = () => {
-  const socket = io("http://localhost:5003");
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState<string[]>([]);
   const [doc, setDoc] = useState<Y.Doc | null>(null);
