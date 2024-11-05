@@ -17,7 +17,6 @@ import Header from "../components/Header";
 import UserHeader from "../components/UserHeader";
 import "../styles/Landing.css";
 import backgroundImage from "../assets/banner.jpg";
-import { getCookie } from "../utils/cookieUtils";
 
 const theme = createTheme({
   palette: {
@@ -169,8 +168,8 @@ const Landing: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get access_token from cookies
-    const token = getCookie("access_token");
+    // Get accessToken from localStorage
+    const token = localStorage.getItem("accessToken");
     setIsLoggedIn(!!token);
   }, [navigate]);
 
