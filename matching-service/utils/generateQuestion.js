@@ -1,4 +1,4 @@
-const baseUrl = "http://service:5000/question/randomQuestion"; // must use "service:" rather than "localhost:" in internal cross-service cnnection
+const baseUrl =  REACT_APP_ENV === "development" ? "http://service:5000/question/randomQuestion" : "https://service-327190433280.asia-southeast1.run.app/question/randomQuestion"; // must use "service:" rather than "localhost:" in internal cross-service cnnection
 
 exports.generateQuestion = async (difficulty, category) => {
     try {
