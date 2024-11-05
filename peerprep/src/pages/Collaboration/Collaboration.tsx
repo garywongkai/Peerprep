@@ -20,6 +20,11 @@ const initialText = `
 console.log("Hello World!");
 </code></pre>`;
 
+const url =
+  process.env.REACT_APP_ENV === "development"
+    ? "http://localhost:5003"
+    : "https://collaboration-service-327190433280.asia-southeast1.run.app";
+
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState<string[]>([]);
@@ -63,7 +68,7 @@ const Collaboration_Service: React.FC = () => {
 
   useEffect(() => {
     if (doc && roomId && editor && !provider) {
-      const _socketIOProvider = new SocketIOProvider("http://localhost:5003", roomId, doc, {
+      const _socketIOProvider = new SocketIOProvider(url, roomId, doc, {
         autoConnect: false,
         resyncInterval: 5000,
         disableBc: false
