@@ -6,7 +6,8 @@ import * as monaco from 'monaco-editor'
 
 
 const Collaboration_Service: React.FC = () => {
-    const socket = io("http://localhost:5003");
+    const url = process.env.REACT_APP_ENV === "development" ? "http://localhost:5003" : "https://collaboration-service-327190433280.asia-southeast1.run.app";
+    const socket = io(url);
     const [message, setMessage] = useState("");
     const [messageList, setMessageList] = useState<string[]>([]);
     
