@@ -160,7 +160,7 @@ function QuestionList() {
     };
 
     useEffect(() => {
-        // Get access_token from localStorage
+        // Get accessToken from localStorage
         const token = localStorage.getItem("accessToken");
 
         // Set authentication state based on token presence

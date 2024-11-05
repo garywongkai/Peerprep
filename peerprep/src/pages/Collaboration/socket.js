@@ -19,7 +19,7 @@ const URL =
 
 export const socket = io(URL, {
   query: {
-    token: accessToken, // access_token
+    token: accessToken, // accessToken
     displayName: displayName, // User's display name
     selectedCategory: selectedCategory, // Selected category
     selectedDifficulty: selectedDifficulty, // Selected difficulty
