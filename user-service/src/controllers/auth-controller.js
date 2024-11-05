@@ -1,12 +1,12 @@
 // To define controller functions that will manage the requests to actions such as register, login, or logout users.
 const {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  updateProfile,
+	getAuth,
+	createUserWithEmailAndPassword,
+	signInWithEmailAndPassword,
+	signOut,
+	sendEmailVerification,
+	sendPasswordResetEmail,
+	updateProfile,
 } = require("../config/firebase");
 
 // Each of the authentication methods takes a number of parameters, including a mandatory auth object that needs to be included and passed alongside the requests.
@@ -14,37 +14,37 @@ const {
 const auth = getAuth();
 const isDev = process.env.REACT_APP_ENV === "development";
 const registerUser = (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) {
-    return res.status(422).json({
-      name: "Name is required",
-      email: "Email is required",
-      password: "Password is required",
-    });
-  }
+	const { name, email, password } = req.body;
+	if (!name || !email || !password) {
+		return res.status(422).json({
+			name: "Name is required",
+			email: "Email is required",
+			password: "Password is required",
+		});
+	}
 
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Set the display name
-      return updateProfile(userCredential.user, { displayName: name }); // Use the correct updateProfile function
-    })
-    .then(() => {
-      sendEmailVerification(auth.currentUser)
-        .then(() => {
-          res.status(201).json({
-            message: "Verification email sent! User created successfully!",
-          });
-        })
-        .catch((error) => {
-          console.error(error);
-          res.status(500).json({ error: "Error sending email verification" });
-        });
-    })
-    .catch((error) => {
-      const errorMessage =
-        error.message || "An error occurred while registering user";
-      res.status(500).json({ error: errorMessage });
-    });
+	createUserWithEmailAndPassword(auth, email, password)
+		.then((userCredential) => {
+			// Set the display name
+			return updateProfile(userCredential.user, { displayName: name }); // Use the correct updateProfile function
+		})
+		.then(() => {
+			sendEmailVerification(auth.currentUser)
+				.then(() => {
+					res.status(201).json({
+						message: "Verification email sent! User created successfully!",
+					});
+				})
+				.catch((error) => {
+					console.error(error);
+					res.status(500).json({ error: "Error sending email verification" });
+				});
+		})
+		.catch((error) => {
+			const errorMessage =
+				error.message || "An error occurred while registering user";
+			res.status(500).json({ error: errorMessage });
+		});
 };
 
 const loginUser = (req, res) => {
@@ -172,10 +172,10 @@ const deleteUserAccount = (req, res) => {
 
 // Exporting individual handler functions
 module.exports = {
-  registerUser,
-  loginUser,
-  logoutUser,
-  resetPassword,
-  updateUserProfile,
-  deleteUserAccount,
+	registerUser,
+	loginUser,
+	logoutUser,
+	resetPassword,
+	updateUserProfile,
+	deleteUserAccount,
 };

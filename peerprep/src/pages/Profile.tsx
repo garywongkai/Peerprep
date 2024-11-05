@@ -8,12 +8,12 @@ import theme from "../theme/theme";
 import "../styles/Profile.css";
 
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
 } from "@mui/material"; // Import Material-UI components
 
 const Profile = () => {
@@ -76,11 +76,7 @@ const Profile = () => {
   const handleDeleteAccount = async () => {
     if (confirmText === "confirm" && email) {
       try {
-        const url =
-          process.env.REACT_APP_ENV === "development"
-            ? "http://localhost:5001/delete-account"
-            : "https://user-service-327190433280.asia-southeast1.run.app/delete-account";
-        const response = await fetch(url, {
+        const response = await fetch("http://localhost:5001/delete-account", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -115,11 +111,7 @@ const Profile = () => {
     }
 
     try {
-      const url =
-        process.env.REACT_APP_ENV === "development"
-          ? "http://localhost:5001/reset-password"
-          : "https://user-service-327190433280.asia-southeast1.run.app/reset-password";
-      const response = await fetch(url, {
+      const response = await fetch("http://localhost:5001/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
