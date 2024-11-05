@@ -76,7 +76,11 @@ const Profile = () => {
   const handleDeleteAccount = async () => {
     if (confirmText === "confirm" && email) {
       try {
-        const response = await fetch("http://localhost:5001/delete-account", {
+        const url =
+          process.env.REACT_APP_ENV === "development"
+            ? "http://localhost:5001/delete-account"
+            : "https://user-service-327190433280.asia-southeast1.run.app/delete-account";
+        const response = await fetch(url, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -111,7 +115,11 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/reset-password", {
+      const url =
+        process.env.REACT_APP_ENV === "development"
+          ? "http://localhost:5001/reset-password"
+          : "https://user-service-327190433280.asia-southeast1.run.app/reset-password";
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
