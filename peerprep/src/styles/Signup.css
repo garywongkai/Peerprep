@@ -1,15 +1,18 @@
-body, html {
+.register-page {
   margin: 0;
   padding: 0;
   height: 100%;
+  background-image: url('../assets/placeholder.jpg'); /* Background image */
+  background-size: cover; /* Cover the entire area */
+  background-position: center; /* Center the image */
 }
+
 .register {
   height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f2f5; /* Light background color */
 }
 .register__container {
   display: flex;
@@ -82,3 +85,4 @@ body, html {
   align-items: center;
   margin: 10px 10px;
 }
+
