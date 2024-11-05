@@ -52,46 +52,45 @@ const Signup: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Header />
-      <div className="register">
-        <div className="register__container">
-          <input
-            type="text"
-            className="register__textBox"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full Name"
-          />
-          <input
-            type="text"
-            className="register__textBox"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail Address"
-          />
-          <input
-            type="password"
-            className="register__textBox"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-          <button className="register__btn" onClick={handleSignup}>
-            Register
-          </button>
-          <div>
-            Already have an account?{" "}
-            <Link to="/signin">
-              <u>Login</u>
-            </Link>{" "}
-            now.
+      <div className="register-page">
+        <div className="register">
+          <div className="register__container">
+            <input
+              type="text"
+              className="register__textBox"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Full Name"
+            />
+            <input
+              type="text"
+              className="register__textBox"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="E-mail Address"
+            />
+            <input
+              type="password"
+              className="register__textBox"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+            <button className="register__btn" onClick={handleSignup}>
+              Register
+            </button>
+            <div>
+              Already have an account?{" "}
+              <Link to="/signin">
+                <u>Login</u>
+              </Link>{" "}
+              now.
+            </div>
           </div>
-        </div>
-        <span className="register__divider" />
-        <div className="register__image">
-          <img src={placeholderImage} alt="Placeholder" />
         </div>
       </div>
     </ThemeProvider>
   );
 };
+
 export default Signup;

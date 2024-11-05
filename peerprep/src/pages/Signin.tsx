@@ -57,45 +57,42 @@ const SignIn: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Header />
-      <div className="login">
-        <div className="login__container">
-          <input
-            type="text"
-            className="login__textBox"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail Address"
-          />
-          <input
-            type="password"
-            className="login__textBox"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-          <button className="login__btn" onClick={handleSignIn}>
-            Login
-          </button>
-          <div>
-            <Link to="/reset">
-              <u>Forgot Password</u>?
-            </Link>
+      <div className="login-background">
+        <div className="login">
+          <div className="login__container">
+            <input
+              type="text"
+              className="login__textBox"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="E-mail Address"
+            />
+            <input
+              type="password"
+              className="login__textBox"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+            <button className="login__btn" onClick={handleSignIn}>
+              Login
+            </button>
+            <div>
+              <Link to="/reset">
+                <u>Forgot Password</u>?
+              </Link>
+            </div>
+            <div>
+              Don&apos;t have an account?{" "}
+              <Link to="/signup">
+                <u>Register</u>
+              </Link>{" "}
+              now.
+            </div>
           </div>
-          <div>
-            Don&apos;t have an account?{" "}
-            <Link to="/signup">
-              <u>Register</u>
-            </Link>{" "}
-            now.
-          </div>
-        </div>
-        <span className="login__divider"></span>
-        <div className="login__image">
-          <img src={placeholderImage} alt="Placeholder" />
         </div>
       </div>
     </ThemeProvider>
   );
 };
-
 export default SignIn;

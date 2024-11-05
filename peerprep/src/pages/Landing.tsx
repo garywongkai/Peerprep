@@ -33,21 +33,33 @@ const Hero: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
   return (
     <Box
       sx={{
+        position: 'relative',
+        height: "30vh",
         bgcolor: "background.contrastText",
         backgroundImage: `url(${backgroundImage})`,
-        pt: 8,
-        pb: 6,
-        height: "30vh",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         borderRadius: "0 0 50% 50%",
         border: "1px solid white",
       }}
     >
-      <Container maxWidth="sm" className="container">
+      {/* Overlay for better text visibility */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1,
+        }}
+      />
+      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 2 }}>
         <Typography
           component="h1"
           variant="h3"
           align="center"
-          color="text.primary"
+          color="white"
           gutterBottom
         >
           Welcome to PeerPrep
@@ -55,7 +67,7 @@ const Hero: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => {
         <Typography
           variant="h5"
           align="center"
-          color="text.secondary"
+          color="grey"
           paragraph
         >
           Peerprep helps you with your interview preparation by collaboration
@@ -113,8 +125,8 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: "#f7f7f7", py: 10 }}>
-      <Container className="mediacontainer">
+    <Box sx={{ bgcolor: "#f7f7f7", py: 10, minHeight: "100vh", mt: 4 }}> {/* Added margin-top */}
+      <Container className="mediacontainer" sx={{ position: 'relative', zIndex: 1 }}>
         <Typography
           variant="h4"
           align="center"
@@ -137,6 +149,7 @@ const Features: React.FC = () => {
                   boxShadow: "0 4px 20px rgba(0, 0, 50, 0.1)",
                   border: "1px solid black",
                   borderRadius: "12px 12px 0 0",
+                  height: '100%', // Ensure cards have consistent height
                 }}
               >
                 <CardMedia
