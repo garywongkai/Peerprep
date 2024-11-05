@@ -5,7 +5,6 @@ import { ThemeProvider } from "react-bootstrap";
 import Header from "../components/Header";
 import placeholderImage from "../assets/placeholder.jpg";
 import theme from "../theme/theme";
-import { getCookie } from "../utils/cookieUtils";
 
 const Signup: React.FC = () => {
   const [name, setName] = useState("");
@@ -17,9 +16,10 @@ const Signup: React.FC = () => {
     event.preventDefault();
 
     try {
-      const url = process.env.REACT_APP_ENV === "development"
-      ? "http://localhost:5001/register"
-      : "https://user-service-327190433280.asia-southeast1.run.app/register";
+      const url =
+        process.env.REACT_APP_ENV === "development"
+          ? "http://localhost:5001/register"
+          : "https://user-service-327190433280.asia-southeast1.run.app/register";
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -42,8 +42,8 @@ const Signup: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check for access_token in cookies
-    const token = getCookie("access_token");
+    // Check for accessToken in localStorage
+    const token = localStorage.getItem("accessToken");
     if (token) {
       navigate("/dashboard");
     }
@@ -52,52 +52,45 @@ const Signup: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Header />
-      <div className="register">
-        <div className="register__container">
-          <input
-            type="text"
-            className="register__textBox"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full Name"
-          />
-          <input
-            type="text"
-            className="register__textBox"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail Address"
-          />
-          <input
-            type="password"
-            className="register__textBox"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-          <button className="register__btn" onClick={handleSignup}>
-            Register
-          </button>
-          {/* <button
-            className="register__btn register__google"
-            onClick={signInWithGoogle}
-          >
-            Register with Google
-          </button> */}
-          <div>
-            Already have an account?{" "}
-            <Link to="/signin">
-              <u>Login</u>
-            </Link>{" "}
-            now.
+      <div className="register-page">
+        <div className="register">
+          <div className="register__container">
+            <input
+              type="text"
+              className="register__textBox"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Full Name"
+            />
+            <input
+              type="text"
+              className="register__textBox"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="E-mail Address"
+            />
+            <input
+              type="password"
+              className="register__textBox"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+            <button className="register__btn" onClick={handleSignup}>
+              Register
+            </button>
+            <div>
+              Already have an account?{" "}
+              <Link to="/signin">
+                <u>Login</u>
+              </Link>{" "}
+              now.
+            </div>
           </div>
-        </div>
-        <span className="register__divider" />
-        <div className="register__image">
-          <img src={placeholderImage} alt="Placeholder" />
         </div>
       </div>
     </ThemeProvider>
   );
 };
+
 export default Signup;
