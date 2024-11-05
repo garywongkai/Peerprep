@@ -10,10 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import Match from "./pages/Matching/Match";
-import Collaboration_Service from "./pages/Collaboration/Collaboration_Service";
+import CollaborationService from "./pages/Collaboration/Collaboration";
 import Notification from "./components/Notification";
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const App: React.FC = () => {
     const [notification, setNotification] = useState<{
@@ -36,11 +34,11 @@ const App: React.FC = () => {
         setNotification(null);
     };
 
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route
                     path="/signin"
                     element={
                         <Signin
@@ -67,10 +65,10 @@ const App: React.FC = () => {
                         />
                     }
                 />
-                <Route path="/question" element={<QuestionList />} />
+        <Route path="/question" element={<QuestionList />} />
 
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
                     path="/profile"
                     element={
                         <Profile
@@ -79,23 +77,21 @@ const App: React.FC = () => {
                         />
                     }
                 />
-                <Route path="/editor/:matchId" element={<Editor />} />
+        <Route path="/editor/:matchId" element={<Editor />} />
 
-                <Route path="/match" element={<Match />} />
-                <Route
-                    path="/collaboration/:roomId"
-                    element={<Collaboration_Service />}
-                />
-            </Routes>
-            {notification && (
+        <Route path="/match" element={<Match />} />
+        <Route path="/collaboration/:roomId" element={<CollaborationService />} />
+
+      </Routes>
+      {notification && (
                 <Notification
                     message={notification.message}
                     type={notification.type}
                     onClose={closeNotification}
                 />
             )}
-        </Router>
-    );
+    </Router>
+  );
 };
 
 export default App;

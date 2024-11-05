@@ -10,6 +10,8 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    env_file:
+      - .env
 
   service:
     build: ./service
@@ -20,6 +22,8 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    env_file:
+      - .env
 
   user-service:
     build: ./user-service
@@ -30,6 +34,8 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    env_file:
+      - .env
   
   matching-service:
     build: ./matching-service
@@ -40,6 +46,8 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    env_file:
+      - .env
   
   collaboration-service:
     build: ./collaboration-service
@@ -50,6 +58,8 @@ services:
       - /app/node_modules
     networks:
       - peerprep-network
+    env_file:
+      - .env
 
 networks:
   peerprep-network:
