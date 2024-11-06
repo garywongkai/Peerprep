@@ -1,85 +1,46 @@
-import './Tiptap.scss';
-
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import Collaboration from '@tiptap/extension-collaboration';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
-import { Editor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
-import { all, createLowlight } from 'lowlight';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useLocation } from 'react-router-dom';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
-import CodeBlockComponent from './CodeBlockComponent';
 import { socket } from "./socket";
-
-const initialText = `
-<pre><code class="language-javascript">
-// Start collaborating and write your code
-console.log("Hello World!");
-</code></pre>`;
+import { MonacoBinding } from 'y-monaco';
+import Editor, { MonacoDiffEditor } from '@monaco-editor/react';
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState<string[]>([]);
-  const [doc, setDoc] = useState<Y.Doc | null>(null);
+  const doc = useMemo(() => new Y.Doc(), []);
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
-  const [editor, setEditor] = useState<Editor | null>(null);
+  const [editor, setEditor] = useState<MonacoDiffEditor | null>(null);
+  const [binding, setBinding] = useState<MonacoBinding|null>(null);
 
   const location = useLocation();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
 
   useEffect(() => {
-    if (!doc) {
-      const _doc = new Y.Doc();
-      setDoc(_doc);
+    const _socketIOProvider = new SocketIOProvider("http://localhost:5003", roomId, doc, {
+      autoConnect: false,
+      resyncInterval: 5000,
+      disableBc: false
+    });
+    setProvider(_socketIOProvider);
+    _socketIOProvider.connect();
+
+    return () => {
+      _socketIOProvider.destroy();
+      doc.destroy();
     }
   }, [doc]);
 
   useEffect(() => {
-    if (doc && !editor) {// Only initialise editor once doc is defined
-      const lowlight = createLowlight(all);
-      const _editor = new Editor({
-        extensions: [
-          Document,
-          Paragraph,
-          Text,
-          CodeBlockLowlight
-            .extend({
-              addNodeView() {
-                return ReactNodeViewRenderer(CodeBlockComponent);
-              },
-            })
-            .configure({ lowlight }),
-          Collaboration.configure({
-            document: doc
-          }),
-        ]
-      });
-      setEditor(_editor);
+    if (provider && editor) {
+      const _binding = new MonacoBinding(doc.getText(), editor.getModel()!, new Set([editor]), provider?.awareness);
+      setBinding(_binding);
+      return () => {
+        _binding.destroy();
+      }
     }
-  }, [doc, editor]);
-
-  useEffect(() => {
-    if (doc && roomId && editor && !provider) {
-      const _socketIOProvider = new SocketIOProvider("http://localhost:5003", roomId, doc, {
-        autoConnect: false,
-        resyncInterval: 5000,
-        disableBc: false
-      });
-      _socketIOProvider.on('sync', (isSynced : boolean) => {
-        doc.transact(() => {
-          if (isSynced && editor && !doc.getMap('config').get('initialContentLoaded')) {
-            doc.getMap('config').set('initialContentLoaded', true);
-            editor.commands.setContent(initialText);
-          }
-        });
-      });
-      setProvider(_socketIOProvider);
-      _socketIOProvider.connect();
-    }
-  }, [doc, roomId, editor, provider]);
+  }, [doc, provider, editor]);
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -106,8 +67,6 @@ const Collaboration_Service: React.FC = () => {
     }
   };
 
-  if (!provider) return <h1>Initializing provider...</h1>;
-
   return (
     <div>
       <h2>{question.questionId}.{question.questionTitle}</h2>
@@ -126,7 +85,12 @@ const Collaboration_Service: React.FC = () => {
         onChange={(e) => setMessage(e.target.value)}
       />
       <button onClick={sendMessage}>Send Message</button>
-      {editor ? <EditorContent editor={editor} /> : <p>Loading editor...</p>}
+      <Editor
+        height="90vh"
+        defaultValue='// Start collaborating and write your code\nconsole.log("Hello World!");'
+        defaultLanguage="javascript"
+        onMount={editor => { setEditor(editor) }}
+      />
     </div>
   );
 }
