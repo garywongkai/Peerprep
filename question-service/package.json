@@ -1,5 +1,5 @@
 {
-  "name": "service",
+  "name": "question",
   "version": "1.0.0",
   "description": "When you're ready, start your application by running: `docker compose up --build`.",
   "main": "server.js",
