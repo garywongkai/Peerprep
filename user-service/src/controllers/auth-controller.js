@@ -1,4 +1,3 @@
-// To define controller functions that will manage the requests to actions such as register, login, or logout users.
 const {
     getAuth,
     createUserWithEmailAndPassword,
@@ -8,11 +7,10 @@ const {
     sendPasswordResetEmail,
     updateProfile,
 } = require("../config/firebase");
-
-// Each of the authentication methods takes a number of parameters, including a mandatory auth object that needs to be included and passed alongside the requests.
-// This ensure that the operations are performed within the correct authentication context, preventing unauthorized access or manipulation of user data.
 const auth = getAuth();
-const isDev = process.env.REACT_APP_ENV === "development";
+const admin = require("firebase-admin");
+const { dbAdmin } = require("../config/firebase");
+
 const registerUser = (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -174,6 +172,52 @@ const deleteUserAccount = (req, res) => {
         });
 };
 
+const saveCodeAttempt = async (req, res) => {
+    const { code, date, roomId } = req.body;
+    const idToken = req.headers.authorization?.split(" ")[1]; // Extract ID token from Authorization header
+
+    // Check if the required fields are present
+    if (!code || !date || !roomId) {
+        return res.status(400).json({
+            error: "Code, date, and roomId are required fields.",
+        });
+    }
+
+    if (!idToken) {
+        return res
+            .status(401)
+            .json({ error: "Authentication token is missing" });
+    }
+
+    try {
+        // Verify the ID token to check if the user is authenticated
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const uid = decodedToken.uid; // User ID from the decoded token (useful for referencing the user if needed)
+
+        // Reference to Firestore collection
+        const codeAttemptsRef = dbAdmin.collection("codeAttempts");
+
+        // Save the code attempt data into Firestore
+        await codeAttemptsRef.add({
+            code: code,
+            date: date,
+            roomId: roomId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(), // Store server timestamp
+            userId: uid, // Optionally store the user's UID for tracking
+        });
+
+        // Respond with success message
+        return res.status(200).json({
+            message: "Code attempt saved successfully.",
+        });
+    } catch (error) {
+        console.error("Error saving code attempt:", error); // Log more detailed error message
+        return res.status(500).json({
+            error: `Failed to save code attempt: ${error.message}`, // Include error message in response
+        });
+    }
+};
+
 // Exporting individual handler functions
 module.exports = {
     registerUser,
@@ -182,4 +226,5 @@ module.exports = {
     resetPassword,
     updateUserProfile,
     deleteUserAccount,
+    saveCodeAttempt,
 };
