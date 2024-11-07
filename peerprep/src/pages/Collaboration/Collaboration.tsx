@@ -1,18 +1,11 @@
-import Editor from '@monaco-editor/react';
-import { editor as monacoEditor } from 'monaco-editor';
+import Editor, { loader } from '@monaco-editor/react';
+import { editor as monacoEditor, languages} from 'monaco-editor';
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 import { socket, URL } from "./socket";
-
-const languages = [
-  "javascript", "typescript", "python", "html", "css", "json", "markdown",
-  "cpp", "java", "csharp", "php", "ruby", "swift", "go", "kotlin", "r",
-  "yaml", "sql", "dockerfile", "shell", "rust"
-  // Add other languages as needed
-];
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
@@ -21,10 +14,18 @@ const Collaboration_Service: React.FC = () => {
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
-  const [language, setLanguage] = useState("javascript");
-
+  const [language, setLanguage] = useState("javascript"); // Language to set editor
+  const [languages, setLanguages] = useState<languages.ILanguageExtensionPoint[]>([]); // All supported languages list
+  
   const location = useLocation();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
+
+  useEffect(() => {
+    // Fetch the list of languages dynamically from monaco.languages
+    loader.init().then(monacoInstance => {
+      setLanguages(monacoInstance.languages.getLanguages());
+    });
+  }, []);
 
   useEffect(() => {
     if (doc && roomId && !provider) {
@@ -75,6 +76,10 @@ const Collaboration_Service: React.FC = () => {
     socket.on('connect', () => {
       socket.emit('joinRoom', roomId)
     });
+
+    return () => {
+      socket.off('connect');
+    };
   });
 
   useEffect(() => {
@@ -90,7 +95,7 @@ const Collaboration_Service: React.FC = () => {
   const sendMessage = () => {
     if (message !== "") { // server socket
       socket.emit("send_message", message, roomId);
-      console.log(`Message send to room : ${message}`);
+      // console.log(`Message send to room : ${message}`);
       setMessageList((prevList: string[]) => [...prevList, message]); // Update your own message list
       setMessage(""); // Clear the input after sending
     }
@@ -126,8 +131,8 @@ const Collaboration_Service: React.FC = () => {
         style={{ marginBottom: '10px' }}
       >
         {languages.map((lang) => (
-          <option key={lang} value={lang}>
-            {lang.toUpperCase()}
+          <option key={lang.id} value={lang.id}>
+            {lang.aliases ? lang.aliases[0] : lang.id}
           </option>
         ))}
       </select>
