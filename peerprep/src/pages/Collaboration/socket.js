@@ -12,7 +12,7 @@ if (accessToken) {
   console.log("User is not authorized yet");
 }
 
-const URL =
+export const URL =
   process.env.REACT_APP_ENV === "development"
     ? "http://localhost:5003"
     : "https://collaboration-service-327190433280.asia-southeast1.run.app";

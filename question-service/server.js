@@ -10,8 +10,7 @@ const clientOptions = {
 };
 const uri = process.env.MONGO_DB_URI;
 mongoose.Promise = global.Promise;
-mongoose
-  .connect(uri, clientOptions)
+mongoose.connect(uri, clientOptions)
   .then(() => {
     console.log("Database Connected Successfully!!");
   })

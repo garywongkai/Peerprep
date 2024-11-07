@@ -13,12 +13,12 @@ services:
     env_file:
       - .env
 
-  service:
-    build: ./service
+  question-service:
+    build: ./question-service
     ports:
       - "5000:5000"
     volumes:
-      - ./service:/app
+      - ./question-service:/app
       - /app/node_modules
     networks:
       - peerprep-network
