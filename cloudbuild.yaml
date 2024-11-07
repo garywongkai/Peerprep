@@ -52,7 +52,7 @@ steps:
     args: ["install"]
 
   - name: "gcr.io/cloud-builders/npm"
-    dir: "service"
+    dir: "question-service"
     args: ["run", "create-env"]
     env:
       - "COMMIT_SHA=${COMMIT_SHA}"
