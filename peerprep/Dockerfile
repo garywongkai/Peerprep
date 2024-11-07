@@ -18,7 +18,9 @@ ENV REACT_APP_ENV=${NODE_ENV}
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+# Installing pnpm is faster than using npm directly, needed only for this service as it is big
+RUN npm install -g pnpm
+RUN pnpm install
 COPY . .
 
 EXPOSE 3000

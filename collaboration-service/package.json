@@ -2,14 +2,14 @@
     "name": "collaboration",
     "version": "1.0.0",
     "description": "",
-    "main": "setupServer.js",
+    "main": "server.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node setupServer.js",
+        "start": "node server.js",
         "create-env": "printenv > .env"
     },
     "keywords": [],
-    "author": "",
+    "author": "Jeremiah Lim",
     "license": "ISC",
     "dependencies": {
         "cors": "^2.8.5",

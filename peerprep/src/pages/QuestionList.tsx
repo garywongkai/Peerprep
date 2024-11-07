@@ -34,7 +34,7 @@ function QuestionList() {
     const baseurl =
         process.env.REACT_APP_ENV === "development"
             ? "http://localhost:5000/question"
-            : "https://service-327190433280.asia-southeast1.run.app/question";
+            : "https://question-service-327190433280.asia-southeast1.run.app/question";
     const navigate = useNavigate();
 
     const fetchQuestions = async () => {

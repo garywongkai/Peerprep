@@ -1,24 +1,25 @@
-import React, { useEffect, useState, useMemo } from "react";
+import Editor from '@monaco-editor/react';
+import { editor as monacoEditor } from 'monaco-editor';
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from 'react-router-dom';
+import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
-import { socket } from "./socket";
-import { MonacoBinding } from 'y-monaco';
-import Editor, { MonacoDiffEditor } from '@monaco-editor/react';
+import { socket, URL } from "./socket";
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState<string[]>([]);
   const doc = useMemo(() => new Y.Doc(), []);
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
-  const [editor, setEditor] = useState<MonacoDiffEditor | null>(null);
-  const [binding, setBinding] = useState<MonacoBinding|null>(null);
+  const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
+  const [binding, setBinding] = useState<MonacoBinding | null>(null);
 
   const location = useLocation();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
 
   useEffect(() => {
-    const _socketIOProvider = new SocketIOProvider("http://localhost:5003", roomId, doc, {
+    const _socketIOProvider = new SocketIOProvider(URL, roomId, doc, {
       autoConnect: false,
       resyncInterval: 5000,
       disableBc: false
@@ -30,7 +31,7 @@ const Collaboration_Service: React.FC = () => {
       _socketIOProvider.destroy();
       doc.destroy();
     }
-  }, [doc]);
+  }, [doc, roomId]);
 
   useEffect(() => {
     if (provider && editor) {
@@ -86,7 +87,8 @@ const Collaboration_Service: React.FC = () => {
       />
       <button onClick={sendMessage}>Send Message</button>
       <Editor
-        height="90vh"
+        height="60vh"
+        theme="vs-dark"
         defaultValue='// Start collaborating and write your code\nconsole.log("Hello World!");'
         defaultLanguage="javascript"
         onMount={editor => { setEditor(editor) }}
