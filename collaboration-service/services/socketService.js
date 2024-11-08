@@ -17,6 +17,27 @@ exports.handleSocketConnection = async (socket) => {
 		console.log(`User joined room: ${roomId}`);
 	});
 
+	socket.on("leave_session", (roomId, username) => {
+		// Notify others in the room that this user has left
+		socket.to(roomId).emit("user_left", username);
+
+		// Leave the room
+		socket.leave(roomId);
+	});
+
+	socket.on("disconnect", () => {
+		// Handle unexpected disconnections if needed
+		const rooms = [...socket.rooms];
+		const username = socket.handshake.query.displayName;
+
+		rooms.forEach((roomId) => {
+			if (roomId !== socket.id) {
+				// Skip the default room
+				socket.to(roomId).emit("user_left", username);
+			}
+		});
+	});
+
 	// Handle handshake responses
 	socket.on("handshake_response", (confirmed, roomId) => {
 		socket.to(roomId).emit("handshake_response", confirmed); // Broadcast handshake response to the room

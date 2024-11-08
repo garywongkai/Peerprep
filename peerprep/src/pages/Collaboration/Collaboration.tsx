@@ -6,7 +6,7 @@ import { io, Socket } from 'socket.io-client';
 import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
-// import { URL, socket } from "./socket";
+import '../../styles/Collaboration.css';
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
@@ -17,6 +17,7 @@ const Collaboration_Service: React.FC = () => {
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
+  const [userLeft, setUserLeft] = useState(false);
   const url =
             process.env.REACT_APP_ENV === "development"
                 ? "http://localhost:5001/saveCodeAttempt"
@@ -83,11 +84,13 @@ const Collaboration_Service: React.FC = () => {
     });
     socket.on('handshake_request', () => {
       // Notify the user about the handshake request
-      if (window.confirm("Another user has requested to end the session. Do you agree?")) {
+      const userResponse = window.confirm("Another user has requested to end the session. Do you agree?");
+      if (userResponse) {
         confirmHandshake(); // Automatically confirm if the user agrees
       }
     });
 
+    socket.on('user_left', handleUserLeft);
     socket.on('handshake_response', (confirmed: boolean) => {
       if (confirmed) {
         setHandshakeConfirmed(true);
@@ -100,6 +103,7 @@ const Collaboration_Service: React.FC = () => {
       socket.off('receive_message'); // Clean up listener
       socket.off('handshake_request');
       socket.off('handshake_response');
+      socket.off('user_left', handleUserLeft);
     };
   }
   }, []);
@@ -112,6 +116,11 @@ const Collaboration_Service: React.FC = () => {
     });
   }
   });
+
+  const handleUserLeft = (username: string) => {
+    setUserLeft(true);
+    setMessageList(prevList => [...prevList, `${username} has left the session.`]);
+  };
 
   const sendMessage = () => {
     const socket = socketRef.current;
@@ -175,35 +184,105 @@ const Collaboration_Service: React.FC = () => {
     }
   };
 
+   // End session handler
+   const endSession = async () => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    try {
+      // Save the code attempt first
+      await saveCodeAttempt();
+      
+      // Notify others that you're leaving
+      socket.emit('leave_session', roomId, displayName);
+      
+      // Disconnect and navigate away
+      socket.disconnect();
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error ending session:', error);
+      alert('Failed to save your code attempt. Please try again.');
+    }
+  };
+
   return (
-    <div>
-      <h2>{question.questionId}.{question.questionTitle}</h2>
-      <h3>Category: {question.questionCategory}</h3>
-      <h3>Difficulty: {difficulty}</h3>
-      <p>{question.questionDescription}</p>
-      <div>
-        {messageList.map((msg, index) => (
-          <div key={index}>{msg}</div>
-        ))}
+    <div className="collaboration-container">
+      <div className="question-section">
+        <h2 className="question-title">
+          {question.questionId}. {question.questionTitle}
+        </h2>
+        <div className="question-meta">
+          <span className="badge category">Category: {question.questionCategory}</span>
+          <span className="badge difficulty">Difficulty: {difficulty}</span>
+        </div>
+        <div className="question-description">
+          <p>{question.questionDescription}</p>
+        </div>
       </div>
-      <input
-        type="text"
-        placeholder="Enter your message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
-      <button onClick={sendMessage}>Send Message</button>
-      <Editor
-        height="60vh"
-        theme="vs-dark"
-        defaultValue='// Start collaborating and write your code\nconsole.log("Hello World!");'
-        defaultLanguage="javascript"
-        onMount={editor => { setEditor(editor);
-          setEditorContent(editor.getValue());
-         }}
-      />
-      <button onClick={initiateHandshake}>End Session</button>
-      {handshakeConfirmed && <p>Session ended and code attempt saved.</p>}
+
+      <div className="workspace">
+        <div className="editor-section">
+          <Editor
+            height="70vh"
+            theme="vs-dark"
+            defaultValue='// Start collaborating and write your code\nconsole.log("Hello World!");'
+            defaultLanguage="javascript"
+            options={{
+              fontSize: 14,
+              minimap: { enabled: true },
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+              lineNumbers: 'on',
+              folding: true,
+              automaticLayout: true,
+            }}
+            onMount={editor => {
+              setEditor(editor);
+              setEditorContent(editor.getValue());
+            }}
+          />
+          <div className="editor-actions">
+            <button 
+              className="btn-save" 
+              onClick={endSession}
+              disabled={handshakeConfirmed}
+            >
+              End Session
+            </button>
+          </div>
+        </div>
+
+        <div className="chat-section">
+          <div className="chat-messages" id="chat-messages">
+            {userLeft && (
+              <div className="system-message">
+                Another user has left the session. You can continue coding or end your session.
+              </div>
+            )}
+            {messageList.map((msg, index) => (
+              <div key={index} className="message">
+                {msg}
+              </div>
+            ))}
+          </div>
+          <div className="chat-input">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            />
+            <button onClick={sendMessage}>Send</button>
+          </div>
+        </div>
+      </div>
+
+      {handshakeConfirmed && (
+        <div className="confirmation-message">
+          Session ended and code attempt saved.
+        </div>
+      )}
     </div>
   );
 }
