@@ -11,20 +11,20 @@ router.post("/logout", firebaseAuthController.logoutUser);
 router.post("/reset-password", firebaseAuthController.resetPassword);
 router.post(
     "/update-profile",
-    verifyToken,
     generalLimiter,
+    verifyToken,
     firebaseAuthController.updateUserProfile
 );
 router.post(
     "/save-code-attempt",
-    verifyToken,
     generalLimiter,
+    verifyToken,
     firebaseAuthController.saveCodeAttempt
 );
 router.delete(
     "/delete-account",
-    verifyToken,
     generalLimiter,
+    verifyToken,
     firebaseAuthController.deleteUserAccount
 );
 
