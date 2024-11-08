@@ -5,10 +5,10 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const socketIo = require("socket.io");
-const { YSocketIO } = require('y-socket.io/dist/server');
 const socketService = require("./services/socketService");
+const { runCodeInit } = require("./controllers/runCode");
 
-const SOCKET_MATCHING_PORT = 5003;
+const SOCKET_MATCHING_PORT = 5004;
 
 const io = socketIo(server, {
   cors: {
@@ -25,19 +25,18 @@ const io = socketIo(server, {
 });
 
 server.listen(SOCKET_MATCHING_PORT, () => {
-    console.log(`Collaboration server is listening on port ${SOCKET_MATCHING_PORT}`);
+    console.log(`Code Execution server is listening on port ${SOCKET_MATCHING_PORT}`);
 });
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
-    res.json({ message: "Peerprep collaboration-service" });
+    res.json({ message: "Peerprep code-execution-service" });
 });
-
-const ysocketio = new YSocketIO(io);
-ysocketio.initialize();
 
 io.on("connection", async (socket) => {
     socketService.handleSocketConnection(socket);
 });
+
+runCodeInit();

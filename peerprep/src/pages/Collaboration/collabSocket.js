@@ -29,7 +29,6 @@ export const socket = io(URL, {
 
 socket.on("connect", () => {
   console.log("Socket connected successfully. Socket ID:", socket.id);
-  console.log("Socket connected successfully. Socket ID:", socket.displayName);
 });
 socket.on("connect_error", (error) => {
   console.log("Socket connection failed:", error);

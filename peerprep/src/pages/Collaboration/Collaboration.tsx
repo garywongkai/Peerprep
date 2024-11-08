@@ -1,14 +1,19 @@
 import Editor, { loader } from '@monaco-editor/react';
 import { editor as monacoEditor, languages} from 'monaco-editor';
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
-import { socket, URL } from "./socket";
+import { socket as collabSocket, URL as collabURL } from "./collabSocket";
+import { socket as codeSocket } from "./codeExecuteSocket";
+
+const initialText = `// Start collaborating and write your code
+console.log("Hello World!");`
 
 const Collaboration_Service: React.FC = () => {
-  const [message, setMessage] = useState("");
+  const initialized = useRef<boolean>(false);
+  const [message, setMessage] = useState<string>("");
   const [messageList, setMessageList] = useState<string[]>([]);
   const doc = useMemo(() => new Y.Doc(), []);
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
@@ -16,20 +21,39 @@ const Collaboration_Service: React.FC = () => {
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
   const [language, setLanguage] = useState("javascript"); // Language to set editor
   const [languages, setLanguages] = useState<languages.ILanguageExtensionPoint[]>([]); // All supported languages list
+  const [output, setOutput] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   
   const location = useLocation();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
 
   useEffect(() => {
-    // Fetch the list of languages dynamically from monaco.languages
-    loader.init().then(monacoInstance => {
-      setLanguages(monacoInstance.languages.getLanguages());
-    });
+    if (!initialized.current) {
+      // Fetch the list of languages dynamically from monaco.languages
+      loader.init().then(monacoInstance => {
+        setLanguages(monacoInstance.languages.getLanguages());
+      });
+
+      collabSocket.emit('joinRoom', roomId);
+      collabSocket.on('receive_message', (message) => {
+        setMessageList((prevList: string[]) => [...prevList, message]);
+      });
+      codeSocket.on('code_result', (output) => {
+        setOutput(output);
+        setLoading(false);
+      });
+
+      initialized.current = true;
+    }
+    return () => {
+      collabSocket.off('receive_message');
+      codeSocket.off('code_result');
+    }
   }, []);
 
   useEffect(() => {
     if (doc && roomId && !provider) {
-      const _socketIOProvider = new SocketIOProvider(URL, roomId, doc, {
+      const _socketIOProvider = new SocketIOProvider(collabURL, roomId, doc, {
         autoConnect: false,
         resyncInterval: 5000,
         disableBc: false
@@ -47,7 +71,7 @@ const Collaboration_Service: React.FC = () => {
           const smallestClientID = Math.min(...clientIDs);
           // Let client with smallest clientID initialise Text, only when both clients are loaded
           if (clientIDs.length === 2 && doc.clientID === smallestClientID) {
-            doc.getText('monaco').insert(0, '// Start collaborating and write your code\nconsole.log("Hello World!");');
+            doc.getText('monaco').insert(0, initialText);
             yMap.set('initialized', true);
           }
         });
@@ -72,29 +96,9 @@ const Collaboration_Service: React.FC = () => {
     }
   }, [doc, provider, editor]);
 
-  useEffect(() => {
-    socket.on('connect', () => {
-      socket.emit('joinRoom', roomId)
-    });
-
-    return () => {
-      socket.off('connect');
-    };
-  });
-
-  useEffect(() => {
-    socket.on('receive_message', (message) => {
-      setMessageList((prevList: string[]) => [...prevList, message]);
-    });
-
-    return () => {
-      socket.off('receive_message');
-    };
-  });
-
   const sendMessage = () => {
     if (message !== "") { // server socket
-      socket.emit("send_message", message, roomId);
+      collabSocket.emit('send_message', message, roomId);
       // console.log(`Message send to room : ${message}`);
       setMessageList((prevList: string[]) => [...prevList, message]); // Update your own message list
       setMessage(""); // Clear the input after sending
@@ -103,6 +107,15 @@ const Collaboration_Service: React.FC = () => {
 
   const handleLanguageChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setLanguage(event.target.value);
+  };
+
+  const runCode = () => {
+    const code = editor?.getValue();
+    if (code !== "") {
+      codeSocket.emit('run_code', codeSocket.id, 'javascript', code);
+      setOutput("running...");
+      setLoading(true);
+    }
   };
 
   return (
@@ -140,8 +153,20 @@ const Collaboration_Service: React.FC = () => {
         height="60vh"
         theme="vs-dark"
         language={language}
+        defaultValue={initialText}
         onMount={editor => { setEditor(editor) }}
       />
+      <div>
+        <button onClick={runCode} disabled={loading}>
+          {loading ? 'Running...' : 'Run Code'}
+        </button>
+      </div>
+      <div>
+        <h2>Output:</h2>
+        <pre id="output-window" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+          {output}
+        </pre>
+      </div>
     </div>
   );
 }
