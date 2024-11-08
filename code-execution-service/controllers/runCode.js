@@ -1,22 +1,39 @@
 const Docker = require('dockerode');
 const fs = require('fs');
 const path = require('path');
+const { getDockerConfig } = require("./dockerConfig");
+const { getTarFiles } = require('./utils');
 
 const docker = new Docker({ socketPath: '/run/user/1000/docker.sock' });
 
-exports.runCodeInit = () => {
-  const imagePath = path.join('/app/images', 'node-alpine.tar');
-  console.log("Path created")
-  const imageStream = fs.createReadStream(imagePath);
+// Load all images located in /images directory
+exports.loadDockerImages = () => {
+  const tarFiles = getTarFiles('/app/images');
 
-  // Load the image into Docker
-  docker.loadImage(imageStream, (err, response) => {
-    if (err) {
-      console.error("Error loading image:", err);
-      return;
-    }
-    console.log("Image loaded successfully!");
+  const loadPromises = tarFiles.map(imageName => {
+    return new Promise((resolve, reject) => {
+      const imagePath = path.join('/app/images', imageName);
+      const imageStream = fs.createReadStream(imagePath);
+
+      docker.loadImage(imageStream, (err, response) => {
+        if (err) {
+          console.error("Error loading", imageName, ":", err);
+          return reject(err);
+        }
+        console.log(imageName, "loaded successfully!");
+        resolve();
+      });
+    });
   });
+
+  // Return the promise that resolves when all images are loaded
+  return Promise.all(loadPromises)
+    .then(() => {
+      console.log("All images successfully loaded.");
+    })
+    .catch((error) => {
+      console.error("An error occurred while loading the images:", error);
+    });
 }
 
 exports.runCode = async (language, code) => {
@@ -29,7 +46,6 @@ exports.runCode = async (language, code) => {
   }
 
   const container = await docker.createContainer({
-    // name: `code-execution-container-${language}`,
     Image: image,
     Cmd: cmd,
     Tty: true,
@@ -81,58 +97,3 @@ exports.runCode = async (language, code) => {
 
   return Buffer.concat(outputBuffer).toString();
 };
-
-const getDockerConfig = (language) => {
-  switch (language.toLowerCase()) {
-    case 'python':
-      return {
-        image: 'python:3.8-slim',
-        cmd: ['python', '-']
-      };
-    case 'javascript':
-      return {
-        image: 'node:alpine',
-        cmd: ['node', '-'],
-
-      };
-    case 'go':
-      return {
-        image: 'golang:alpine',
-        cmd: ['go', 'run', '-']
-      };
-    case 'ruby':
-      return {
-        image: 'ruby:alpine',
-        cmd: ['ruby', '-']
-      };
-    case 'java':
-      return {
-        image: 'openjdk:alpine',
-        cmd: ['java', '-']
-      };
-    case 'php':
-      return {
-        image: 'php:alpine',
-        cmd: ['php', '-']
-      };
-    default:
-      return {}; // Return empty object for unsupported languages
-  }
-};
-
-// Example usage
-// -------------
-// const pythonCode = `print("Hello from Python!")`;
-// const javascriptCode = `console.log("Hello from JavaScript!")`;
-
-// (async () => {
-//   try {
-//     const pythonOutput = await runCode(pythonCode, 'python'); // Run Python code
-//     console.log('Python Output:', pythonOutput);
-
-//     const javascriptOutput = await runCode(javascriptCode, 'javascript'); // Run JavaScript code
-//     console.log('JavaScript Output:', javascriptOutput);
-//   } catch (err) {
-//     console.error('Execution error:', err);
-//   }
-// })();

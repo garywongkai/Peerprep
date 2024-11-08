@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Peerprep Question Pool API" });
 });
 app.listen(5000, () => {
-  console.log("Server is listening on port 5000");
+  console.log("Question server is listening on port 5000");
 });
 const QuestionRoute = require("./routes/questionPool");
 const cors = require("cors");

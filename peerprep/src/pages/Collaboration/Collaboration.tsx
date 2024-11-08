@@ -1,4 +1,4 @@
-import Editor, { loader } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 import { editor as monacoEditor, languages} from 'monaco-editor';
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 import { socket as collabSocket, URL as collabURL } from "./collabSocket";
 import { socket as codeSocket } from "./codeExecuteSocket";
+import { getStylizedLanguageName } from './utils';
 
 const initialText = `// Start collaborating and write your code
 console.log("Hello World!");`
@@ -20,7 +21,7 @@ const Collaboration_Service: React.FC = () => {
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
   const [language, setLanguage] = useState("javascript"); // Language to set editor
-  const [languages, setLanguages] = useState<languages.ILanguageExtensionPoint[]>([]); // All supported languages list
+  const [languages, setLanguages] = useState<string[]>([]); // All supported languages list
   const [output, setOutput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   
@@ -29,12 +30,12 @@ const Collaboration_Service: React.FC = () => {
 
   useEffect(() => {
     if (!initialized.current) {
-      // Fetch the list of languages dynamically from monaco.languages
-      loader.init().then(monacoInstance => {
-        setLanguages(monacoInstance.languages.getLanguages());
+      collabSocket.emit('joinRoom', roomId);
+      codeSocket.emit('get_available_languages', (languages: string[]) => {
+        console.log("received available languages" + languages);
+        setLanguages(languages);
       });
 
-      collabSocket.emit('joinRoom', roomId);
       collabSocket.on('receive_message', (message) => {
         setMessageList((prevList: string[]) => [...prevList, message]);
       });
@@ -49,7 +50,7 @@ const Collaboration_Service: React.FC = () => {
       collabSocket.off('receive_message');
       codeSocket.off('code_result');
     }
-  }, []);
+  }, [roomId]);
 
   useEffect(() => {
     if (doc && roomId && !provider) {
@@ -84,7 +85,7 @@ const Collaboration_Service: React.FC = () => {
       provider?.destroy();
       doc.destroy();
     }
-  }, [doc, roomId]);
+  }, [doc, roomId, provider]);
 
   useEffect(() => {
     if (provider && editor) {
@@ -94,7 +95,7 @@ const Collaboration_Service: React.FC = () => {
     return () => {
       binding?.destroy();
     }
-  }, [doc, provider, editor]);
+  }, [doc, provider, editor, binding]);
 
   const sendMessage = () => {
     if (message !== "") { // server socket
@@ -112,7 +113,7 @@ const Collaboration_Service: React.FC = () => {
   const runCode = () => {
     const code = editor?.getValue();
     if (code !== "") {
-      codeSocket.emit('run_code', codeSocket.id, 'javascript', code);
+      codeSocket.emit('run_code', 'javascript', code);
       setOutput("running...");
       setLoading(true);
     }
@@ -144,8 +145,8 @@ const Collaboration_Service: React.FC = () => {
         style={{ marginBottom: '10px' }}
       >
         {languages.map((lang) => (
-          <option key={lang.id} value={lang.id}>
-            {lang.aliases ? lang.aliases[0] : lang.id}
+          <option key={lang} value={lang}>
+            {getStylizedLanguageName[lang] || lang}
           </option>
         ))}
       </select>
