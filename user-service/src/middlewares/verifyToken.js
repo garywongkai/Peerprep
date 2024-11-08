@@ -1,22 +1,35 @@
-const admin = require("firebase-admin");
+const rateLimit = require("express-rate-limit");
 
+// Rate limiter specifically for token verification
+const verifyTokenLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 10, // Limit each IP to 10 requests per minute
+    message: "Too many verification attempts, please try again later.",
+});
+
+// Middleware to verify token with rate limiting
 const verifyToken = async (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
+    verifyTokenLimiter(req, res, async () => {
+        const authHeader = req.headers.authorization;
 
-    if (!token) {
-        return res
-            .status(401)
-            .json({ error: "Authentication token is missing" });
-    }
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res
+                .status(401)
+                .json({ error: "Authentication token is missing or invalid" });
+        }
 
-    try {
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        req.user = decodedToken;
-        next();
-    } catch (error) {
-        console.error("Token verification failed:", error);
-        return res.status(403).json({ error: "Invalid or expired token" });
-    }
+        const token = authHeader.split(" ")[1];
+
+        try {
+            // Verify token with Firebase Admin SDK
+            const decodedToken = await admin.auth().verifyIdToken(token);
+            req.user = decodedToken; // Add decoded token data to req object
+            next();
+        } catch (error) {
+            console.error("Token verification failed:", error);
+            res.status(401).json({ error: "Token verification failed" });
+        }
+    });
 };
 
 module.exports = verifyToken;
