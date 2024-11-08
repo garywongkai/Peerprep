@@ -194,10 +194,10 @@ const saveQuestionAttempt = async (req, res) => {
 		// Create a reference to the user's collection of question attempts
 		const userDocRef = doc(db, "users", user.uid); // Assuming you have a 'users' collection
 		if (!userDocRef) {
-			const userDocRef = dbAdmin.collection("users").doc(auth.currentUser.uid);
+			const userDocRef = dbAdmin.collection("users").doc(user.uid);
 			return userDocRef.set({
-				name: name,
-				email: email,
+				name: user.displayName,
+				email: user.email,
 				createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			});
 		}
@@ -219,9 +219,16 @@ const saveQuestionAttempt = async (req, res) => {
 };
 
 const saveCodeAttempt = async (req, res) => {
-	const { code, date, roomId } = req.body;
+	const {
+		code,
+		date,
+		roomId,
+		questionDescription,
+		questionTitle,
+		questionCategory,
+		difficulty,
+	} = req.body;
 	const idToken = req.headers.authorization?.split(" ")[1]; // Extract ID token from Authorization header
-
 	// Check if the required fields are present
 	if (!code || !date || !roomId) {
 		return res.status(400).json({
@@ -241,15 +248,52 @@ const saveCodeAttempt = async (req, res) => {
 		const uid = decodedToken.uid; // User ID from the decoded token (useful for referencing the user if needed)
 
 		// Reference to Firestore collection
-		const codeAttemptsRef = dbAdmin.collection("codeAttempts");
+		// const codeAttemptsRef = dbAdmin.collection("codeAttempts");
 
-		// Save the code attempt data into Firestore
-		await codeAttemptsRef.add({
+		// // Save the code attempt data into Firestore
+		// await codeAttemptsRef.add({
+		// 	code: code,
+		// 	date: date,
+		// 	roomId: roomId,
+		// 	createdAt: admin.firestore.FieldValue.serverTimestamp(), // Store server timestamp
+		// 	userId: uid, // Optionally store the user's UID for tracking
+		// });
+		const userRef = dbAdmin.collection("users").doc(uid);
+		const userDoc = await userRef.get(); // Assuming you have a 'users' collection
+		if (!userDoc.exists) {
+			// Get user data from Auth
+			const userRecord = await admin.auth().getUser(uid);
+
+			// Create user document with metadata
+			await userRef.set({
+				email: userRecord.email,
+				displayName: userRecord.displayName || null,
+				photoURL: userRecord.photoURL || null,
+			});
+		}
+		// if (!userDocRef) {
+		// 	const userDocRef = dbAdmin.collection("users").doc(user.uid);
+		// 	return userDocRef.set({
+		// 		name: name,
+		// 		email: email,
+		// 		createdAt: admin.firestore.FieldValue.serverTimestamp(),
+		// 	});
+		// }
+		// Create the attempt document in the questionAttempts subcollection
+		const attemptRef = userRef.collection("questionAttempts").doc();
+
+		// Save the question attempt
+		await attemptRef.set({
 			code: code,
-			date: date,
+			startedAt: admin.firestore.FieldValue.serverTimestamp(),
+			dateCompleted: date,
 			roomId: roomId,
-			createdAt: admin.firestore.FieldValue.serverTimestamp(), // Store server timestamp
-			userId: uid, // Optionally store the user's UID for tracking
+			questionDetails: {
+				title: questionTitle,
+				description: questionDescription,
+				category: questionCategory,
+				difficulty: difficulty,
+			},
 		});
 
 		// Respond with success message

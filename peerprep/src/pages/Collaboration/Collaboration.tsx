@@ -152,7 +152,16 @@ const Collaboration_Service: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ code: codeAttempt, date: dateLogged, roomId: roomId }),
+        body: JSON.stringify(
+          { 
+            code: codeAttempt, 
+            date: dateLogged, 
+            roomId: roomId, 
+            questionDescription: question.questionDescription,
+            questionTitle: question.questionTitle,
+            questionCategory: question.questionCategory,
+            difficulty: difficulty, 
+        }),
       });
 
       if (response.ok) {
