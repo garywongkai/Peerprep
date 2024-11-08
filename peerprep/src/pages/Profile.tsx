@@ -36,9 +36,8 @@ const Profile: React.FC<ProfileProps> = ({
     const [message, setMessage] = useState("");
     const [confirmText, setConfirmText] = useState(""); // For account deletion confirmation
     const [openDialog, setOpenDialog] = useState(false); // For the delete account dialog
-
     const [user, loadingUser] = useAuthState(auth); // Get the current user
-
+    const accessToken = localStorage.getItem("accessToken");
     const navigate = useNavigate(); // For navigation
 
     // Form submission to update the profile
@@ -56,6 +55,7 @@ const Profile: React.FC<ProfileProps> = ({
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 credentials: "include",
                 body: JSON.stringify({
@@ -94,6 +94,7 @@ const Profile: React.FC<ProfileProps> = ({
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ email }), // Send the email directly
                 });
