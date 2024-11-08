@@ -20,7 +20,6 @@ interface ProfileProps {
     successNotification: (message: string, type?: "success") => void;
     errorNotification: (message: string, type?: "error") => void;
 }
-
 const Profile: React.FC<ProfileProps> = ({
     successNotification,
     errorNotification,
@@ -36,17 +35,22 @@ const Profile: React.FC<ProfileProps> = ({
     const [message, setMessage] = useState("");
     const [confirmText, setConfirmText] = useState(""); // For account deletion confirmation
     const [openDialog, setOpenDialog] = useState(false); // For the delete account dialog
-
+    // const accessToken = localStorage.getItem("accessToken");   
     const [user, loadingUser] = useAuthState(auth); // Get the current user
 
     const navigate = useNavigate(); // For navigation
+     
+    const getAccessToken = () => {
+        const token = localStorage.getItem("accessToken");
+        return token;
+    };
 
     // Form submission to update the profile
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
         setMessage("");
-
+        const accessToken = getAccessToken();
         try {
             const url =
                 process.env.REACT_APP_ENV === "development"
@@ -56,6 +60,7 @@ const Profile: React.FC<ProfileProps> = ({
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 credentials: "include",
                 body: JSON.stringify({
@@ -84,6 +89,7 @@ const Profile: React.FC<ProfileProps> = ({
     };
 
     const handleDeleteAccount = async () => {
+        const accessToken = getAccessToken();
         if (confirmText === "confirm" && email) {
             try {
                 const url =
@@ -94,6 +100,7 @@ const Profile: React.FC<ProfileProps> = ({
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ email }), // Send the email directly
                 });

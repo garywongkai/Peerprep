@@ -16,6 +16,7 @@ const {
 
 // This code initializes the Firebase Admin SDK in the Node.js app, providing administrative access to Firebase services, using the service account credentials loaded from the JSON file.
 const admin = require("firebase-admin");
+const { getFirestore } = require("firebase-admin/firestore");
 // Firebase Admin Initialization
 // const serviceAccount = require("../firebaseService.json");
 
@@ -48,6 +49,8 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
+const dbAdmin = getFirestore(admin.app());
+
 firebase.initializeApp(firebaseConfig);
 
 module.exports = {
@@ -60,4 +63,5 @@ module.exports = {
   admin,
   updateProfile,
   firebaseService,
+  dbAdmin,
 };

@@ -1,23 +1,55 @@
 import Editor from '@monaco-editor/react';
 import { editor as monacoEditor } from 'monaco-editor';
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
-import { socket, URL } from "./socket";
+// import { URL, socket } from "./socket";
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState<string[]>([]);
+  const [handshakeConfirmed, setHandshakeConfirmed] = useState(false);
+  const [editorContent, setEditorContent] = useState("Your code here...");
   const doc = useMemo(() => new Y.Doc(), []);
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
-
+  const url =
+            process.env.REACT_APP_ENV === "development"
+                ? "http://localhost:5001/saveCodeAttempt"
+                : "https://user-service-327190433280.asia-southeast1.run.app/saveCodeAttempt";
   const location = useLocation();
+  const navigate = useNavigate();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
+  const URL = process.env.REACT_APP_ENV === "development"
+		? "http://localhost:5003"
+		: "https://collaboration-service-327190433280.asia-southeast1.run.app";
+  const accessToken = localStorage.getItem("accessToken");
+  const displayName = localStorage.getItem("displayName");
+  const uid = localStorage.getItem("uid");
+  const socketRef = useRef<Socket | null>(null);
 
+    useEffect(() => {
+      socketRef.current = io(URL, {
+          query: {
+              token: accessToken,
+              displayName: displayName,
+              uid: uid,
+          },
+      });
+      const socket = socketRef.current;
+      socket.on('connect', () => {
+          socket.emit('joinRoom', roomId); // Emit joinRoom only once on connect
+      });
+  
+      return () => {
+          socket.disconnect(); // Clean up the socket connection on unmount
+      };
+  }, [URL, accessToken, displayName, uid, roomId]);
+    
   useEffect(() => {
     const _socketIOProvider = new SocketIOProvider(URL, roomId, doc, {
       autoConnect: false,
@@ -44,27 +76,93 @@ const Collaboration_Service: React.FC = () => {
   }, [doc, provider, editor]);
 
   useEffect(() => {
+    const socket = socketRef?.current;
+    if (socket) {
+    socket.on('receive_message', (message: string) => {
+      setMessageList((prevList: string[]) => [...prevList, message]);
+    });
+    socket.on('handshake_request', () => {
+      // Notify the user about the handshake request
+      if (window.confirm("Another user has requested to end the session. Do you agree?")) {
+        confirmHandshake(); // Automatically confirm if the user agrees
+      }
+    });
+
+    socket.on('handshake_response', (confirmed: boolean) => {
+      if (confirmed) {
+        setHandshakeConfirmed(true);
+        saveCodeAttempt();
+      }
+    }
+    );
+    
+    return () => {
+      socket.off('receive_message'); // Clean up listener
+      socket.off('handshake_request');
+      socket.off('handshake_response');
+    };
+  }
+  }, []);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (socket){
     socket.on('connect', () => {
       socket.emit('joinRoom', roomId)
     });
-  });
-
-  useEffect(() => {
-    socket.on('receive_message', (message) => {
-      setMessageList((prevList: string[]) => [...prevList, message]);
-    });
-
-    return () => {
-      socket.off('receive_message');
-    };
+  }
   });
 
   const sendMessage = () => {
-    if (message !== "") { // server socket
+    const socket = socketRef.current;
+    if (message !== "" && socket) { // server socket
       socket.emit("send_message", message, roomId);
       console.log(`Message send to room : ${message}`);
       setMessageList((prevList: string[]) => [...prevList, message]); // Update your own message list
       setMessage(""); // Clear the input after sending
+    }
+  };
+
+  const initiateHandshake = () => {
+    const socket = socketRef.current;
+    if (socket) {
+      socket.emit("handshake_request", roomId);
+      console.log(`Session end requested for ${roomId}`);
+    }
+  };
+
+  const confirmHandshake = () => {
+    const socket = socketRef.current;
+    if (socket) {
+      socket.emit("handshake_response", true, roomId);
+      setHandshakeConfirmed(true);
+      console.log(`Session ended for ${roomId}`);
+      saveCodeAttempt();
+    }
+  };
+
+  const saveCodeAttempt = async () => {
+    const codeAttempt = editor?.getValue() || doc.getText();
+    const dateLogged = new Date().toISOString();
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ code: codeAttempt, date: dateLogged, roomId: roomId }),
+      });
+
+      if (response.ok) {
+        console.log('Code attempt saved successfully.');
+        navigate('/dashboard');
+      } else {
+        console.error('Failed to save code attempt.');
+      }
+    } catch (error) {
+      console.error('Error saving code attempt:', error);
     }
   };
 
@@ -91,8 +189,12 @@ const Collaboration_Service: React.FC = () => {
         theme="vs-dark"
         defaultValue='// Start collaborating and write your code\nconsole.log("Hello World!");'
         defaultLanguage="javascript"
-        onMount={editor => { setEditor(editor) }}
+        onMount={editor => { setEditor(editor);
+          setEditorContent(editor.getValue());
+         }}
       />
+      <button onClick={initiateHandshake}>End Session</button>
+      {handshakeConfirmed && <p>Session ended and code attempt saved.</p>}
     </div>
   );
 }
