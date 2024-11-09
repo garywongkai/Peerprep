@@ -8,8 +8,7 @@ exports.getDockerConfig = (language) => {
     case 'javascript':
       return {
         image: 'node:18-alpine',
-        cmd: ['node', '-'],
-        terminate: 'process.exit(0);'
+        cmd: ['node', '-e']
       };
     case 'go':
       return {

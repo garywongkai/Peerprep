@@ -37,41 +37,31 @@ exports.loadDockerImages = () => {
 }
 
 exports.runCode = async (language, code) => {
-  code = code + `\nprocess.exit(0);\n`;
-
   const { image, cmd } = getDockerConfig(language);
 
   if (!image || !cmd) {
     throw new Error(`Unsupported language: ${language}`);
   }
-
+  cmd.push(code);
   const container = await docker.createContainer({
     Image: image,
     Cmd: cmd,
-    Tty: true,
-    AttachStdin: true,
+    Tty: false,
     AttachStdout: true,
-    AttachStderr: true,
-    OpenStdin: true,
-    StdinOnce: true,
+    AttachStderr: true
   });
   await container.start();
 
-  const stdinStream = await container.attach({ stream: true, stdin: true, stdout: false, stderr: false });
-  const stdoutStream = await container.attach({ stream: true, stdin: false, stdout: true, stderr: true });
+  const outputStream = await container.logs({
+    follow: true,
+    stdout: true,
+    stderr: true
+  });
 
-  // Capture output from stdout and stderr
   const outputBuffer = [];
-  stdoutStream.on('data', (data) => {
+  outputStream.on('data', (data) => {
     outputBuffer.push(data);
   });
-  
-  stdinStream.write(code, (err) => {
-    if (err) {
-      new Error('Error writing to stdinStream:', err);
-    }
-  });
-  stdinStream.end();
 
   const timeoutPromise = new Promise((_, reject) =>
     setTimeout(() => reject(new Error('Timeout waiting for container')), 30000) // 30 seconds timeout

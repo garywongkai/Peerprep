@@ -46,14 +46,9 @@ const Collaboration_Service: React.FC = () => {
     collabSocket.on('receive_message', (message) => {
       setMessageList((prevList: string[]) => [...prevList, message]);
     });
-    codeSocket.on('code_result', (output) => {
-      setOutput(output);
-      setLoading(false);
-    });
 
     return () => {
       collabSocket.off('receive_message');
-      codeSocket.off('code_result');
     }
   }, []);
 
@@ -111,7 +106,10 @@ const Collaboration_Service: React.FC = () => {
   const runCode = () => {
     const code = editor?.getValue();
     if (code !== "") {
-      codeSocket.emit('run_code', language, code);
+      codeSocket.emit('run_code', language, code, (output: string) => {
+        setOutput(output);
+        setLoading(false);
+      });
       setOutput(`Running code in ${language}`);
       setLoading(true);
     }

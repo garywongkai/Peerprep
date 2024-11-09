@@ -8,11 +8,11 @@ exports.handleSocketConnection = async (socket) => {
     callback(languages);
   });
 
-  socket.on('run_code', (language, code) => {
+  socket.on('run_code', (language, code, callback) => {
     (async () => {
       try {
         const output = await runCode(language, code);
-        socket.emit('code_result', output);
+        callback(output);
       } catch (err) {
         console.error('Execution error:', err);
       }
