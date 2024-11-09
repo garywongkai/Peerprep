@@ -79,7 +79,6 @@ exports.runCode = async (language, code) => {
 
   await Promise.race([
     new Promise((resolve, reject) => {
-      console.log('Waiting for container to finish...');
       container.wait((err, data) => {
         if (err) {
           console.error('Error while waiting for container to finish:', err);

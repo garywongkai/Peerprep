@@ -1,25 +1,33 @@
 import Editor from '@monaco-editor/react';
-import { editor as monacoEditor, languages} from 'monaco-editor';
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import { editor as monacoEditor} from 'monaco-editor';
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from 'react-router-dom';
 import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 import { socket as collabSocket, URL as collabURL } from "./collabSocket";
-import { socket as codeSocket } from "./codeExecuteSocket";
+import { socket as codeSocket } from "./codeSocket";
 import { getStylizedLanguageName } from './utils';
 
-const initialText = `// Start collaborating and write your code
+/*
+This page would cause the error:
+Module Warning 
+Failed to parse source map from ...
+
+This is caused by CRA (Create-React-App) with Webpack 5.x
+More info in the link below:
+https://stackoverflow.com/questions/70599784/failed-to-parse-source-map
+*/
+
+const initialContent = `// Start collaborating and write your code
 console.log("Hello World!");`
 
 const Collaboration_Service: React.FC = () => {
-  const initialized = useRef<boolean>(false);
+  const [first, setFirst] = useState<boolean>(false);
+  const [doc, setDoc] = useState<Y.Doc | null>(null);
   const [message, setMessage] = useState<string>("");
   const [messageList, setMessageList] = useState<string[]>([]);
-  const doc = useMemo(() => new Y.Doc(), []);
-  const [provider, setProvider] = useState<SocketIOProvider | null>(null);
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
-  const [binding, setBinding] = useState<MonacoBinding | null>(null);
   const [language, setLanguage] = useState("javascript"); // Language to set editor
   const [languages, setLanguages] = useState<string[]>([]); // All supported languages list
   const [output, setOutput] = useState<string>('');
@@ -29,92 +37,82 @@ const Collaboration_Service: React.FC = () => {
   const { socketId, roomId, difficulty, category, question } = location.state || {};
 
   useEffect(() => {
-    if (!initialized.current) {
-      collabSocket.emit('joinRoom', roomId);
-      codeSocket.emit('get_available_languages', (languages: string[]) => {
-        console.log("received available languages" + languages);
-        setLanguages(languages);
-      });
+    collabSocket.emit('joinRoom', roomId, (init: boolean) => {
+      setFirst(init); // Server told this client to init Y.Doc
+    });
+    codeSocket.emit('get_available_languages', (languages: string[]) => {
+      setLanguages(languages);
+    });
+    collabSocket.on('receive_message', (message) => {
+      setMessageList((prevList: string[]) => [...prevList, message]);
+    });
+    codeSocket.on('code_result', (output) => {
+      setOutput(output);
+      setLoading(false);
+    });
 
-      collabSocket.on('receive_message', (message) => {
-        setMessageList((prevList: string[]) => [...prevList, message]);
-      });
-      codeSocket.on('code_result', (output) => {
-        setOutput(output);
-        setLoading(false);
-      });
-
-      initialized.current = true;
-    }
     return () => {
       collabSocket.off('receive_message');
       codeSocket.off('code_result');
     }
-  }, [roomId]);
+  }, []);
 
   useEffect(() => {
-    if (doc && roomId && !provider) {
-      const _socketIOProvider = new SocketIOProvider(collabURL, roomId, doc, {
-        autoConnect: false,
-        resyncInterval: 5000,
-        disableBc: false
-      });
-      setProvider(_socketIOProvider);
+    let doc: Y.Doc;
+    let provider: SocketIOProvider;
+    let binding: MonacoBinding;
 
-      _socketIOProvider.awareness.on('change', () => {
-        doc.transact(() => {
-          const yMap = doc.getMap('editorMeta');
-          if (yMap.get('initialized')) {
-            return;
-          }
-          const clientStates = _socketIOProvider.awareness.getStates();
-          const clientIDs = Array.from(clientStates.keys()) as number[];
-          const smallestClientID = Math.min(...clientIDs);
-          // Let client with smallest clientID initialise Text, only when both clients are loaded
-          if (clientIDs.length === 2 && doc.clientID === smallestClientID) {
-            doc.getText('monaco').insert(0, initialText);
-            yMap.set('initialized', true);
-          }
-        });
+    if (roomId && editor) {
+      doc = new Y.Doc();
+
+      provider = new SocketIOProvider(collabURL, roomId, doc, {
+        autoConnect: true,
+        // resyncInterval: 5000,
+        // disableBc: false
       });
-      _socketIOProvider.connect();
-      _socketIOProvider.awareness.setLocalStateField("lastUpdated", Date.now()); // Trigger awareness update
+      binding = new MonacoBinding(
+        doc.getText('monaco'), 
+        editor.getModel()!, 
+        new Set([editor]), 
+        provider.awareness
+      );
+      // console.log(isFirst.current)
+      // if (isFirst.current) {
+      //   doc.getText('monaco').insert(0, initialContent);
+      //   const update = Y.encodeStateAsUpdate(doc);
+      //   Y.applyUpdate(doc, update);
+      // }
+      setDoc(doc)
     }
 
     return () => {
+      doc?.destroy();
       provider?.destroy();
-      doc.destroy();
-    }
-  }, [doc, roomId, provider]);
-
-  useEffect(() => {
-    if (provider && editor) {
-      const _binding = new MonacoBinding(doc.getText('monaco'), editor.getModel()!, new Set([editor]), provider.awareness);
-      setBinding(_binding);
-    }
-    return () => {
       binding?.destroy();
     }
-  }, [doc, provider, editor, binding]);
+  }, [roomId, editor]);
+
+  useEffect(() => {
+    if (first && doc && editor) {
+      doc.getText('monaco').insert(0, initialContent);
+      const update = Y.encodeStateAsUpdate(doc);
+      Y.applyUpdate(doc, update);
+    }
+  }, [first, doc, editor])
 
   const sendMessage = () => {
-    if (message !== "") { // server socket
+    if (message.trim()) {
       collabSocket.emit('send_message', message, roomId);
-      // console.log(`Message send to room : ${message}`);
-      setMessageList((prevList: string[]) => [...prevList, message]); // Update your own message list
-      setMessage(""); // Clear the input after sending
+      setMessageList((prevList: string[]) => [...prevList, message]);
+      setMessage("");
     }
-  };
-
-  const handleLanguageChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-    setLanguage(event.target.value);
   };
 
   const runCode = () => {
     const code = editor?.getValue();
     if (code !== "") {
-      codeSocket.emit('run_code', 'javascript', code);
-      setOutput("running...");
+      codeSocket.emit('run_code', language, code);
+      setOutput(`Running code in ${language}`);
       setLoading(true);
     }
   };
@@ -141,7 +139,7 @@ const Collaboration_Service: React.FC = () => {
       <select
         id="language-select"
         value={language}
-        onChange={handleLanguageChange}
+        onChange={(e) => setLanguage(e.target.value)}
         style={{ marginBottom: '10px' }}
       >
         {languages.map((lang) => (
@@ -154,7 +152,6 @@ const Collaboration_Service: React.FC = () => {
         height="60vh"
         theme="vs-dark"
         language={language}
-        defaultValue={initialText}
         onMount={editor => { setEditor(editor) }}
       />
       <div>
