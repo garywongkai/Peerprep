@@ -317,6 +317,9 @@ const getUserAttemptHistory = async (req, res) => {
 	}
 
 	try {
+		const decodedToken = await admin.auth().verifyIdToken(idToken);
+		const uid = decodedToken.uid; // User ID from the decoded token (useful for referencing the user if needed)
+
 		const userRef = dbAdmin.collection("users").doc(uid);
 		const attemptsSnapshot = await userRef.collection("questionAttempts").get();
 
