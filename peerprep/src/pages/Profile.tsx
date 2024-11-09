@@ -74,7 +74,15 @@ const Profile: React.FC<ProfileProps> = ({
                 localStorage.setItem("displayName", displayName);
                 localStorage.setItem("photoURL", photoURL);
                 successNotification(data.message); // Profile updated successfully
-            } else {
+            } else if (response.status === 401) {
+                // Handle 401 error (not authenticated)
+                errorNotification(
+                    "User not authenticated, please sign in again."
+                );
+                localStorage.clear(); // Clear local storage
+                navigate("/signin"); // Redirect to sign-in page
+            }  else {
+                console.log(response.status);
                 const errorData = await response.json();
                 errorNotification(
                     errorData.error || "Failed to update profile"

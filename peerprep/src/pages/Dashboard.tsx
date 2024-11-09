@@ -7,6 +7,7 @@ import { CircularProgress } from "@mui/material";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SignalWifiStatusbar4BarIcon from '@mui/icons-material/SignalWifiStatusbar4Bar';
 import SignalWifiConnectedNoInternet4Icon from '@mui/icons-material/SignalWifiConnectedNoInternet4';
+import '../styles/Dashboard.css';
 
 interface ActiveSession {
     roomId: string;
@@ -80,6 +81,10 @@ const Dashboard: React.FC = () => {
             if (response.ok) {
                 const data = await response.json();
                 setAttemptHistory(data); // Set the attempt history
+            } else if (response.status === 403) {
+                // Handle 403 error (invalid token)
+                localStorage.clear(); // Clear local storage
+                navigate("/signin"); // Redirect to sign-in page
             } else {
                 console.error('Failed to fetch attempt history');
             }
@@ -224,20 +229,23 @@ const Dashboard: React.FC = () => {
 {isLoading ? (
                     <CircularProgress />
                 ) : (
-                    <div className="attempt-history">
-                        {attemptHistory.map(attempt => (
-                            <div key={attempt.id} className="attempt-card">
-                                <h4>{attempt.questionDetails.title}</h4>
-                                <p className="attempt-date">{new Date(attempt.dateCompleted).toLocaleString()}</p>
-                                <p>{attempt.code}</p>
-                                <div className="attempt-meta">
-                                    <span className="badge category">{attempt.questionDetails.category}</span>
-                                    <span className={`badge difficulty ${attempt.questionDetails.difficulty.toLowerCase()}`}>
-                                        {attempt.questionDetails.difficulty}
-                                    </span>
+                    <div className="attempt-history-container">
+                        <h2>Attempt History</h2>
+                        <div className="attempt-history">
+                            {attemptHistory.map(attempt => (
+                                <div key={attempt.id} className="attempt-card">
+                                    <h4>{attempt.questionDetails.title}</h4>
+                                    <p className="attempt-date">{new Date(attempt.dateCompleted).toLocaleString()}</p>
+                                    <p>{attempt.code}</p>
+                                    <div className="attempt-meta">
+                                        <span className="badge category">{attempt.questionDetails.category}</span>
+                                        <span className={`badge difficulty ${attempt.questionDetails.difficulty.toLowerCase()}`}>
+                                            {attempt.questionDetails.difficulty}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
