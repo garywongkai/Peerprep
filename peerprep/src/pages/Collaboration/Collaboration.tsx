@@ -7,6 +7,7 @@ import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 import '../../styles/Collaboration.css';
+import UserHeader from '../../components/UserHeader';
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
@@ -206,7 +207,7 @@ const Collaboration_Service: React.FC = () => {
   };
 
   return (
-    <div className="collaboration-container">
+    <><UserHeader /><div className="collaboration-container">
       <div className="question-section">
         <h2 className="question-title">
           {question.questionId}. {question.questionTitle}
@@ -239,11 +240,10 @@ const Collaboration_Service: React.FC = () => {
             onMount={editor => {
               setEditor(editor);
               setEditorContent(editor.getValue());
-            }}
-          />
+            } } />
           <div className="editor-actions">
-            <button 
-              className="btn-save" 
+            <button
+              className="btn-save"
               onClick={endSession}
               disabled={handshakeConfirmed}
             >
@@ -256,7 +256,7 @@ const Collaboration_Service: React.FC = () => {
           <div className="chat-messages" id="chat-messages">
             {userLeft && (
               <div className="system-message">
-                Another user has left the session. You can continue coding or end your session.
+                An user has left the session. You can continue coding or end your session.
               </div>
             )}
             {messageList.map((msg, index) => (
@@ -271,19 +271,12 @@ const Collaboration_Service: React.FC = () => {
               placeholder="Type your message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            />
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()} />
             <button onClick={sendMessage}>Send</button>
           </div>
         </div>
       </div>
-
-      {handshakeConfirmed && (
-        <div className="confirmation-message">
-          Session ended and code attempt saved.
-        </div>
-      )}
-    </div>
+    </div></>
   );
 }
 
