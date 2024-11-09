@@ -35,18 +35,22 @@ const Forgot: React.FC<ForgotProps> = ({
             });
 
             if (response.ok) {
-                successNotification("Password reset email sent successfully!");
+                successNotification(
+                    "We've sent you an email to reset your password."
+                );
                 navigate("/signin"); // Redirect to the sign-in page after sending the email
             } else {
                 const errorData = await response.json();
-                errorNotification(
-                    errorData.error || "Failed to send reset email"
-                );
+                if (errorData.email) {
+                    errorNotification(errorData.email);
+                } else {
+                    errorNotification(errorData.error);
+                }
             }
         } catch (error) {
             console.error("Error during password reset:", error);
             errorNotification(
-                "An error occurred while sending the password reset email"
+                "An error occurred while sending the password reset email. Please try again."
             );
         }
     };

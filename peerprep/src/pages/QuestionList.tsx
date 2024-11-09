@@ -15,8 +15,17 @@ import {
 import UserHeader from "../components/UserHeader";
 import Header from "../components/Header";
 import "../styles/QuestionList.css";
+import ConfirmationModal from "../components/Modal";
 
-function QuestionList() {
+interface QuestionListProps {
+    successNotification: (message: string, type?: "success") => void;
+    errorNotification: (message: string, type?: "error") => void;
+}
+
+const QuestionList: React.FC<QuestionListProps> = ({
+    successNotification,
+    errorNotification,
+}) => {
     const [questions, setQuestions] = useState<any[]>([]);
     const [category, setCategory] = useState<string>("");
     const [difficulty, setDifficulty] = useState<string>("");
@@ -31,6 +40,8 @@ function QuestionList() {
     const [newDifficulty, setNewDifficulty] = useState<string>(""); // Store new difficulty during editing
     const [newCategory, setNewCategory] = useState<string[]>([]); // Store new category during editing
     const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [showModal, setShowModal] = useState(false);
+    const [deleteId, setDeleteId] = useState<string>("");
     const baseurl =
         process.env.REACT_APP_ENV === "development"
             ? "http://localhost:5000/question"
@@ -71,12 +82,22 @@ function QuestionList() {
                 });
         } catch (err) {
             console.error(err);
-            alert("An error occurred. Please try again");
+            errorNotification("An error occurred. Please try again.");
         }
     };
 
     // Handle Create New Question
     const handleCreate = async () => {
+        if (
+            !createTitle ||
+            !createDescription ||
+            createCategory.length === 0 ||
+            !createDifficulty
+        ) {
+            errorNotification("Please fill in all fields before submitting.");
+            return; // Exit the function if validation fails
+        }
+
         try {
             const newQuestion = {
                 questionTitle: createTitle,
@@ -102,8 +123,11 @@ function QuestionList() {
             // setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
 
             fetchQuestions(); // Refresh the question list
+
+            successNotification("Your question has been added successfully.");
         } catch (error) {
             console.error("Error creating question:", error);
+            errorNotification("An error occurred. Please try again.");
         }
     };
 
@@ -122,6 +146,16 @@ function QuestionList() {
 
     // Handle Save Button Click (Update the Question)
     const handleSave = async () => {
+        if (
+            !newTitle ||
+            !newDescription ||
+            newCategory.length === 0 ||
+            !newDifficulty
+        ) {
+            errorNotification("Please fill in all fields before submitting.");
+            return; // Exit the function if validation fails
+        }
+
         try {
             const updatedQuestion = {
                 questionTitle: newTitle,
@@ -140,23 +174,39 @@ function QuestionList() {
 
             setEditQuestion(null); // Close the edit form
             fetchQuestions(); // Refresh the question list
+
+            successNotification("Your question has been updated successfully.");
         } catch (error) {
             console.error("Error updating question:", error);
+            errorNotification("An error occurred. Please try again.");
         }
     };
 
     // Handle Delete Button Click
     const handleDelete = async (_id: string) => {
-        if (window.confirm("Are you sure you want to delete this question?")) {
-            try {
-                await fetch(`${baseurl}/${_id}`, {
-                    method: "DELETE",
-                });
-                fetchQuestions(); // Refresh the question list
-            } catch (error) {
-                console.error("Error deleting question:", error);
-            }
+        setDeleteId(_id); // Store the ID of the question to delete
+        setShowModal(true); // Show the modal to confirm the delete
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            await fetch(`${baseurl}/${deleteId}`, {
+                method: "DELETE",
+            });
+            fetchQuestions(); // Refresh the question list
+
+            successNotification("Your question has been deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting question:", error);
+            errorNotification("An error occurred. Please try again.");
+        } finally {
+            setShowModal(false); // Close the modal after the action
+            setDeleteId(""); // Clear the ID after action
         }
+    };
+
+    const handleCancelDelete = () => {
+        setShowModal(false); // Close the modal if user cancels
     };
 
     useEffect(() => {
@@ -477,6 +527,13 @@ function QuestionList() {
                                     >
                                         Delete
                                     </Button>
+
+                                    <ConfirmationModal
+                                        show={showModal}
+                                        onConfirm={handleConfirmDelete}
+                                        onCancel={handleCancelDelete}
+                                        message="Are you sure you want to delete this question?"
+                                    />
                                 </>
                             ) : (
                                 <></>
@@ -487,6 +544,6 @@ function QuestionList() {
             </div>
         </ThemeProvider>
     );
-}
+};
 
 export default QuestionList;
