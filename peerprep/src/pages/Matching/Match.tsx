@@ -96,6 +96,13 @@ const Matchmaking: React.FC = () => {
         setSelectedCategory(category);
     };
 
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+            navigate("/");
+        }
+    }, [navigate]);
+
     return (
         <><UserHeader /><div className="matching-container">
             <div className="matching-card">

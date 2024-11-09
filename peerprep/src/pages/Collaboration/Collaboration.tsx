@@ -352,6 +352,13 @@ const Collaboration_Service: React.FC = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+        navigate("/");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     return () => {
         if (!isIntentionalLeave) {
             updateSessionState(false);
