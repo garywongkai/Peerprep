@@ -16,7 +16,8 @@ const Matchmaking: React.FC = () => {
     const timerRef = useRef<number | null>(null);
     const intervalRef = useRef<number | null>(null);
     const [isTimedOut, setIsTimedOut] = useState(false);
-
+    const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+    
     useEffect(() => {
 
         function matchFound(roomId: string, msg: string, question: any) {
@@ -58,9 +59,9 @@ const Matchmaking: React.FC = () => {
     };
 
     const handleMatchClick = () => {
+        if (!isAuthorized) window.location.reload(); // If user is not authorized, do nothing
         clearTimers();
         setIsMatching(true);
-
         socket.emit("start match", selectedDifficulty, selectedCategory);
         timerRef.current = window.setTimeout(() => {
             socket.emit("cancel match by timeout"); // Emit a cancel signal to the server
@@ -100,6 +101,8 @@ const Matchmaking: React.FC = () => {
         const token = localStorage.getItem("accessToken");
         if (!token) {
             navigate("/");
+        } else {
+            setIsAuthorized(true); // Set authorized state to true
         }
     }, [navigate]);
 
@@ -165,7 +168,7 @@ const Matchmaking: React.FC = () => {
                                 <div className="timer-display">
                                     {secondsLeft}s
                                 </div>
-                                <p className="status-text">Finding your perfect match...</p>
+                                <p className="status-text">Finding your matching peer...</p>
                                 <button
                                     className="cancel-button"
                                     onClick={handleCancelMatch}
