@@ -8,17 +8,21 @@ import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
 import '../../styles/Collaboration.css';
 import UserHeader from '../../components/UserHeader';
+import { CircularProgress } from '@mui/material';
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
   const [messageList, setMessageList] = useState<string[]>([]);
-  const [handshakeConfirmed, setHandshakeConfirmed] = useState(false);
   const [editorContent, setEditorContent] = useState("Your code here...");
   const doc = useMemo(() => new Y.Doc(), []);
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [binding, setBinding] = useState<MonacoBinding | null>(null);
   const [userLeft, setUserLeft] = useState(false);
+  const [isIntentionalLeave, setIsIntentionalLeave] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const maxReconnectAttempts = 5;
   const url =
             process.env.REACT_APP_ENV === "development"
                 ? "http://localhost:5001/saveCodeAttempt"
@@ -34,22 +38,44 @@ const Collaboration_Service: React.FC = () => {
   const uid = localStorage.getItem("uid");
   const socketRef = useRef<Socket | null>(null);
 
-    useEffect(() => {
+  // useEffect(() => {
+  //   const sessionInfo = {
+  //       roomId,
+  //       questionTitle: question?.questionTitle,
+  //       questionDescription: question?.questionDescription,
+  //       category: question?.questionCategory,
+  //       difficulty,
+  //       timestamp: new Date().toISOString(),
+  //   };
+  //   localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
+  // }, [roomId, question, difficulty]);
+
+  useEffect(() => {
+      const connectSocket = () => {
       socketRef.current = io(URL, {
           query: {
               token: accessToken,
               displayName: displayName,
               uid: uid,
           },
+          reconnection: true,
+          reconnectionAttempts: maxReconnectAttempts,
+          reconnectionDelay: 1000,
       });
       const socket = socketRef.current;
       socket.on('connect', () => {
           socket.emit('joinRoom', roomId); // Emit joinRoom only once on connect
+          updateSessionState(true);
       });
-  
-      return () => {
-          socket.disconnect(); // Clean up the socket connection on unmount
-      };
+     
+    }
+    connectSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect(); // Clean up the socket connection on unmount
+      }
+    };
   }, [URL, accessToken, displayName, uid, roomId]);
     
   useEffect(() => {
@@ -60,6 +86,16 @@ const Collaboration_Service: React.FC = () => {
     });
     setProvider(_socketIOProvider);
     _socketIOProvider.connect();
+
+    _socketIOProvider.on('sync', (isSynced: boolean) => {
+      if (isSynced) {
+        console.log('Document synced successfully');
+      }
+    });
+
+    _socketIOProvider.on('connection-error', (error: Error) => {
+      console.error('Provider connection error:', error);
+    });
 
     return () => {
       _socketIOProvider.destroy();
@@ -77,37 +113,151 @@ const Collaboration_Service: React.FC = () => {
     }
   }, [doc, provider, editor]);
 
+  // useEffect(() => {
+  //   const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+  //     if (!isIntentionalLeave) {
+  //       e.preventDefault();
+  //       e.returnValue = '';
+        
+  //       try {          
+  //         // Notify others that you're leaving
+  //         socketRef.current?.emit('leave_session', roomId, displayName);
+  
+  //         // Store session info for potential rejoin
+  //         const sessionInfo = {
+  //           roomId,
+  //           questionTitle: question.questionTitle,
+  //           questionDescription: question.questionDescription,
+  //           category: question.questionCategory,
+  //           difficulty,
+  //           timestamp: new Date().toISOString(),
+  //           lastCode: editor?.getValue() || doc.getText()
+  //         };
+  //         setIsIntentionalLeave(false);
+  //         localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
+  //       } catch (error) {
+  //         console.error('Error handling page close:', error);
+  //       }
+  //     }
+  //   };
+
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+
+  //   return () => {
+  //       window.removeEventListener('beforeunload', handleBeforeUnload);
+  //   };
+  // }, [isIntentionalLeave, question, roomId, displayName, editor, doc]);
+
   useEffect(() => {
     const socket = socketRef?.current;
     if (socket) {
     socket.on('receive_message', (message: string) => {
       setMessageList((prevList: string[]) => [...prevList, message]);
     });
-    socket.on('handshake_request', () => {
-      // Notify the user about the handshake request
-      const userResponse = window.confirm("Another user has requested to end the session. Do you agree?");
-      if (userResponse) {
-        confirmHandshake(); // Automatically confirm if the user agrees
+
+    socket.on('user_left', handleUserLeft);
+    
+    socket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+      setIsReconnecting(true);
+      setReconnectAttempts(prev => prev + 1);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('User disconnected:', reason);
+      setIsReconnecting(true);
+      
+      // If the disconnection wasn't intentional, try to reconnect
+      if (reason === 'io server disconnect') {
+        socket.connect();
+      }
+      updateSessionState(false);
+    });
+
+    socket.on('user_joined', (username: string) => {
+      setMessageList(prevList => [...prevList, `${username} has joined the session.`]);
+    });
+
+    socket.on('reconnect_failed', () => {
+      console.log('Reconnection failed');
+      alert('Unable to reconnect to the session. Please try rejoining from the dashboard.');
+      navigate('/dashboard');
+    });
+
+    socket.on('room_expired', ({ message }) => {
+      alert(message);
+      // Save work and redirect
+      saveCodeAttempt().then(() => {
+          localStorage.removeItem('activeSession');
+          navigate('/dashboard');
+      });
+    });
+
+    socket.on('room_joined', ({ expiryTimestamp, remainingTime, totalTime }) => {
+      const sessionInfo = {
+          roomId,
+          questionTitle: question?.questionTitle,
+          questionDescription: question?.questionDescription,
+          category: question?.questionCategory,
+          difficulty,
+          timestamp: new Date().toISOString(),
+          expiryTimestamp: expiryTimestamp,
+          remainingTime: remainingTime,
+          totalTime: totalTime
+      };
+      localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
+  });
+
+    // Handle time remaining updates
+    socket.on('time_remaining', ({ remainingTime, totalTime, expiryTimestamp }) => {
+      const existingSession = localStorage.getItem('activeSession');
+      if (existingSession) {
+          const session = JSON.parse(existingSession);
+          const updatedSession = {
+              ...session,
+              expiryTimestamp: expiryTimestamp,
+              remainingTime: remainingTime,
+              totalTime: totalTime,
+              lastUpdated: new Date().toISOString()
+          };
+          localStorage.setItem('activeSession', JSON.stringify(updatedSession));
+      }
+
+      // Show warning when less than 5 minutes remain
+      if (remainingTime <= 5 * 60 * 1000) {
+          window.confirm(`⚠️ Session expires in ${Math.ceil(remainingTime / 60000)} minutes`);
       }
     });
 
-    socket.on('user_left', handleUserLeft);
-    socket.on('handshake_response', (confirmed: boolean) => {
-      if (confirmed) {
-        setHandshakeConfirmed(true);
-        saveCodeAttempt();
-      }
-    }
-    );
-    
     return () => {
       socket.off('receive_message'); // Clean up listener
-      socket.off('handshake_request');
-      socket.off('handshake_response');
       socket.off('user_left', handleUserLeft);
+      socket.off('user_joined');
+      socket.off('connect_error');
+      socket.off('disconnect');
+      socket.off('reconnect_failed');
+      socket.off('room_expired');
+      socket.off('room_joined');
+      socket.off('time_remaining');
     };
   }
   }, []);
+
+  // Helper function to update session state
+  const updateSessionState = (isConnected: boolean, timeRemaining?: number) => {
+    const existingSession = localStorage.getItem('activeSession');
+    if (existingSession) {
+        const session = JSON.parse(existingSession);
+        const updatedSession = {
+            ...session,
+            isConnected,
+            lastUpdated: new Date().toISOString(),
+            lastCode: editor?.getValue() || doc.getText(),
+            timeRemaining // Adds this field
+        };
+        localStorage.setItem('activeSession', JSON.stringify(updatedSession));
+    }
+};
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -130,24 +280,6 @@ const Collaboration_Service: React.FC = () => {
       console.log(`Message send to room : ${message}`);
       setMessageList((prevList: string[]) => [...prevList, message]); // Update your own message list
       setMessage(""); // Clear the input after sending
-    }
-  };
-
-  const initiateHandshake = () => {
-    const socket = socketRef.current;
-    if (socket) {
-      socket.emit("handshake_request", roomId);
-      console.log(`Session end requested for ${roomId}`);
-    }
-  };
-
-  const confirmHandshake = () => {
-    const socket = socketRef.current;
-    if (socket) {
-      socket.emit("handshake_response", true, roomId);
-      setHandshakeConfirmed(true);
-      console.log(`Session ended for ${roomId}`);
-      saveCodeAttempt();
     }
   };
 
@@ -191,6 +323,7 @@ const Collaboration_Service: React.FC = () => {
     if (!socket) return;
 
     try {
+      setIsIntentionalLeave(true); // Mark this as intentional leave
       // Save the code attempt first
       await saveCodeAttempt();
       
@@ -199,18 +332,63 @@ const Collaboration_Service: React.FC = () => {
       
       // Disconnect and navigate away
       socket.disconnect();
+      localStorage.removeItem('activeSession');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error ending session:', error);
       alert('Failed to save your code attempt. Please try again.');
+      setIsIntentionalLeave(false);
     }
   };
 
+  useEffect(() => {
+    return () => {
+        if (!isIntentionalLeave) {
+            updateSessionState(false);
+        }
+    };
+  }, [isIntentionalLeave]);
+
+  // Add confirmation dialog when user tries to navigate away
+  useEffect(() => {
+    const handleLocationChange = (e: PopStateEvent) => {
+      if (!isIntentionalLeave) {
+        const confirmLeave = window.confirm(
+          'Are you sure you want to leave? Do you want to end your session and save your code?.'
+        );
+        
+        if (!confirmLeave) {
+          e.preventDefault();
+          window.history.pushState(null, '', window.location.pathname);
+        } else {
+          endSession();
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, [isIntentionalLeave]);
+
   return (
     <><UserHeader /><div className="collaboration-container">
+      {isReconnecting && (
+          <div className="reconnecting-overlay">
+            <div className="reconnecting-message">
+              <CircularProgress size={24} />
+              <span>
+                {reconnectAttempts < maxReconnectAttempts
+                  ? `Reconnecting... (Attempt ${reconnectAttempts}/${maxReconnectAttempts})`
+                  : 'Connection lost. Please rejoin from dashboard.'}
+              </span>
+            </div>
+          </div>
+        )}
       <div className="question-section">
         <h2 className="question-title">
-          {question.questionId}. {question.questionTitle}
+          {question.questionTitle}
         </h2>
         <div className="question-meta">
           <span className="badge category">Category: {question.questionCategory}</span>
@@ -245,7 +423,6 @@ const Collaboration_Service: React.FC = () => {
             <button
               className="btn-save"
               onClick={endSession}
-              disabled={handshakeConfirmed}
             >
               End Session
             </button>
@@ -255,7 +432,7 @@ const Collaboration_Service: React.FC = () => {
         <div className="chat-section">
           <div className="chat-messages" id="chat-messages">
             {userLeft && (
-              <div className="system-message">
+              <div className="system-message fade-out">
                 An user has left the session. You can continue coding or end your session.
               </div>
             )}
