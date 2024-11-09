@@ -81,7 +81,11 @@ const Dashboard: React.FC = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setAttemptHistory(data); // Set the attempt history
+                const sortedData = data.sort((a: any, b: any) => {
+                    return new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime();
+                });
+                setAttemptHistory(sortedData); // Set the sorted attempt history
+                // setAttemptHistory(data); // Set the attempt history
             } else if (response.status === 403) {
                 // Handle 403 error (invalid token)
                 localStorage.clear(); // Clear local storage
