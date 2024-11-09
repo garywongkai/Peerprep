@@ -28,11 +28,15 @@ exports.handleSocketConnection = async (socket) => {
 	const username = socket.handshake.query.displayName;
 	const uid = socket.handshake.query.uid;
 
-	socket.on("send_message", (message, roomId) => {
+	socket.on("send_message", ({ message, username, timestamp, roomId }) => {
 		console.log(`Server heard this message in room ${roomId}: ${message}`);
-		socket.to(roomId).emit("receive_message", message);
+		
+		// Emit the message along with the username and timestamp
+		socket.to(roomId).emit("receive_message", { message, username, timestamp });
+		
 		console.log(`Broadcasting message: "${message}" to room: ${roomId}`); // Log broadcast action
 	});
+
 
 	// Join a room
 	socket.on("joinRoom", (roomId) => {

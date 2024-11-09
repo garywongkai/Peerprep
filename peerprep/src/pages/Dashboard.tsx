@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="card-body">
                         <div className="question-info">
-                            <h4>"Question: "{activeSession.questionTitle}</h4>
+                            <h4>Question: {activeSession.questionTitle}</h4>
                             <div className="tags">
                                 <span className="badge category">{activeSession.category}</span>
                                 <p></p>

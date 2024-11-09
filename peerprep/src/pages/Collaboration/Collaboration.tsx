@@ -12,7 +12,7 @@ import { CircularProgress } from '@mui/material';
 
 const Collaboration_Service: React.FC = () => {
   const [message, setMessage] = useState("");
-  const [messageList, setMessageList] = useState<string[]>([]);
+  const [messageList, setMessageList] = useState<{ message: string; username: string; timestamp: string }[]>([]);
   const [editorContent, setEditorContent] = useState("Your code here...");
   const doc = useMemo(() => new Y.Doc(), []);
   const [provider, setProvider] = useState<SocketIOProvider | null>(null);
@@ -151,8 +151,11 @@ const Collaboration_Service: React.FC = () => {
   useEffect(() => {
     const socket = socketRef?.current;
     if (socket) {
-    socket.on('receive_message', (message: string) => {
-      setMessageList((prevList: string[]) => [...prevList, message]);
+      socket.on('receive_message', ({ message, username, timestamp }: { message: string; username: string; timestamp: string }) => {
+        setMessageList((prevList: { message: string; username: string; timestamp: string }[]) => [
+            ...prevList,
+            { message, username, timestamp } // Store the message object
+        ]);
     });
 
     socket.on('user_left', handleUserLeft);
@@ -175,7 +178,7 @@ const Collaboration_Service: React.FC = () => {
     });
 
     socket.on('user_joined', (username: string) => {
-      setMessageList(prevList => [...prevList, `${username} has joined the session.`]);
+      setMessageList(prevList => [...prevList, { message: `${username} has joined the session.`, username: "System", timestamp: new Date().toISOString() }]);
     });
 
     socket.on('reconnect_failed', () => {
@@ -270,16 +273,23 @@ const Collaboration_Service: React.FC = () => {
 
   const handleUserLeft = (username: string) => {
     setUserLeft(true);
-    setMessageList(prevList => [...prevList, `${username} has left the session.`]);
+    setMessageList(prevList => [
+      ...prevList, 
+      { message: `${username} has left the session.`, username: '', timestamp: new Date().toISOString() } // Ensure the object structure is correct
+  ]);
   };
 
   const sendMessage = () => {
     const socket = socketRef.current;
-    if (message !== "" && socket) { // server socket
-      socket.emit("send_message", message, roomId);
-      console.log(`Message send to room : ${message}`);
-      setMessageList((prevList: string[]) => [...prevList, message]); // Update your own message list
-      setMessage(""); // Clear the input after sending
+    if (socket && message.trim()) {
+      const timestamp = new Date().toISOString(); // Get the current timestamp
+      // const newMessage = { message, username: displayName, timestamp };
+      socket.emit('send_message', { message, username: displayName, timestamp, roomId }); // Emit message with username and timestamp
+      setMessageList((prevList: { message: string; username: string; timestamp: string }[]) => [
+        ...prevList,
+        { message, username: "Me", timestamp } // Store the message object
+    ]);
+      setMessage(""); // Clear the input field after sending
     }
   };
 
@@ -430,18 +440,18 @@ const Collaboration_Service: React.FC = () => {
         </div>
 
         <div className="chat-section">
-          <div className="chat-messages" id="chat-messages">
-            {userLeft && (
+        <div className="chat-messages" id="chat-messages">
+          {userLeft && (
               <div className="system-message fade-out">
-                An user has left the session. You can continue coding or end your session.
+                  An user has left the session. You can continue coding or end your session.
               </div>
-            )}
-            {messageList.map((msg, index) => (
+          )}
+          {messageList.map((msg, index) => (
               <div key={index} className="message">
-                {msg}
+                  <strong>{msg.username}</strong>: {msg.message} <span className="timestamp">({new Date(msg.timestamp).toLocaleTimeString()})</span>
               </div>
-            ))}
-          </div>
+          ))}
+        </div>
           <div className="chat-input">
             <input
               type="text"

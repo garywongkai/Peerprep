@@ -222,7 +222,7 @@
     animation: pulse 1.5s infinite;
 }
 
-@keyframes fadeInOut {
+@keyframes fade-out {
   0% {
       opacity: 0;
       transform: translateY(-10px);
@@ -239,4 +239,17 @@
       opacity: 0;
       transform: translateY(-10px);
   }
+}
+
+.message {
+  margin: 8px 0;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: #f1f1f1;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #888;
+  margin-left: 8px;
 }
