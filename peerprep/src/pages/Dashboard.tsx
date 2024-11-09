@@ -36,6 +36,7 @@ const Dashboard: React.FC = () => {
     const [displayName, setDisplayName] = useState(
         localStorage.getItem("displayName") || ""
     );
+    const [visibleCode, setVisibleCode] = useState<string | null>(null); // State to track visible code
 
     const getActiveSession = () => {
         const savedSession = localStorage.getItem('activeSession');
@@ -151,6 +152,11 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    const toggleCodeVisibility = (code: string) => {
+        // Toggle the visibility of the code
+        setVisibleCode(visibleCode === code ? null : code);
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <UserHeader />
@@ -233,10 +239,12 @@ const Dashboard: React.FC = () => {
                         <h2>Attempt History</h2>
                         <div className="attempt-history">
                             {attemptHistory.map(attempt => (
-                                <div key={attempt.id} className="attempt-card">
+                                <div key={attempt.id} className="attempt-card" onClick={() => toggleCodeVisibility(attempt.code)}>
                                     <h4>{attempt.questionDetails.title}</h4>
                                     <p className="attempt-date">{new Date(attempt.dateCompleted).toLocaleString()}</p>
-                                    <p>{attempt.code}</p>
+                                    {visibleCode === attempt.code && (
+                                        <pre className="code-attempt">{attempt.code}</pre> // Display the code if it's the selected attempt
+                                    )}
                                     <div className="attempt-meta">
                                         <span className="badge category">{attempt.questionDetails.category}</span>
                                         <span className={`badge difficulty ${attempt.questionDetails.difficulty.toLowerCase()}`}>
