@@ -22,8 +22,14 @@ interface ActiveSession {
     remainingTime: number;
 }
 
+const baseurl =
+    process.env.REACT_APP_ENV === "development"
+    ? "http://localhost:5001/getUserAttempts"
+    : "https://user-service-327190433280.asia-southeast1.run.app/getUserAttempts";
+
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
+    const [attemptHistory, setAttemptHistory] = useState<any[]>([]);
     const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [displayName, setDisplayName] = useState(
@@ -57,6 +63,36 @@ const Dashboard: React.FC = () => {
         }
         return null;
     };
+
+    // Function to fetch attempt history
+    const fetchAttemptHistory = async () => {
+        setIsLoading(true);
+        const token = localStorage.getItem("accessToken");
+        try {
+            const response = await fetch(baseurl, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setAttemptHistory(data); // Set the attempt history
+            } else {
+                console.error('Failed to fetch attempt history');
+            }
+        } catch (error) {
+            console.error('Error fetching attempt history:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAttemptHistory(); // Fetch attempt history on component mount
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
@@ -184,6 +220,26 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
             )}
+
+{isLoading ? (
+                    <CircularProgress />
+                ) : (
+                    <div className="attempt-history">
+                        {attemptHistory.map(attempt => (
+                            <div key={attempt.id} className="attempt-card">
+                                <h4>{attempt.questionDetails.title}</h4>
+                                <p className="attempt-date">{new Date(attempt.dateCompleted).toLocaleString()}</p>
+                                <p>{attempt.code}</p>
+                                <div className="attempt-meta">
+                                    <span className="badge category">{attempt.questionDetails.category}</span>
+                                    <span className={`badge difficulty ${attempt.questionDetails.difficulty.toLowerCase()}`}>
+                                        {attempt.questionDetails.difficulty}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
         </ThemeProvider>

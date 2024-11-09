@@ -25,5 +25,9 @@ router.delete(
 	verifyToken,
 	firebaseAuthController.deleteUserAccount
 );
-
+router.get(
+	"/getUserAttempts",
+	verifyToken,
+	firebaseAuthController.getUserAttemptHistory
+);
 module.exports = router;

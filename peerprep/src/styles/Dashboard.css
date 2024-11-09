@@ -1,79 +1,46 @@
-.active-session-card {
-  width: 100%;
-  max-width: 800px;
+.dashboard {
+  padding: 20px;
+  background-color: #f9f9f9; /* Light background for contrast */
+}
+
+.welcome-section {
+  margin-bottom: 20px;
+}
+
+.attempt-history {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+  gap: 20px; /* Space between cards */
+}
+
+.attempt-card {
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 2rem;
-}
-
-.card-header {
-  padding: 24px;
-  background: linear-gradient(to right, #f8fafc, #f1f5f9);
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.header-content h3 {
-  color: #1e293b;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.session-time-remaining {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
   border-radius: 12px;
-  font-size: 0.875rem;
-  background-color: #f0f9ff;
-  color: #0369a1;
-  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition */
 }
 
-.session-time-remaining.warning {
-  background-color: #fef2f2;
-  color: #dc2626;
-  animation: pulse 2s infinite;
+.attempt-card:hover {
+  transform: translateY(-2px); /* Lift effect on hover */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
 }
 
-.connection-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: #64748b;
-}
-
-.card-body {
-  padding: 24px;
-}
-
-.question-info {
-  margin-bottom: 24px;
-}
-
-.question-info h4 {
+.attempt-card h4 {
   color: #1e293b;
   font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
 }
 
-.tags {
+.attempt-date {
+  font-size: 0.875rem;
+  color: #64748b; /* Muted color for date */
+}
+
+.attempt-meta {
+  margin-top: 10px;
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .badge {
@@ -101,87 +68,4 @@
 .badge.difficulty.hard {
   background-color: #fee2e2;
   color: #991b1b;
-}
-
-.session-meta {
-  background-color: #f8fafc;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 24px;
-}
-
-.timestamp {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-}
-
-.timestamp:not(:last-child) {
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.timestamp .label {
-  color: #64748b;
-  font-weight: 500;
-}
-
-.rejoin-button {
-  width: 100%;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.rejoin-button:hover:not(:disabled) {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-}
-
-.rejoin-button:disabled {
-  background-color: #94a3b8;
-  cursor: not-allowed;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-@media (max-width: 768px) {
-  .card-header {
-      padding: 16px;
-  }
-
-  .header-content {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-  }
-
-  .card-body {
-      padding: 16px;
-  }
-
-  .session-meta {
-      padding: 12px;
-  }
-
-  .timestamp {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-  }
 }

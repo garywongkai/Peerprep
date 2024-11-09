@@ -308,6 +308,30 @@ const saveCodeAttempt = async (req, res) => {
 	}
 };
 
+// Function to get user's attempt history
+const getUserAttemptHistory = async (req, res) => {
+    const user = auth.currentUser; // Get the current user
+
+    if (!user) {
+        return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    try {
+        const userRef = dbAdmin.collection("users").doc(user.uid);
+        const attemptsSnapshot = await userRef.collection("questionAttempts").get();
+
+        const attempts = attemptsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+
+        res.status(200).json(attempts);
+    } catch (error) {
+        console.error("Error fetching attempt history:", error);
+        res.status(500).json({ error: "Failed to fetch attempt history" });
+    }
+};
+
 // Exporting individual handler functions
 module.exports = {
 	registerUser,
@@ -318,4 +342,5 @@ module.exports = {
 	deleteUserAccount,
 	saveQuestionAttempt,
 	saveCodeAttempt,
+	getUserAttemptHistory,
 };
