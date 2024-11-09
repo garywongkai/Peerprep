@@ -25,17 +25,18 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 bottom: 0,
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "start",
+                marginTop: "3em",
             }}
         >
             <div
                 style={{
                     backgroundColor: "white",
                     padding: "20px",
-                    borderRadius: "8px",
+                    borderRadius: "20px",
                     width: "300px",
                     textAlign: "center",
-                    border: "3px solid black",
+                    boxShadow: "0 6px 6px rgba(0, 0, 0, 0.02)",
                 }}
             >
                 <p>{message}</p>
@@ -43,7 +44,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                     onClick={onConfirm}
                     style={{
                         margin: "10px",
-                        backgroundColor: "green",
+                        backgroundColor: "#74B573",
                         color: "white",
                     }}
                 >
@@ -53,7 +54,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                     onClick={onCancel}
                     style={{
                         margin: "10px",
-                        backgroundColor: "red",
+                        backgroundColor: "#CA5E5B",
                         color: "white",
                     }}
                 >

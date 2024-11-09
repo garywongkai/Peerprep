@@ -532,7 +532,9 @@ const QuestionList: React.FC<QuestionListProps> = ({
                                         show={showModal}
                                         onConfirm={handleConfirmDelete}
                                         onCancel={handleCancelDelete}
-                                        message="Are you sure you want to delete this question?"
+                                        message={
+                                            "Are you sure you want to delete this question?"
+                                        }
                                     />
                                 </>
                             ) : (
