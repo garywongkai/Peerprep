@@ -35,11 +35,11 @@ const Profile: React.FC<ProfileProps> = ({
     const [message, setMessage] = useState("");
     const [confirmText, setConfirmText] = useState(""); // For account deletion confirmation
     const [openDialog, setOpenDialog] = useState(false); // For the delete account dialog
-    // const accessToken = localStorage.getItem("accessToken");   
+    // const accessToken = localStorage.getItem("accessToken");
     const [user, loadingUser] = useAuthState(auth); // Get the current user
 
     const navigate = useNavigate(); // For navigation
-     
+
     const getAccessToken = () => {
         const token = localStorage.getItem("accessToken");
         return token;
@@ -50,6 +50,7 @@ const Profile: React.FC<ProfileProps> = ({
         event.preventDefault();
         setLoading(true);
         setMessage("");
+
         const accessToken = getAccessToken();
         try {
             const url =
@@ -72,25 +73,26 @@ const Profile: React.FC<ProfileProps> = ({
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("displayName", displayName);
-                localStorage.setItem("photoURL", photoURL);
+                localStorage.setItem("photoURL", photoURL || "");
                 successNotification(data.message); // Profile updated successfully
             } else if (response.status === 401) {
                 // Handle 401 error (not authenticated)
                 errorNotification(
-                    "User not authenticated, please sign in again."
+                    "You are not authenticated, please sign in again."
                 );
                 localStorage.clear(); // Clear local storage
                 navigate("/signin"); // Redirect to sign-in page
-            }  else {
+            } else {
                 console.log(response.status);
                 const errorData = await response.json();
                 errorNotification(
-                    errorData.error || "Failed to update profile"
+                    errorData.error ||
+                        "There was an issue updating your profile."
                 );
             }
         } catch (error) {
             console.error("Error updating profile:", error);
-            errorNotification("An error occurred while updating profile");
+            errorNotification("An error occurred while updating profile.");
         } finally {
             setLoading(false);
         }
@@ -116,22 +118,22 @@ const Profile: React.FC<ProfileProps> = ({
                 if (response.ok) {
                     localStorage.clear();
                     successNotification(
-                        "Your account has been deleted successfully."
+                        "Your account has been successfully deleted."
                     );
                     navigate("/signin");
                 } else {
                     const errorData = await response.json();
                     errorNotification(
-                        errorData.error || "Failed to delete account"
+                        errorData.error || "Failed to delete account."
                     );
                 }
             } catch (err) {
                 console.error(err);
-                errorNotification("An error occurred. Please try again");
+                errorNotification("An error occurred. Please try again.");
             }
             setOpenDialog(false);
         } else {
-            errorNotification("Error!");
+            errorNotification("An error occurred. Please try again.");
         }
     };
 
@@ -157,18 +159,21 @@ const Profile: React.FC<ProfileProps> = ({
             });
 
             if (response.ok) {
-                successNotification("Password reset email sent successfully!");
+                successNotification(
+                    "We've sent you an email to reset your password."
+                );
                 navigate("/profile"); // Redirect to the sign-in page after sending the email
             } else {
                 const errorData = await response.json();
                 errorNotification(
-                    errorData.error || "Failed to send reset email"
+                    errorData.error ||
+                        "There was an issue sending the reset email."
                 );
             }
         } catch (error) {
             console.error("Error during password reset:", error);
             errorNotification(
-                "An error occurred while sending the password reset email"
+                "An error occurred while sending the password reset email."
             );
         }
     };
@@ -186,6 +191,7 @@ const Profile: React.FC<ProfileProps> = ({
         // Check for accessToken in localStorage
         const token = localStorage.getItem("accessToken");
         if (!token) {
+            errorNotification("You need to be signed in to access this page.");
             navigate("/signin");
         }
     }, [navigate]);
@@ -214,7 +220,6 @@ const Profile: React.FC<ProfileProps> = ({
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 placeholder="Display Name"
-                                required
                             />
                             <input
                                 type="email"
@@ -227,7 +232,6 @@ const Profile: React.FC<ProfileProps> = ({
                                 value={photoURL}
                                 onChange={(e) => setPhotoURL(e.target.value)}
                                 placeholder="Photo URL"
-                                required
                             />
                             <button type="submit" disabled={loading}>
                                 {loading ? "Updating..." : "Update Profile"}

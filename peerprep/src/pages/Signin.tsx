@@ -21,6 +21,12 @@ const SignIn: React.FC<SigninProps> = ({
 
     const handleSignIn = async (event: React.FormEvent) => {
         event.preventDefault();
+
+        if (!email || !password) {
+            errorNotification("Please enter both email and password.");
+            return;
+        }
+
         const url =
             process.env.REACT_APP_ENV === "development"
                 ? "http://localhost:5001/login"
@@ -42,15 +48,31 @@ const SignIn: React.FC<SigninProps> = ({
                 localStorage.setItem("email", data.email);
                 localStorage.setItem("displayName", data.displayName);
                 localStorage.setItem("photoURL", data.photoURL);
-                successNotification("Logged in successfully!");
+                successNotification("You've successfully logged in.");
                 navigate("/dashboard");
             } else {
                 const errorData = await response.json();
-                errorNotification(errorData.error || "Login failed");
+                console.log(errorData);
+                if (
+                    errorData.error ===
+                    "Firebase: Error (auth/invalid-credential)."
+                ) {
+                    errorNotification(
+                        "Invalid credentials. Please check your email and password."
+                    );
+                } else if (
+                    errorData.error === "Firebase: Error (auth/invalid-email)."
+                ) {
+                    errorNotification(
+                        "Invalid email format. Please enter a valid email address."
+                    );
+                } else {
+                    errorNotification(errorData.error);
+                }
             }
         } catch (error) {
             console.error("Error during login:", error);
-            errorNotification("An error occurred during login");
+            errorNotification("An error occurred during login.");
         }
     };
 

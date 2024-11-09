@@ -39,13 +39,14 @@ const UserHeader: React.FC = () => {
 
                 setNotification({
                     type: "success",
-                    message: "Logging you out...",
+                    message: "Signing you out...",
                 });
                 setTimeout(() => {
                     navigate("/signin");
                 }, 1000);
             } else {
                 const errorData = await response.json();
+                console.error("Error logging out:", errorData.error);
                 setNotification({
                     type: "error",
                     message:
