@@ -356,6 +356,25 @@ const Collaboration_Service: React.FC = () => {
               }}
             />
             <div className="editor-actions">
+              <select
+                id="language-select"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                style={{ marginBottom: '10px' }}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {getStylizedLanguageName[lang] || lang}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="btn-save"
+                onClick={runCode}
+                disabled={loading}
+              >
+                {loading ? 'Running...' : 'Run Code'}
+              </button>
               <button
                 className="btn-save"
                 onClick={endSession}
@@ -389,22 +408,6 @@ const Collaboration_Service: React.FC = () => {
           </div>
         </div>
       </div>
-      <label htmlFor="language-select">Select Language: </label>
-      <select
-        id="language-select"
-        value={language}
-        onChange={(e) => setLanguage(e.target.value)}
-        style={{ marginBottom: '10px' }}
-      >
-        {languages.map((lang) => (
-          <option key={lang} value={lang}>
-            {getStylizedLanguageName[lang] || lang}
-          </option>
-        ))}
-      </select>
-      <button onClick={runCode} disabled={loading}>
-        {loading ? 'Running...' : 'Run Code'}
-      </button>
       <div style={{ height: '30vh' }}>
         <h2>Output:</h2>
         <pre id="output-window" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>

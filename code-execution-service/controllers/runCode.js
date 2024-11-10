@@ -59,7 +59,7 @@ exports.runCode = async (language, code) => {
           console.error('Error while waiting for container to finish:', err);
           reject(err);
         } else {
-          console.log(`${image} container finished with exit data: ${data.toString()}`);
+          console.log(`${image} container finished with exit code: ${data.StatusCode}`);
           resolve(data);
         }
       });
