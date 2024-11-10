@@ -311,7 +311,7 @@ const Collaboration_Service: React.FC = () => {
       codeSocket.emit('run_code', language, code, (result: any) => {
         setLoading(false);
         
-        if (result.status === 'error') {
+        if (result.error) {
           setOutput(result.error || 'Execution failed');
           return;
         }
