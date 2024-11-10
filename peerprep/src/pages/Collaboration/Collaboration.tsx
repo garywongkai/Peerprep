@@ -150,15 +150,24 @@ const Collaboration_Service: React.FC = () => {
     }
   }, []);
 
-  const formatExecutionTime = (time: number | null) => {
+  const formatExecutionTime = (time: number | null | string) => {
+    console.log('Raw execution time:', time); // Debug log
     if (time === null) return 'N/A';
-    return `${time.toFixed(3)} sec`;
+    const numTime = typeof time === 'string' ? parseFloat(time) : time;
+    if (isNaN(numTime)) return 'N/A';
+    
+    // Handle very small numbers
+    if (numTime < 0.001) {
+      return '< 0.001 sec';
+    }
+    return `${numTime.toFixed(3)} sec`;
   };
   
   const formatMemoryUsage = (memory: number | null) => {
-    if (memory === null) return 'N/A';
-    return `${(memory / 1024).toFixed(2)} MB`;
+    if (memory === null || typeof memory !== 'number') return 'N/A';
+    return `${(Number(memory) / 1024).toFixed(2)} MB`;
   };
+  
 
   useEffect(() => {
     let _doc: Y.Doc;
