@@ -223,8 +223,11 @@ const Collaboration_Service: React.FC = () => {
           }),
       });
 
-      if (response.ok) {
-        console.log('Code attempt saved successfully.');
+      if (response.status === 400) {
+        alert('Code is empty. Attempt will not be saved.');
+        navigate('/dashboard');
+      } else if (response.ok) {
+        alert('Code attempt saved successfully.');
         navigate('/dashboard');
       } else {
         console.error('Failed to save code attempt.');
