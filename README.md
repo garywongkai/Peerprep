@@ -33,7 +33,7 @@ PeerPrep is a real-time collaborative coding platform that allows users to pract
 
 - Code Synchronization: Y.js
 
-- Code Executiion: Docker
+- Code Execution: Docker
 
 ## Prerequisites
 
