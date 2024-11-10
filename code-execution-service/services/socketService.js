@@ -15,6 +15,7 @@ exports.handleSocketConnection = async (socket) => {
         callback(output);
       } catch (err) {
         console.error('Execution error:', err);
+        callback(err);
       }
     })();
   });

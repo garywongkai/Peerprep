@@ -1,39 +1,21 @@
 const Docker = require('dockerode');
-const fs = require('fs');
-const path = require('path');
 const { getDockerConfig } = require("./dockerConfig");
-const { getTarFiles } = require('./utils');
 
 const docker = new Docker({ socketPath: '/run/user/1000/docker.sock' });
 
-// Load all images located in /images directory
-exports.loadDockerImages = () => {
-  const tarFiles = getTarFiles('/app/images');
+async function pullImageIfNeeded(imageName) {
+  try {
+    const images = await docker.listImages();
+    const imageExists = images.some(image => image.RepoTags && image.RepoTags.includes(imageName));
 
-  const loadPromises = tarFiles.map(imageName => {
-    return new Promise((resolve, reject) => {
-      const imagePath = path.join('/app/images', imageName);
-      const imageStream = fs.createReadStream(imagePath);
-
-      docker.loadImage(imageStream, (err, response) => {
-        if (err) {
-          console.error("Error loading", imageName, ":", err);
-          return reject(err);
-        }
-        console.log(imageName, "loaded successfully!");
-        resolve();
-      });
-    });
-  });
-
-  // Return the promise that resolves when all images are loaded
-  return Promise.all(loadPromises)
-    .then(() => {
-      console.log("All images successfully loaded.");
-    })
-    .catch((error) => {
-      console.error("An error occurred while loading the images:", error);
-    });
+    if (!imageExists) {
+      console.log(`Image ${imageName} not found locally. Pulling from Docker registry.`);
+      await docker.pull(imageName);
+      console.log(`Image ${imageName} pulled successfully.`);
+    }
+  } catch (error) {
+    console.error('Error checking/pulling image:', error);
+  }
 }
 
 exports.runCode = async (language, code) => {
@@ -42,6 +24,9 @@ exports.runCode = async (language, code) => {
   if (!image || !cmd) {
     throw new Error(`Unsupported language: ${language}`);
   }
+
+  await pullImageIfNeeded(image);
+
   cmd.push(code);
   const container = await docker.createContainer({
     Image: image,
@@ -74,7 +59,7 @@ exports.runCode = async (language, code) => {
           console.error('Error while waiting for container to finish:', err);
           reject(err);
         } else {
-          console.log('Container finished with exit data:', data);
+          console.log(`${image} container finished with exit data: ${data}`);
           resolve(data);
         }
       });
