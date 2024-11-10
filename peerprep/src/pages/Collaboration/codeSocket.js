@@ -13,9 +13,9 @@ if (accessToken) {
 }
 
 export const URL =
-  process.env.REACT_APP_ENV === "development"
-    ? "http://localhost:5004"
-    : "https://code-execute-service-327190433280.asia-southeast1.run.app";
+	process.env.REACT_APP_ENV === "development"
+		? "http://localhost:5004"
+		: "https://code-execution-service-327190433280.asia-southeast1.run.app";
 
 export const socket = io(URL, {
 	query: {
@@ -28,7 +28,7 @@ export const socket = io(URL, {
 });
 
 socket.on("connect", () => {
-  console.log("Socket connected successfully. Socket ID:", socket.id);
+	console.log("Socket connected successfully. Socket ID:", socket.id);
 });
 socket.on("connect_error", (error) => {
 	console.log("Socket connection failed:", error);
