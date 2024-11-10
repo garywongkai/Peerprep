@@ -22,6 +22,8 @@ PeerPrep is a real-time collaborative coding platform that allows users to pract
 - Matching Service (Port 5002)
 
 - Collaboration Service (Port 5003)
+  
+- Code Execution Service (Port 5004)
 
 - Authentication: Firebase
 
@@ -31,7 +33,7 @@ PeerPrep is a real-time collaborative coding platform that allows users to pract
 
 - Code Synchronization: Y.js
 
-  
+- Code Executiion: Docker
 
 ## Prerequisites
 
@@ -102,6 +104,7 @@ The services will be available at:
 |5001|User Service|
 |5002|Matching Service|
 |5003|Collaboration Service|
+|5004|Code Execution Service|
 
 ## Service Configuration
 
@@ -118,7 +121,8 @@ Each service runs in its own container and exposes its respective port. The serv
 - User authentication and session management
 - Automatic user matching based on preferences
 - Code attempt history tracking
-
+- Code execution
+  
 ## Technical Details
 
 ### Real-time Collaboration
@@ -164,3 +168,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Socket.IO for real-time communication
 - Firebase for authentication
 - MongoDB Atlas for database hosting
+- Docker for Containerization and Code Execution
