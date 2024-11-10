@@ -301,11 +301,22 @@ const Collaboration_Service: React.FC = () => {
     }
   };
 
+  const copyOutput = () => {
+    navigator.clipboard.writeText(output);
+  };
+
   const runCode = () => {
     const code = editor?.getValue();
     if (code !== "") {
-      codeSocket.emit('run_code', language, code, (output: string) => {
-        setOutput(output);
+      codeSocket.emit('run_code', language, code, (output: string | any) => {
+        // Handle potential error objects
+        if (typeof output === 'object' && output.message) {
+          setOutput(`Error: ${output.message}`);
+        } else if (typeof output === 'object') {
+          setOutput(JSON.stringify(output, null, 2));
+        } else {
+          setOutput(output);
+        }
         setLoading(false);
       });
       setOutput(`Running code in ${language}`);
@@ -411,16 +422,43 @@ const Collaboration_Service: React.FC = () => {
           </div>
         </div>
       </div>
-      <div style={{ height: '30vh' }}>
-        <h2>Output:</h2>
-        <pre id="output-window" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-          <code>
-            {output}
-          </code>
-        </pre>
+      {/* Output Section */}
+  <div className="output-section">
+    <div className="output-header">
+      <div className="output-title">
+        <i className="fas fa-terminal"></i>
+        Output
       </div>
-    </>
-  );
-}
+      <div className="header-actions">
+        <div className={`status-indicator ${loading ? 'running' : ''}`}>
+          {loading ? (
+            <>
+              <CircularProgress size={16} />
+              <span>Running code...</span>
+            </>
+          ) : (
+            <span>Ready</span>
+          )}
+        </div>
+        <button 
+          className="copy-button"
+          onClick={copyOutput}
+          title="Copy to clipboard"
+        >
+          <i className="fas fa-copy"></i>
+        </button>
+            </div>
+          </div>
+          <div className="output-content">
+            <pre>
+        <code className={output.includes('Error') ? 'error-output' : 'success-output'}>
+                {output || 'Run your code to see output here'}
+              </code>
+            </pre>
+          </div>
+        </div>
+      </>
+    );
+  }
 
 export default Collaboration_Service;

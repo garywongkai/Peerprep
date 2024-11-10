@@ -253,3 +253,106 @@
   color: #888;
   margin-left: 8px;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.copy-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.copy-button:hover {
+  color: #fff;
+  background: transparent;
+}
+
+.output-section {
+  background: #1e1e1e;
+  border-top: 1px solid #333;
+  height: calc(30vh - 50px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+}
+
+.output-title {
+  color: #fff;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.output-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.output-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.output-content code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  color: #d4d4d4;
+}
+
+.error-output {
+  color: #f87171;
+}
+
+.success-output {
+  color: #34d399;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.status-indicator.running {
+  color: #3b82f6;
+}
+
+.copy-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.copy-button:hover {
+  color: #fff;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
