@@ -308,16 +308,16 @@ const Collaboration_Service: React.FC = () => {
   const runCode = () => {
     const code = editor?.getValue();
     if (code !== "") {
-      codeSocket.emit('run_code', language, code, (output: string | any) => {
-        // Handle potential error objects
-        if (typeof output === 'object' && output.message) {
-          setOutput(`Error: ${output.message}`);
-        } else if (typeof output === 'object') {
-          setOutput(JSON.stringify(output, null, 2));
-        } else {
-          setOutput(output);
-        }
+      codeSocket.emit('run_code', language, code, (result: any) => {
         setLoading(false);
+        
+        if (result.status === 'error') {
+          setOutput(result.error || 'Execution failed');
+          return;
+        }
+  
+        // Only show the actual program output
+        setOutput(result.output || '');
       });
       setOutput(`Running code in ${language}`);
       setLoading(true);

@@ -309,6 +309,7 @@ steps:
       - "USER_SERVICE_UNIVERSE_DOMAIN=${_USER_SERVICE_UNIVERSE_DOMAIN}"
       - "COMMIT_SHA=${COMMIT_SHA}"
       - "REACT_APP_ENV=${_NODE_ENV}"
+      - "JUDGE0_API_KEY=${_JUDGE0_API_KEY}"
 
   # build the container image using the docker builder
   - name: "gcr.io/cloud-builders/docker"
