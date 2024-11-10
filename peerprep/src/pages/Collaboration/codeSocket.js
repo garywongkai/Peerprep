@@ -7,9 +7,9 @@ const selectedDifficulty = localStorage.getItem("selectedDifficulty");
 const uid = localStorage.getItem("uid");
 
 if (accessToken) {
-  console.log("Token obtained from localStorage");
+	console.log("Token obtained from localStorage");
 } else {
-  console.log("User is not authorized yet");
+	console.log("User is not authorized yet");
 }
 
 export const URL =
@@ -18,18 +18,18 @@ export const URL =
     : "https://code-execute-service-327190433280.asia-southeast1.run.app";
 
 export const socket = io(URL, {
-  query: {
-    token: accessToken, // accessToken
-    displayName: displayName, // User's display name
-    selectedCategory: selectedCategory, // Selected category
-    selectedDifficulty: selectedDifficulty, // Selected difficulty
-    uid: uid, // User ID
-  },
+	query: {
+		token: accessToken, // accessToken
+		displayName: displayName, // User's display name
+		selectedCategory: selectedCategory, // Selected category
+		selectedDifficulty: selectedDifficulty, // Selected difficulty
+		uid: uid, // User ID
+	},
 });
 
 socket.on("connect", () => {
   console.log("Socket connected successfully. Socket ID:", socket.id);
 });
 socket.on("connect_error", (error) => {
-  console.log("Socket connection failed:", error);
+	console.log("Socket connection failed:", error);
 });

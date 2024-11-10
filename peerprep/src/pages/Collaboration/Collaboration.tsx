@@ -3,6 +3,9 @@ import { editor as monacoEditor } from 'monaco-editor';
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 import { MonacoBinding } from 'y-monaco';
 import { SocketIOProvider } from 'y-socket.io';
 import * as Y from 'yjs';
@@ -46,6 +49,7 @@ const Collaboration_Service: React.FC = () => {
       ? "http://localhost:5001/saveCodeAttempt"
       : "https://user-service-327190433280.asia-southeast1.run.app/saveCodeAttempt";
   const location = useLocation();
+  const navigate = useNavigate();
   const navigate = useNavigate();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
   const accessToken = localStorage.getItem("accessToken");
