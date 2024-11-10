@@ -40,6 +40,8 @@ const Collaboration_Service: React.FC = () => {
   const [isIntentionalLeave, setIsIntentionalLeave] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [executionTime, setExecutionTime] = useState<number | null>(null);
+  const [memoryUsed, setMemoryUsed] = useState<number | null>(null);
   const maxReconnectAttempts = 5;
   const url =
     process.env.REACT_APP_ENV === "development"
@@ -111,6 +113,10 @@ const Collaboration_Service: React.FC = () => {
       });
     });
 
+    collabSocket.on('language_updated', (newLanguage: string) => {
+      setLanguage(newLanguage);
+    });
+
     // Handle time remaining updates
     collabSocket.on('time_remaining', ({ remainingTime, totalTime, expiryTimestamp }) => {
       const existingSession = localStorage.getItem('activeSession');
@@ -137,11 +143,22 @@ const Collaboration_Service: React.FC = () => {
       collabSocket.off('user_left', handleUserLeft);
       collabSocket.off('connect_error');
       collabSocket.off('disconnect');
+      collabSocket.off('language_updated');
       collabSocket.off('room_expired');
       collabSocket.off('room_joined');
       collabSocket.off('time_remaining');
     }
   }, []);
+
+  const formatExecutionTime = (time: number | null) => {
+    if (time === null) return 'N/A';
+    return `${time.toFixed(3)} sec`;
+  };
+  
+  const formatMemoryUsage = (memory: number | null) => {
+    if (memory === null) return 'N/A';
+    return `${(memory / 1024).toFixed(2)} MB`;
+  };
 
   useEffect(() => {
     let _doc: Y.Doc;
@@ -318,6 +335,8 @@ const Collaboration_Service: React.FC = () => {
   
         // Only show the actual program output
         setOutput(result.output || '');
+        setExecutionTime(result.executionTime);
+        setMemoryUsed(result.memoryUsed);
       });
       setOutput(`Running code in ${language}`);
       setLoading(true);
@@ -370,18 +389,27 @@ const Collaboration_Service: React.FC = () => {
               }}
             />
             <div className="editor-actions">
-              <select
-                id="language-select"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                style={{ marginBottom: '10px' }}
-              >
-                {languages.map((lang) => (
+            <select
+              id="language-select"
+              value={language}
+              onChange={(e) => {  
+                  const newLanguage = e.target.value;
+                  setLanguage(newLanguage);
+                  // Emit language change to other users
+                  collabSocket.emit('language_change', {
+                      language: newLanguage,
+                      roomId: roomId
+                  });
+              }}
+              className="language-select"
+              disabled={loading}
+          >
+              {languages.map((lang) => (
                   <option key={lang} value={lang}>
-                    {getStylizedLanguageName[lang] || lang}
+                      {getStylizedLanguageName[lang] || lang}
                   </option>
-                ))}
-              </select>
+              ))}
+          </select>
               <button
                 className="btn-save"
                 onClick={runCode}
@@ -430,6 +458,20 @@ const Collaboration_Service: React.FC = () => {
         Output
       </div>
       <div className="header-actions">
+      <div className="execution-metrics">
+        {executionTime !== null && (
+          <span className="metric">
+            <i className="fas fa-clock"></i>
+            {formatExecutionTime(executionTime)}
+          </span>
+        )}
+        {memoryUsed !== null && (
+          <span className="metric">
+            <i className="fas fa-memory"></i>
+            {formatMemoryUsage(memoryUsed)}
+          </span>
+          )}
+        </div>
         <div className={`status-indicator ${loading ? 'running' : ''}`}>
           {loading ? (
             <>

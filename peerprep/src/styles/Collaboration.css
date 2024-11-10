@@ -356,3 +356,51 @@
   align-items: center;
   gap: 12px;
 }
+
+.language-select {
+  background-color: #198754;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 10px;
+}
+
+.language-select:hover {
+  background-color: #157347;
+}
+
+.language-select option {
+  background-color: #1e1e1e;
+  color: white;
+  padding: 8px;
+}
+
+.language-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.5);
+}
+
+.execution-metrics {
+  display: flex;
+  gap: 16px;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metric i {
+  font-size: 0.9rem;
+}
+
+.metric:first-child {
+  border-right: 1px solid #333;
+  padding-right: 16px;
+}

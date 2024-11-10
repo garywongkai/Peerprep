@@ -95,6 +95,10 @@ exports.handleSocketConnection = async (socket) => {
 		console.error(`Connection error for user ${username}:`, error);
 		socket.emit("connect_error", error.message);
 	});
+
+	socket.on("language_change", ({ language, roomId }) => {
+		socket.to(roomId).emit("language_updated", language);
+	});
 };
 
 // Helper functions
