@@ -10,8 +10,6 @@ const socketService = require("./services/socketService");
 
 const SOCKET_MATCHING_PORT = 5003;
 
-let codeState = "// Start coding together!";
-
 const io = socketIo(server, {
   cors: {
       origin: [

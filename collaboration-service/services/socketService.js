@@ -1,3 +1,5 @@
+const rooms = new Set();
+
 const ROOM_EXPIRY_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
 const activeRooms = new Map();
 let io;
@@ -30,23 +32,23 @@ exports.handleSocketConnection = async (socket) => {
 
 	socket.on("send_message", ({ message, username, timestamp, roomId }) => {
 		console.log(`Server heard this message in room ${roomId}: ${message}`);
-		
+
 		// Emit the message along with the username and timestamp
 		socket.to(roomId).emit("receive_message", { message, username, timestamp });
-		
+
 		console.log(`Broadcasting message: "${message}" to room: ${roomId}`); // Log broadcast action
 	});
 
 
 	// Join a room
-	socket.on("joinRoom", (roomId) => {
+	socket.on("joinRoom", (roomId, callback) => {
 		socket.join(roomId);
-		console.log(`User joined room: ${roomId}`);
-		// Notify others in the room
+
 		let room = activeRooms.get(roomId);
-		// socket.to(roomId).emit("user_joined", username);
+		let firstToArrive = false;
 		if (!room) {
-			// Only create new room if it doesn't exist
+			console.log(`New room started: ${roomId}`);
+			firstToArrive = true;
 			room = {
 				createdAt: new Date(),
 				timeout: setTimeout(() => expireRoom(roomId), ROOM_EXPIRY_TIME),
@@ -61,13 +63,14 @@ exports.handleSocketConnection = async (socket) => {
 			room.timeout = setTimeout(() => expireRoom(roomId), remainingTime);
 		}
 		room.users.add(socket.id);
+		console.log(`User ${socket} joined room ${roomId}`);
 		// Notify room about time remaining
-		socket.emit("room_joined", {
+		callback({
+			init: firstToArrive, // Tell the client to initialize if first to arrive
 			expiryTimestamp: room.createdAt.getTime() + ROOM_EXPIRY_TIME,
 			remainingTime: ROOM_EXPIRY_TIME - (Date.now() - room.createdAt.getTime()),
 			totalTime: ROOM_EXPIRY_TIME,
 		});
-		// emitTimeRemaining(roomId);
 	});
 
 	socket.on("leave_session", (roomId, username) => {

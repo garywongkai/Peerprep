@@ -61,5 +61,20 @@ services:
     env_file:
       - .env
 
+  code-execution-service:
+    build: ./code-execution-service
+    environment:
+      - DOCKER_HOST=unix:///run/user/1000/docker.sock  # Use rootless Docker socket
+    ports:
+      - "5004:5004"
+    volumes:
+      - ./code-execution-service:/app
+      - /app/node_modules
+      - /run/user/1000/docker.sock:/run/user/1000/docker.sock  # Rootless Docker socket path
+    networks:
+      - peerprep-network
+    env_file:
+      - .env
+
 networks:
   peerprep-network:

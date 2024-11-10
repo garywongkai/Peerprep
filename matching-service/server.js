@@ -21,7 +21,7 @@ const io = socketIo(server, {
     },
 });
 server.listen(MATCHING_PORT, () => {
-    console.log(`Server is listening on port ${MATCHING_PORT}`);
+    console.log(`Matching server is listening on port ${MATCHING_PORT}`);
 });
 
 app.use(cors());

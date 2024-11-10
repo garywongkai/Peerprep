@@ -9,292 +9,199 @@ import * as Y from 'yjs';
 import '../../styles/Collaboration.css';
 import UserHeader from '../../components/UserHeader';
 import { CircularProgress } from '@mui/material';
+import { socket as collabSocket, URL as collabURL } from "./collabSocket";
+import { socket as codeSocket } from "./codeSocket";
+import { getStylizedLanguageName } from './utils';
+
+/*
+This page would cause the error:
+Module Warning 
+Failed to parse source map from ...
+
+This is caused by CRA (Create-React-App) with Webpack 5.x
+More info in the link below:
+https://stackoverflow.com/questions/70599784/failed-to-parse-source-map
+*/
+
+const initialContent = `// Start collaborating and write your code
+console.log("Hello World!");`
 
 const Collaboration_Service: React.FC = () => {
-  const [message, setMessage] = useState("");
+  const [first, setFirst] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
   const [messageList, setMessageList] = useState<{ message: string; username: string; timestamp: string }[]>([]);
-  const [editorContent, setEditorContent] = useState("Your code here...");
-  const doc = useMemo(() => new Y.Doc(), []);
-  const [provider, setProvider] = useState<SocketIOProvider | null>(null);
+  const [doc, setDoc] = useState<Y.Doc | null>(null);
   const [editor, setEditor] = useState<monacoEditor.IStandaloneCodeEditor | null>(null);
-  const [binding, setBinding] = useState<MonacoBinding | null>(null);
+  const [language, setLanguage] = useState("javascript"); // Language to set editor
+  const [languages, setLanguages] = useState<string[]>([]); // All supported languages list
+  const [output, setOutput] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const [userLeft, setUserLeft] = useState(false);
   const [isIntentionalLeave, setIsIntentionalLeave] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const maxReconnectAttempts = 5;
   const url =
-            process.env.REACT_APP_ENV === "development"
-                ? "http://localhost:5001/saveCodeAttempt"
-                : "https://user-service-327190433280.asia-southeast1.run.app/saveCodeAttempt";
+    process.env.REACT_APP_ENV === "development"
+      ? "http://localhost:5001/saveCodeAttempt"
+      : "https://user-service-327190433280.asia-southeast1.run.app/saveCodeAttempt";
   const location = useLocation();
   const navigate = useNavigate();
   const { socketId, roomId, difficulty, category, question } = location.state || {};
-  const URL = process.env.REACT_APP_ENV === "development"
-		? "http://localhost:5003"
-		: "https://collaboration-service-327190433280.asia-southeast1.run.app";
   const accessToken = localStorage.getItem("accessToken");
   const displayName = localStorage.getItem("displayName");
   const uid = localStorage.getItem("uid");
-  const socketRef = useRef<Socket | null>(null);
-
-  // useEffect(() => {
-  //   const sessionInfo = {
-  //       roomId,
-  //       questionTitle: question?.questionTitle,
-  //       questionDescription: question?.questionDescription,
-  //       category: question?.questionCategory,
-  //       difficulty,
-  //       timestamp: new Date().toISOString(),
-  //   };
-  //   localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
-  // }, [roomId, question, difficulty]);
 
   useEffect(() => {
-      const connectSocket = () => {
-      socketRef.current = io(URL, {
-          query: {
-              token: accessToken,
-              displayName: displayName,
-              uid: uid,
-          },
-          reconnection: true,
-          reconnectionAttempts: maxReconnectAttempts,
-          reconnectionDelay: 1000,
-      });
-      const socket = socketRef.current;
-      socket.on('connect', () => {
-          socket.emit('joinRoom', roomId); // Emit joinRoom only once on connect
-          updateSessionState(true);
-      });
-     
-    }
-    connectSocket();
+    updateSessionState(true);
 
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect(); // Clean up the socket connection on unmount
-      }
-    };
-  }, [URL, accessToken, displayName, uid, roomId]);
-    
-  useEffect(() => {
-    const _socketIOProvider = new SocketIOProvider(URL, roomId, doc, {
-      autoConnect: false,
-      resyncInterval: 5000,
-      disableBc: false
-    });
-    setProvider(_socketIOProvider);
-    _socketIOProvider.connect();
-
-    _socketIOProvider.on('sync', (isSynced: boolean) => {
-      if (isSynced) {
-        console.log('Document synced successfully');
-      }
+    collabSocket.emit('joinRoom', roomId, ({ init, expiryTimestamp, remainingTime, totalTime }: any) => {
+      setFirst(init); // Server told this client to init Y.Doc
+      const sessionInfo = {
+        roomId,
+        questionTitle: question?.questionTitle,
+        questionDescription: question?.questionDescription,
+        category: question?.questionCategory,
+        difficulty,
+        timestamp: new Date().toISOString(),
+        expiryTimestamp: expiryTimestamp,
+        remainingTime: remainingTime,
+        totalTime: totalTime
+      };
+      localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
     });
 
-    _socketIOProvider.on('connection-error', (error: Error) => {
-      console.error('Provider connection error:', error);
+
+    codeSocket.emit('get_available_languages', (languages: string[]) => {
+      setLanguages(languages);
     });
 
-    return () => {
-      _socketIOProvider.destroy();
-      doc.destroy();
-    }
-  }, [doc, roomId]);
-
-  useEffect(() => {
-    if (provider && editor) {
-      const _binding = new MonacoBinding(doc.getText(), editor.getModel()!, new Set([editor]), provider?.awareness);
-      setBinding(_binding);
-      return () => {
-        _binding.destroy();
-      }
-    }
-  }, [doc, provider, editor]);
-
-  // useEffect(() => {
-  //   const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
-  //     if (!isIntentionalLeave) {
-  //       e.preventDefault();
-  //       e.returnValue = '';
-        
-  //       try {          
-  //         // Notify others that you're leaving
-  //         socketRef.current?.emit('leave_session', roomId, displayName);
-  
-  //         // Store session info for potential rejoin
-  //         const sessionInfo = {
-  //           roomId,
-  //           questionTitle: question.questionTitle,
-  //           questionDescription: question.questionDescription,
-  //           category: question.questionCategory,
-  //           difficulty,
-  //           timestamp: new Date().toISOString(),
-  //           lastCode: editor?.getValue() || doc.getText()
-  //         };
-  //         setIsIntentionalLeave(false);
-  //         localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
-  //       } catch (error) {
-  //         console.error('Error handling page close:', error);
-  //       }
-  //     }
-  //   };
-
-  //   window.addEventListener('beforeunload', handleBeforeUnload);
-
-  //   return () => {
-  //       window.removeEventListener('beforeunload', handleBeforeUnload);
-  //   };
-  // }, [isIntentionalLeave, question, roomId, displayName, editor, doc]);
-
-  useEffect(() => {
-    const socket = socketRef?.current;
-    if (socket) {
-      socket.on('receive_message', ({ message, username, timestamp }: { message: string; username: string; timestamp: string }) => {
-        setMessageList((prevList: { message: string; username: string; timestamp: string }[]) => [
-            ...prevList,
-            { message, username, timestamp } // Store the message object
-        ]);
+    collabSocket.on('receive_message', ({ message, username, timestamp }) => {
+      setMessageList((prevList: { message: string; username: string; timestamp: string }[]) => [
+        ...prevList,
+        { message, username, timestamp } // Store the message object
+      ]);
     });
 
-    socket.on('user_left', handleUserLeft);
-    
-    socket.on('connect_error', (error) => {
+    collabSocket.on('user_left', handleUserLeft);
+
+    collabSocket.on('connect_error', (error: Error) => {
       console.error('Connection error:', error);
       setIsReconnecting(true);
       setReconnectAttempts(prev => prev + 1);
     });
 
-    socket.on('disconnect', (reason) => {
+    collabSocket.on('disconnect', (reason: string) => {
       console.log('User disconnected:', reason);
       setIsReconnecting(true);
-      
+
       // If the disconnection wasn't intentional, try to reconnect
       if (reason === 'io server disconnect') {
-        socket.connect();
+        collabSocket.connect();
       }
       updateSessionState(false);
     });
 
-    socket.on('user_joined', (username: string) => {
-      setMessageList(prevList => [...prevList, { message: `${username} has joined the session.`, username: "System", timestamp: new Date().toISOString() }]);
-    });
-
-    socket.on('reconnect_failed', () => {
-      console.log('Reconnection failed');
-      alert('Unable to reconnect to the session. Please try rejoining from the dashboard.');
-      navigate('/dashboard');
-    });
-
-    socket.on('room_expired', ({ message }) => {
+    collabSocket.on('room_expired', (message) => {
       alert(message);
       // Save work and redirect
       saveCodeAttempt().then(() => {
-          localStorage.removeItem('activeSession');
-          navigate('/dashboard');
+        localStorage.removeItem('activeSession');
+        navigate('/dashboard');
       });
     });
 
-    socket.on('room_joined', ({ expiryTimestamp, remainingTime, totalTime }) => {
-      const sessionInfo = {
-          roomId,
-          questionTitle: question?.questionTitle,
-          questionDescription: question?.questionDescription,
-          category: question?.questionCategory,
-          difficulty,
-          timestamp: new Date().toISOString(),
-          expiryTimestamp: expiryTimestamp,
-          remainingTime: remainingTime,
-          totalTime: totalTime
-      };
-      localStorage.setItem('activeSession', JSON.stringify(sessionInfo));
-  });
-
     // Handle time remaining updates
-    socket.on('time_remaining', ({ remainingTime, totalTime, expiryTimestamp }) => {
+    collabSocket.on('time_remaining', ({ remainingTime, totalTime, expiryTimestamp }) => {
       const existingSession = localStorage.getItem('activeSession');
       if (existingSession) {
-          const session = JSON.parse(existingSession);
-          const updatedSession = {
-              ...session,
-              expiryTimestamp: expiryTimestamp,
-              remainingTime: remainingTime,
-              totalTime: totalTime,
-              lastUpdated: new Date().toISOString()
-          };
-          localStorage.setItem('activeSession', JSON.stringify(updatedSession));
+        const session = JSON.parse(existingSession);
+        const updatedSession = {
+          ...session,
+          expiryTimestamp: expiryTimestamp,
+          remainingTime: remainingTime,
+          totalTime: totalTime,
+          lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem('activeSession', JSON.stringify(updatedSession));
       }
 
       // Show warning when less than 5 minutes remain
       if (remainingTime <= 5 * 60 * 1000) {
-          window.confirm(`⚠️ Session expires in ${Math.ceil(remainingTime / 60000)} minutes`);
+        window.confirm(`⚠️ Session expires in ${Math.ceil(remainingTime / 60000)} minutes`);
       }
     });
 
     return () => {
-      socket.off('receive_message'); // Clean up listener
-      socket.off('user_left', handleUserLeft);
-      socket.off('user_joined');
-      socket.off('connect_error');
-      socket.off('disconnect');
-      socket.off('reconnect_failed');
-      socket.off('room_expired');
-      socket.off('room_joined');
-      socket.off('time_remaining');
-    };
-  }
+      collabSocket.off('receive_message');
+      collabSocket.off('user_left', handleUserLeft);
+      collabSocket.off('connect_error');
+      collabSocket.off('disconnect');
+      collabSocket.off('room_expired');
+      collabSocket.off('room_joined');
+      collabSocket.off('time_remaining');
+    }
   }, []);
 
-  // Helper function to update session state
-  const updateSessionState = (isConnected: boolean, timeRemaining?: number) => {
-    const existingSession = localStorage.getItem('activeSession');
-    if (existingSession) {
-        const session = JSON.parse(existingSession);
-        const updatedSession = {
-            ...session,
-            isConnected,
-            lastUpdated: new Date().toISOString(),
-            lastCode: editor?.getValue() || doc.getText(),
-            timeRemaining // Adds this field
-        };
-        localStorage.setItem('activeSession', JSON.stringify(updatedSession));
+  useEffect(() => {
+    let _doc: Y.Doc;
+    let provider: SocketIOProvider;
+    let binding: MonacoBinding;
+
+    if (roomId && editor) {
+      _doc = new Y.Doc();
+
+      provider = new SocketIOProvider(collabURL, roomId, _doc, {
+        autoConnect: true,
+        // resyncInterval: 5000,
+        // disableBc: false
+      });
+      binding = new MonacoBinding(
+        _doc.getText('monaco'),
+        editor.getModel()!,
+        new Set([editor]),
+        provider.awareness
+      );
+      setDoc(_doc)
     }
-};
+
+    return () => {
+      doc?.destroy();
+      provider?.destroy();
+      binding?.destroy();
+    }
+  }, [roomId, editor]);
 
   useEffect(() => {
-    const socket = socketRef.current;
-    if (socket){
-    socket.on('connect', () => {
-      socket.emit('joinRoom', roomId)
-    });
-  }
-  });
+    if (first && doc && editor) {
+      doc.getText('monaco').insert(0, initialContent);
+      const update = Y.encodeStateAsUpdate(doc);
+      Y.applyUpdate(doc, update);
+    }
+  }, [first, doc, editor]);
 
   const handleUserLeft = (username: string) => {
     setUserLeft(true);
     setMessageList(prevList => [
-      ...prevList, 
-      { message: `${username} has left the session.`, username: '', timestamp: new Date().toISOString() } // Ensure the object structure is correct
-  ]);
+      ...prevList,
+      { message: `${username} has left the session.`, username: '', timestamp: new Date().toISOString() }
+    ]);
   };
 
   const sendMessage = () => {
-    const socket = socketRef.current;
-    if (socket && message.trim()) {
-      const timestamp = new Date().toISOString(); // Get the current timestamp
-      // const newMessage = { message, username: displayName, timestamp };
-      socket.emit('send_message', { message, username: displayName, timestamp, roomId }); // Emit message with username and timestamp
+    if (message.trim()) {
+      const timestamp = new Date().toISOString();
+      collabSocket.emit('send_message', { message, username: displayName, timestamp, roomId });
       setMessageList((prevList: { message: string; username: string; timestamp: string }[]) => [
         ...prevList,
-        { message, username: "Me", timestamp } // Store the message object
-    ]);
+        { message, username: "Me", timestamp }
+      ]);
       setMessage(""); // Clear the input field after sending
     }
   };
 
   const saveCodeAttempt = async () => {
-    const codeAttempt = editor?.getValue() || doc.getText();
+    const codeAttempt = editor?.getValue() || doc?.getText();
     const dateLogged = new Date().toISOString();
 
     try {
@@ -305,15 +212,15 @@ const Collaboration_Service: React.FC = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(
-          { 
-            code: codeAttempt, 
-            date: dateLogged, 
-            roomId: roomId, 
+          {
+            code: codeAttempt,
+            date: dateLogged,
+            roomId: roomId,
             questionDescription: question.questionDescription,
             questionTitle: question.questionTitle,
             questionCategory: question.questionCategory,
-            difficulty: difficulty, 
-        }),
+            difficulty: difficulty,
+          }),
       });
 
       if (response.ok) {
@@ -327,44 +234,12 @@ const Collaboration_Service: React.FC = () => {
     }
   };
 
-   // End session handler
-   const endSession = async () => {
-    const socket = socketRef.current;
-    if (!socket) return;
-
-    try {
-      setIsIntentionalLeave(true); // Mark this as intentional leave
-      // Save the code attempt first
-      await saveCodeAttempt();
-      
-      // Notify others that you're leaving
-      socket.emit('leave_session', roomId, displayName);
-      
-      // Disconnect and navigate away
-      socket.disconnect();
-      localStorage.removeItem('activeSession');
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error ending session:', error);
-      alert('Failed to save your code attempt. Please try again.');
-      setIsIntentionalLeave(false);
-    }
-  };
-
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-        navigate("/");
+      navigate("/");
     }
   }, [navigate]);
-
-  useEffect(() => {
-    return () => {
-        if (!isIntentionalLeave) {
-            updateSessionState(false);
-        }
-    };
-  }, [isIntentionalLeave]);
 
   // Add confirmation dialog when user tries to navigate away
   useEffect(() => {
@@ -373,7 +248,7 @@ const Collaboration_Service: React.FC = () => {
         const confirmLeave = window.confirm(
           'Are you sure you want to leave? Do you want to end your session and save your code?.'
         );
-        
+
         if (!confirmLeave) {
           e.preventDefault();
           window.history.pushState(null, '', window.location.pathname);
@@ -386,12 +261,60 @@ const Collaboration_Service: React.FC = () => {
     window.addEventListener('popstate', handleLocationChange);
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
+      if (!isIntentionalLeave) {
+        updateSessionState(false);
+      }
     };
   }, [isIntentionalLeave]);
 
+  const updateSessionState = (isConnected: boolean, timeRemaining?: number) => {
+    const existingSession = localStorage.getItem('activeSession');
+    if (existingSession) {
+      const session = JSON.parse(existingSession);
+      const updatedSession = {
+        ...session,
+        isConnected,
+        lastUpdated: new Date().toISOString(),
+        lastCode: editor?.getValue() || doc?.getText(),
+        timeRemaining
+      };
+      localStorage.setItem('activeSession', JSON.stringify(updatedSession));
+    }
+  };
+
+  const endSession = async () => {
+    try {
+      setIsIntentionalLeave(true);
+      await saveCodeAttempt();
+
+      collabSocket.emit('leave_session', roomId, displayName);
+      collabSocket.disconnect();
+      localStorage.removeItem('activeSession');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error ending session:', error);
+      alert('Failed to save your code attempt. Please try again.');
+      setIsIntentionalLeave(false);
+    }
+  };
+
+  const runCode = () => {
+    const code = editor?.getValue();
+    if (code !== "") {
+      codeSocket.emit('run_code', language, code, (output: string) => {
+        setOutput(output);
+        setLoading(false);
+      });
+      setOutput(`Running code in ${language}`);
+      setLoading(true);
+    }
+  };
+
   return (
-    <><UserHeader /><div className="collaboration-container">
-      {isReconnecting && (
+    <>
+      <UserHeader />
+      <div className="collaboration-container">
+        {isReconnecting && (
           <div className="reconnecting-overlay">
             <div className="reconnecting-message">
               <CircularProgress size={24} />
@@ -403,74 +326,97 @@ const Collaboration_Service: React.FC = () => {
             </div>
           </div>
         )}
-      <div className="question-section">
-        <h2 className="question-title">
-          {question.questionTitle}
-        </h2>
-        <div className="question-meta">
-          <span className="badge category">Category: {question.questionCategory}</span>
-          <span className="badge difficulty">Difficulty: {difficulty}</span>
-        </div>
-        <div className="question-description">
-          <p>{question.questionDescription}</p>
-        </div>
-      </div>
-
-      <div className="workspace">
-        <div className="editor-section">
-          <Editor
-            height="70vh"
-            theme="vs-dark"
-            defaultValue='// Start collaborating and write your code\nconsole.log("Hello World!");'
-            defaultLanguage="javascript"
-            options={{
-              fontSize: 14,
-              minimap: { enabled: true },
-              scrollBeyondLastLine: false,
-              wordWrap: 'on',
-              lineNumbers: 'on',
-              folding: true,
-              automaticLayout: true,
-            }}
-            onMount={editor => {
-              setEditor(editor);
-              setEditorContent(editor.getValue());
-            } } />
-          <div className="editor-actions">
-            <button
-              className="btn-save"
-              onClick={endSession}
-            >
-              End Session
-            </button>
+        <div className="question-section">
+          <h2 className="question-title">
+            {question.questionTitle}
+          </h2>
+          <div className="question-meta">
+            <span className="badge category">Category: {question.questionCategory}</span>
+            <span className="badge difficulty">Difficulty: {difficulty}</span>
+          </div>
+          <div className="question-description">
+            <p>{question.questionDescription}</p>
           </div>
         </div>
-
-        <div className="chat-section">
-        <div className="chat-messages" id="chat-messages">
-          {userLeft && (
-              <div className="system-message fade-out">
+        <div className="workspace">
+          <div className="editor-section">
+            <Editor
+              height="70vh"
+              theme="vs-dark"
+              language={language}
+              onMount={editor => { setEditor(editor) }}
+              options={{
+                fontSize: 14,
+                minimap: { enabled: true },
+                scrollBeyondLastLine: false,
+                wordWrap: 'on',
+                lineNumbers: 'on',
+                folding: true,
+                automaticLayout: true,
+              }}
+            />
+            <div className="editor-actions">
+              <select
+                id="language-select"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                style={{ marginBottom: '10px' }}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {getStylizedLanguageName[lang] || lang}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="btn-save"
+                onClick={runCode}
+                disabled={loading}
+              >
+                {loading ? 'Running...' : 'Run Code'}
+              </button>
+              <button
+                className="btn-save"
+                onClick={endSession}
+              >
+                End Session
+              </button>
+            </div>
+          </div>
+          <div className="chat-section">
+            <div className="chat-messages" id="chat-messages">
+              {userLeft && (
+                <div className="system-message fade-out">
                   An user has left the session. You can continue coding or end your session.
-              </div>
-          )}
-          {messageList.map((msg, index) => (
-              <div key={index} className="message">
+                </div>
+              )}
+              {messageList.map((msg, index) => (
+                <div key={index} className="message">
                   <strong>{msg.username}</strong>: {msg.message} <span className="timestamp">({new Date(msg.timestamp).toLocaleTimeString()})</span>
-              </div>
-          ))}
-        </div>
-          <div className="chat-input">
-            <input
-              type="text"
-              placeholder="Type your message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()} />
-            <button onClick={sendMessage}>Send</button>
+                </div>
+              ))}
+            </div>
+            <div className="chat-input">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && sendMessage()} />
+              <button onClick={sendMessage}>Send</button>
+            </div>
           </div>
         </div>
       </div>
-    </div></>
+      <div style={{ height: '30vh' }}>
+        <h2>Output:</h2>
+        <pre id="output-window" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+          <code>
+            {output}
+          </code>
+        </pre>
+      </div>
+    </>
   );
 }
 
