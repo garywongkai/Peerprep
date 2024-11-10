@@ -184,7 +184,7 @@ const Collaboration_Service: React.FC = () => {
     setUserLeft(true);
     setMessageList(prevList => [
       ...prevList,
-      { message: `${username} has left the session.`, username: '', timestamp: new Date().toISOString() }
+      { message: `${username} has left the session.`, username: 'Console', timestamp: new Date().toISOString() }
     ]);
   };
 

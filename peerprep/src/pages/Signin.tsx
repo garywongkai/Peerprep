@@ -50,6 +50,7 @@ const SignIn: React.FC<SigninProps> = ({
                 localStorage.setItem("photoURL", data.photoURL);
                 successNotification("You've successfully logged in.");
                 navigate("/dashboard");
+                window.location.reload();
             } else {
                 const errorData = await response.json();
                 console.log(errorData);
