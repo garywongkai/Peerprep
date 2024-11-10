@@ -1,81 +1,107 @@
 .profile {
-    padding: 20px;
-    max-width: 600px;
-    margin: auto;
-  }
-  
-  .profile__container {
-    display: flex;
-    align-items: center;
-  }
-  
-  .profile__avatar {
-    margin-right: 20px;
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-  }
+  padding: 30px; /* Increased padding for more space around the content */
+  max-width: 600px;
+  margin: auto;
+  background-color: #f9f9f9; /* Light background for contrast */
+  border-radius: 8px; /* Rounded corners for the profile container */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
 
-  .profile__avatar button {
-    padding: 10px;
-    background-color: #000000;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-  }
-  
-  .avatar-placeholder {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background-color: #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .profile__info input {
-    display: block;
-    margin: 10px 0;
-    padding: 10px;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .profile__info button {
-    padding: 10px 0;
-    background-color: #5e6266;
-    color: white;
-    border: none;
-    width: 100%;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.profile__container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px; /* Space below the profile container */
+}
 
-  .profile__info button:disabled {
-    background-color: #ccc;
-  }
+.profile__avatar {
+  margin-right: 20px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
 
-  .profile__info .delete {
-    background-color: #ff0000;
-  }
-  
-  .profile__info button:hover {
-    background-color: #afafaf;
-  }
- 
-  .profile__info textarea { display: block;
-    margin: 10px 0;
-    padding: 10px;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid #007bff; /* Blue border for the avatar */
+}
+
+.avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold; /* Bold text for placeholder */
+  color: #555; /* Darker color for placeholder text */
+}
+
+.profile__info {
+  flex: 1; /* Allow the info section to take remaining space */
+}
+
+.profile__info form {
+  display: flex;
+  flex-direction: column; /* Stack inputs vertically */
+}
+
+.profile__info input {
+  display: block;
+  margin: 20px 0; /* Increased margin for more space between inputs and header */
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.profile__info input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+.profile__info button {
+  padding: 10px 0;
+  background-color: #007bff; /* Primary button color */
+  color: white;
+  border: none;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s; /* Smooth transition for background color */
+  margin: 10px 0; /* Space between buttons */
+}
+
+.profile__info button:disabled {
+  background-color: #ccc; /* Disabled button color */
+}
+
+.profile__info .delete {
+  background-color: #ff0000; /* Red color for delete button */
+}
+
+.profile__info button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.profile__info .delete:hover {
+  background-color: #cc0000; /* Darker red on hover */
+}
+
+.profile__info textarea {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical; /* Allow vertical resizing */
+}
+
+.profile__info p {
+  color: #555; /* Darker color for messages */
+  margin: 10px 0; /* Space around messages */
+}

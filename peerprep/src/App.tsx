@@ -13,80 +13,91 @@ import CollaborationService from "./pages/Collaboration/Collaboration";
 import Notification from "./components/Notification";
 
 const App: React.FC = () => {
-  const [notification, setNotification] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+    const [notification, setNotification] = useState<{
+        message: string;
+        type: "success" | "error";
+    } | null>(null);
 
-  const successNotification = (
-    message: string,
-    type: "success" = "success"
-  ) => {
-    setNotification({ message, type });
-  };
+    const successNotification = (
+        message: string,
+        type: "success" = "success"
+    ) => {
+        setNotification({ message, type });
+    };
 
-  const errorNotification = (message: string, type: "error" = "error") => {
-    setNotification({ message, type });
-  };
+    const errorNotification = (message: string, type: "error" = "error") => {
+        setNotification({ message, type });
+    };
 
-  const closeNotification = () => {
-    setNotification(null);
-  };
+    const closeNotification = () => {
+        setNotification(null);
+    };
 
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route
-          path="/signin"
-          element={
-            <Signin
-              successNotification={successNotification}
-              errorNotification={errorNotification}
-            />
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <Signup
-              successNotification={successNotification}
-              errorNotification={errorNotification}
-            />
-          }
-        />
-        <Route
-          path="/reset"
-          element={
-            <Forgot
-              successNotification={successNotification}
-              errorNotification={errorNotification}
-            />
-          }
-        />
-        <Route path="/question" element={<QuestionList />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route
-          path="/profile"
-          element={
-            <Profile
-              successNotification={successNotification}
-              errorNotification={errorNotification}
-            />
-          }
-        />
-        <Route path="/match" element={<Match />} />
-        <Route path="/collaboration/:roomId" element={<CollaborationService />} />
-      </Routes>
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={closeNotification}
-        />
-      )}
-    </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route
+                    path="/signin"
+                    element={
+                        <Signin
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route
+                    path="/signup"
+                    element={
+                        <Signup
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route
+                    path="/reset"
+                    element={
+                        <Forgot
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route
+                    path="/question"
+                    element={
+                        <QuestionList
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                    path="/profile"
+                    element={
+                        <Profile
+                            successNotification={successNotification}
+                            errorNotification={errorNotification}
+                        />
+                    }
+                />
+                <Route path="/match" element={<Match />} />
+                <Route
+                    path="/collaboration/:roomId"
+                    element={<CollaborationService />}
+                />
+            </Routes>
+            {notification && (
+                <Notification
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={closeNotification}
+                />
+            )}
+        </Router>
+    );
 };
 
 export default App;

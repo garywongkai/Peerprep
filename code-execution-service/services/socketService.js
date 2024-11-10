@@ -1,11 +1,9 @@
 const { runCode } = require("../controllers/runCode");
-const { getTarFiles, getLanguageFromImageName } = require("../controllers/utils");
+const { allSupportedLanguages } = require("../controllers/dockerConfig");
 
 exports.handleSocketConnection = async (socket) => {
   socket.on('get_available_languages', (callback) => {
-    const tarFiles = getTarFiles('/app/images');
-    const languages = tarFiles.map((name) => getLanguageFromImageName(name.replace(/\.tar$/, '')));
-    callback(languages);
+    callback(allSupportedLanguages);
   });
 
   socket.on('run_code', (language, code, callback) => {

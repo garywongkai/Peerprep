@@ -1,120 +1,192 @@
-/* Container styles to fill the entire page */
-.container {
-    width: 100vw; /* Full viewport width */
-    height: 100vh; /* Full viewport height */
-    min-width: 100vw; /* Minimum width matches viewport */
-    min-height: 100vh; /* Minimum height matches viewport */
-    margin: 0; /* Remove margin */
-    padding: 20px; /* Add padding */
-    background: #ffffff; /* White background */
-    color: #333;
-    font-family: "Poppins", sans-serif;
-    position: relative;
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    flex-direction: column; /* Stack content vertically */
+.matching-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+  padding: 20px;
+}
+
+.matching-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 32px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.matching-title {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.matching-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.selection-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.selection-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selection-label {
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.custom-select {
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.category-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-icon {
+  font-size: 20px;
+}
+
+.difficulty-option {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.difficulty-option.easy {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.difficulty-option.medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.difficulty-option.hard {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.action-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.matching-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.progress-circle {
+  width: 80px !important;
+  height: 80px !important;
+  color: #3b82f6;
+}
+
+.timer-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.status-text {
+  color: #4b5563;
+  font-size: 16px;
+  margin: 0;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.match-button, .cancel-button, .reset-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.match-button {
+  background: #3b82f6;
+  color: white;
+}
+
+.match-button:hover {
+  background: #2563eb;
+}
+
+.match-button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background: #ef4444;
+  color: white;
+}
+
+.cancel-button:hover {
+  background: #dc2626;
+}
+
+.reset-button {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.reset-button:hover {
+  background: #e5e7eb;
+}
+
+.timeout-message {
+  color: #ef4444;
+  font-size: 14px;
+  text-align: center;
+  padding: 8px;
+  background: #fee2e2;
+  border-radius: 6px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .matching-card {
+      padding: 20px;
   }
-  
-  /* Ensure content fills available space */
-  .content {
-    max-width: 100%; /* Prevent content from shrinking */
-    max-height: 100%; /* Prevent content from shrinking */
-    flex-grow: 1; /* Allow content to grow */
+
+  .button-group {
+      flex-direction: column;
   }
-  
-  /* Move header upwards */
-  .user-header {
-    margin-top: -20px; /* Adjust vertical positioning */
-  }
-  
-  /* Header styles */
-  .category-header,
-  .difficulty-header {
-      font-size: 2.5rem;
-      text-align: center; 
-      font-weight: bold;
-      color: #333;
-      text-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
-      margin-bottom: 100px;
-  }
-  
-  .form-group {
-    width: 100%;
-    margin-bottom: 40px; /* Add spacing between form groups */
-  }
-  
-  /* Dropdown control styles */
-  .MuiFormControl-root {
-      width: 100%;
-      margin-bottom: 20px;
-  }
-  
-  .MuiSelect-outlined {
-      background-color: rgba(255, 255, 255, 0.8);
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 3rem;
-      font-weight: bold;
-      color: #333;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      border: 2px solid #0c0c0c;
-  }
-  
-  /* Dropdown hover effect */
-  .MuiSelect-outlined:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    border-color: #0a0a0a;
-  }
-  
-  /* Dropdown item styles */
-  .MuiMenuItem-root {
-      font-size: 1.1rem;
-      padding: 12px 20px;
-      transition:
-          background-color 0.3s ease,
-          color 0.3s ease;
-  }
-  
-  /* Button container layout */
-  .button-container {
-      display: flex;
-      justify-content: center; /* Center horizontally */
-      align-items: center; /* Center vertically */
-      height: 100vh; /* Full viewport height */
-      position: relative;
-      height: auto;
-      top: 0px; /* Adjust top positioning */
-  }
-  
-  /* Button styles */
-  .custom-match-button {
-      background-color: #fff;
-      color: #000;
-      font-size: 2rem;
-      border-radius: 50px;
-      padding: 10px 30px;
-      transition: all 0.3s ease;
-      box-shadow: 0px 10px 15px rgba(80, 81, 81, 0.4);
-      border: 1px solid #b6b5b5;
-  }
-  
-  /* Hover effect for buttons */
-  .custom-match-button:hover {
-      background-color: #000;
-      color: #fff;
-      box-shadow: 0px 15px 20px rgba(55, 56, 55, 0.6);
-      transform: translateY(-3px);
-  }
-  
-  /* Disabled button styles */
-  .custom-match-button:disabled {
-      background-color: #f0f0f0; /* Gray background when disabled */
-      color: #aaa; /* Lighter text when disabled */
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-  }
-  
+}

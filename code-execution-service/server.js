@@ -6,7 +6,6 @@ const app = express();
 const server = http.createServer(app);
 const socketIo = require("socket.io");
 const socketService = require("./services/socketService");
-const { loadDockerImages } = require("./controllers/runCode");
 
 const SOCKET_MATCHING_PORT = 5004;
 

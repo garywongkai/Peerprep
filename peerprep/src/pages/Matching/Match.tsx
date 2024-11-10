@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/Match.css";
 // import UserHeader from "../../components/UserHeader";
 import { difficultyLevels, iconCategories } from "./constant";
-import { FormControl, MenuItem, Select } from "@mui/material"; // Import MUI components
+import { CircularProgress, FormControl, MenuItem, Select } from "@mui/material"; // Import MUI components
+import UserHeader from "../../components/UserHeader";
 
 const Matchmaking: React.FC = () => {
     const [secondsLeft, setSecondsLeft] = useState(30);
@@ -15,7 +16,8 @@ const Matchmaking: React.FC = () => {
     const timerRef = useRef<number | null>(null);
     const intervalRef = useRef<number | null>(null);
     const [isTimedOut, setIsTimedOut] = useState(false);
-
+    const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+    
     useEffect(() => {
 
         function matchFound(roomId: string, msg: string, question: any) {
@@ -57,9 +59,9 @@ const Matchmaking: React.FC = () => {
     };
 
     const handleMatchClick = () => {
+        if (!isAuthorized) window.location.reload(); // If user is not authorized, do nothing
         clearTimers();
         setIsMatching(true);
-
         socket.emit("start match", selectedDifficulty, selectedCategory);
         timerRef.current = window.setTimeout(() => {
             socket.emit("cancel match by timeout"); // Emit a cancel signal to the server
@@ -95,65 +97,113 @@ const Matchmaking: React.FC = () => {
         setSelectedCategory(category);
     };
 
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+            navigate("/");
+        } else {
+            setIsAuthorized(true); // Set authorized state to true
+        }
+    }, [navigate]);
+
     return (
-        <div className="container my-4">
-            <div className="row">
-                <div className="col-xl-8 col-lg-6 col-md-6">
-                    <div className="form-group">
-                        <label htmlFor="topics" className="category-header">
-                            Select Preferred Category:
-                        </label>
-                        <FormControl variant="outlined" fullWidth>
-                            <Select
-                                value={selectedCategory}
-                                onChange={(e) => handleCategoryClick(e.target.value)}
-                                disabled={isMatching}
-                            >
-                                {iconCategories.map((category) => (
-                                    <MenuItem key={category.label} value={category.label}>
-                                        {category.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+        <><UserHeader /><div className="matching-container">
+            <div className="matching-card">
+                <h2 className="matching-title">Find Your Coding Peer!</h2>
+
+                <div className="matching-content">
+                    <div className="selection-section">
+                        <div className="selection-group">
+                            <label className="selection-label">
+                                Category
+                            </label>
+                            <FormControl variant="outlined" fullWidth>
+                                <Select
+                                    value={selectedCategory}
+                                    onChange={(e) => handleCategoryClick(e.target.value)}
+                                    disabled={isMatching}
+                                    className="custom-select"
+                                >
+                                    {iconCategories.map((category) => (
+                                        <MenuItem key={category.label} value={category.label}>
+                                            <div className="category-option">
+                                                {category.label}
+                                            </div>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </div>
+
+                        <div className="selection-group">
+                            <label className="selection-label">
+                                Difficulty
+                            </label>
+                            <FormControl variant="outlined" fullWidth>
+                                <Select
+                                    value={selectedDifficulty}
+                                    onChange={(e) => handleDifficultyClick(e.target.value)}
+                                    disabled={isMatching}
+                                    className="custom-select"
+                                >
+                                    {difficultyLevels.map((level) => (
+                                        <MenuItem key={level.label} value={level.label}>
+                                            <div className={`difficulty-option ${level.label.toLowerCase()}`}>
+                                                {level.label}
+                                            </div>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </div>
                     </div>
-                </div>
-    
-                <div className="col-xl-4 col-lg-6 col-md-6">
-                    <div className="form-group">
-                        <label className="difficulty-header">
-                            Select Preferred Difficulty:
-                        </label>
-                        <FormControl variant="outlined" fullWidth>
-                            <Select
-                                value={selectedDifficulty}
-                                onChange={(e) => handleDifficultyClick(e.target.value)}
-                                disabled={isMatching}
-                            >
-                                {difficultyLevels.map((level) => (
-                                    <MenuItem key={level.label} value={level.label}>
-                                        {level.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </div>
-    
-                    <div className="button-container mt-3">
-                        <button className="custom-match-button" onClick={handleMatchClick} disabled={isMatching}>
-                            {isMatching ? `Waiting... (${secondsLeft}s)` : "Match"}
-                        </button>
-                        {isMatching && (
-                            <button className="custom-match-button" onClick={handleCancelMatch}>Cancel Match</button>
+
+                    <div className="action-section">
+                        {isMatching ? (
+                            <div className="matching-status">
+                                <CircularProgress
+                                    variant="determinate"
+                                    value={(secondsLeft / 30) * 100}
+                                    className="progress-circle" />
+                                <div className="timer-display">
+                                    {secondsLeft}s
+                                </div>
+                                <p className="status-text">Finding your matching peer...</p>
+                                <button
+                                    className="cancel-button"
+                                    onClick={handleCancelMatch}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="button-group">
+                                <button
+                                    className="match-button"
+                                    onClick={handleMatchClick}
+                                    disabled={!selectedCategory || !selectedDifficulty}
+                                >
+                                    Start Matching
+                                </button>
+                                <button
+                                    className="reset-button"
+                                    onClick={handleReset}
+                                >
+                                    Reset
+                                </button>
+                            </div>
                         )}
-                        {isTimedOut && <p>Match timeout, please try again!</p>}
-                        <button className="custom-match-button" onClick={handleReset}>Reset</button>
+
+                        {isTimedOut && (
+                            <div className="timeout-message">
+                                No match found. Please try again!
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-        </div>
+        </div></>
     );
-    
 };
 
 export default Matchmaking;

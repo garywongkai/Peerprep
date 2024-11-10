@@ -23,6 +23,11 @@ const Signup: React.FC<SignupProps> = ({
     const handleSignup = async (event: React.FormEvent) => {
         event.preventDefault();
 
+        if (!name || !email || !password) {
+            errorNotification("Please fill in all fields before submitting.");
+            return;
+        }
+
         try {
             const url =
                 process.env.REACT_APP_ENV === "development"
@@ -43,7 +48,23 @@ const Signup: React.FC<SignupProps> = ({
                 navigate("/signin"); // Redirect to the sign-in page upon successful registration
             } else {
                 const errorData = await response.json();
-                errorNotification(errorData.error || "Registration failed");
+                console.log(errorData);
+                if (
+                    errorData.error === "Firebase: Error (auth/invalid-email)."
+                ) {
+                    errorNotification(
+                        "Invalid email format. Please enter a valid email address."
+                    );
+                } else if (
+                    errorData.error ===
+                    "Firebase: Error (auth/email-already-in-use)."
+                ) {
+                    errorNotification(
+                        "An account with this email already exists. Please use a different email."
+                    );
+                } else {
+                    errorNotification(errorData.error);
+                }
             }
         } catch (error) {
             console.error("Error during registration:", error);

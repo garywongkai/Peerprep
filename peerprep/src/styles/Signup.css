@@ -5,6 +5,7 @@
   background-image: url('../assets/placeholder.jpg'); /* Background image */
   background-size: cover; /* Cover the entire area */
   background-position: center; /* Center the image */
+  overflow: hidden;
 }
 
 .register {

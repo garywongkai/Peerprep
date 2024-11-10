@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 
 const ysocketio = new YSocketIO(io);
 ysocketio.initialize();
-
+socketService.initialize(io);
 io.on("connection", async (socket) => {
     socketService.handleSocketConnection(socket);
 });

@@ -52,7 +52,7 @@ steps:
     args: ["install"]
 
   - name: "gcr.io/cloud-builders/npm"
-    dir: "service"
+    dir: "question-service"
     args: ["run", "create-env"]
     env:
       - "COMMIT_SHA=${COMMIT_SHA}"
@@ -68,7 +68,7 @@ steps:
         "REACT_APP_ENV=production",
         "-t",
         "${_GCR_REGION}.gcr.io/$PROJECT_ID/${_SERVICE_NAME_SERVICE}:$COMMIT_SHA",
-        "./service",
+        "./question-service",
       ]
 
   # push the service container image to Container Registry (GCR)

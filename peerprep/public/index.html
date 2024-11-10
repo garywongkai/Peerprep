@@ -7,12 +7,12 @@
     
 
     <!-- update the version number as needed -->
-    <!-- <script defer src="/__/firebase/10.13.1/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0/firebase.js"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-    include only the Firebase features as you need
+    <!-- include only the Firebase features as you need -->
     <script defer src="/__/firebase/10.13.1/firebase-auth-compat.js"></script>
     <script defer src="/__/firebase/10.13.1/firebase-database-compat.js"></script>
     <script defer src="/__/firebase/10.13.1/firebase-firestore-compat.js"></script>
@@ -22,7 +22,8 @@
     <script defer src="/__/firebase/10.13.1/firebase-analytics-compat.js"></script>
     <script defer src="/__/firebase/10.13.1/firebase-remote-config-compat.js"></script>
     <script defer src="/__/firebase/10.13.1/firebase-performance-compat.js"></script>
-    <script defer src="/__/firebase/10.13.1/firebase-ui-auth-compat.js"></script> -->
+    <script defer src="/__/firebase/10.13.1/firebase-ui-auth-compat.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script defer type = "module" src = "../src/firebaseConfig.js"></script>
     <!-- 
       initialize the SDK after all desired features are loaded, set useEmulator to false
@@ -65,7 +66,7 @@
 
   </body>
     <script>
-      // import firebase from 'firebase/app';
+      import firebase from 'firebase/app';
       // document.addEventListener('DOMContentLoaded', function() {
       //   const loadEl = document.querySelector('#load');
         // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
@@ -83,24 +84,24 @@
         //
         // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
 
-        // try {
-        //   let app = firebase.app();
-        //   let features = [
-        //     'auth', 
-        //     'database', 
-        //     'firestore',
-        //     'functions',
-        //     'messaging', 
-        //     'storage', 
-        //     'analytics', 
-        //     'remoteConfig',
-        //     'performance',
-        //   ].filter(feature => typeof app[feature] === 'function');
-        //   // loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        // } catch (e) {
-        //   console.error(e);
-        //   // loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        // }
+        try {
+          let app = firebase.app();
+          let features = [
+            'auth', 
+            'database', 
+            'firestore',
+            'functions',
+            'messaging', 
+            'storage', 
+            'analytics', 
+            'remoteConfig',
+            'performance',
+          ].filter(feature => typeof app[feature] === 'function');
+          // loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
+        } catch (e) {
+          console.error(e);
+          // loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+        }
       // });
     </script>
   </body>

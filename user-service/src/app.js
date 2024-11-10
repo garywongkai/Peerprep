@@ -7,17 +7,18 @@ const PORT = 5001;
 
 // Middleware
 app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:5000",
-      "https://peerprep-327190433280.asia-southeast1.run.app",
-      "https://peerprep-327190433280.asia-southeast1.run.app:3000",
-      "https://peerprep-327190433280.asia-southeast1.run.app:5000",
-    ],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
+	cors({
+		origin: [
+			"http://localhost:3000",
+			"http://localhost:5000",
+			"https://peerprep-327190433280.asia-southeast1.run.app",
+			"https://peerprep-327190433280.asia-southeast1.run.app:3000",
+			"https://peerprep-327190433280.asia-southeast1.run.app:5000",
+			"*",
+		],
+		credentials: true,
+		allowedHeaders: ["Content-Type", "Authorization"],
+	})
 );
 
 app.use(express.json());
